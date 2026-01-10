@@ -68,11 +68,13 @@ export class NavigationService {
   private http: HttpClient = inject(HttpClient);
 
   fetchSections() {
-    return this.http.get<Sections>('/api/navigation/sections').pipe(
-      tap((sections) => {
-        this.sections$.next(sections);
-      })
-    );
+    return this.http
+      .get<Sections>('/api/documents/navigation/sections')
+      .pipe(
+        tap((sections) => {
+          this.sections$.next(sections);
+        })
+      );
   }
 
   navigateToSection(sectionId: string, force = false) {
@@ -88,7 +90,7 @@ export class NavigationService {
   private fetchSectionWorkshops(sectionId: string, force = false) {
     if (force || !this.sectionWorkshopsCache[sectionId]) {
       this.sectionWorkshopsCache[sectionId] = this.http
-        .get<Workshop[]>('/api/navigation/workshops', {
+        .get<Workshop[]>('/api/documents/navigation/workshops', {
           params: { section: sectionId },
         })
         .pipe(shareReplayWithTTL(1, this.cacheTTL));
@@ -114,7 +116,7 @@ export class NavigationService {
 
   navigateToDocument(workshopDocumentId: string) {
     return this.http.get<WorkshopDocument>(
-      `/api/workshop/${workshopDocumentId}`
+      `/api/documents/workshop/${workshopDocumentId}`
     );
   }
 
