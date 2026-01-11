@@ -3,6 +3,7 @@ import { Component, inject, ViewChild } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import {
   MatPaginator,
@@ -27,6 +28,7 @@ import {
 import { WorkshopDocument } from '../../navigation.interface';
 import { NavigationService } from '../../services/navigation.service';
 import { WorkshopEditorService } from '../../services/workshops.service';
+import { CreatePageModalComponent } from '../workshops-sidepanel/page-list-controls/modals/create-page-modal/create-page-modal.component';
 import { PageListComponent } from '../workshops-sidepanel/page-list-controls/page-list.component';
 
 const safeParse = (json: string) => {
@@ -63,12 +65,16 @@ const safeStringify = (value: unknown) => {
       <a routerLink="../../" matButton="filled">
         <mat-icon>arrow_back</mat-icon>Back to Workshops</a
       >
-      <mat-chip class="chip-published">Published</mat-chip>
-      <button matButton="filled">New Page</button>
       <div class="flex-spacer"></div>
+      <button matButton="filled" (click)="createPage()">
+        <mat-icon>note_add</mat-icon>
+        New Page
+      </button>
+      <mat-chip class="chip-published">Published</mat-chip>
       @if(vm.hasMoreThanOneDocument) {
       <mat-paginator
         #paginator
+        class="paginator"
         [length]="vm.workshopDocumentsLength"
         [showFirstLastButtons]="true"
         [hidePageSize]="true"
@@ -94,6 +100,7 @@ const safeStringify = (value: unknown) => {
         </div>
       </div>
       <ngx-page-list
+        class="page-list-sidepanel"
         [workshopDocumentGroupId]="vm.workshopDocumentGroupId"
         [workshopDocumentId]="vm.workshopDocumentId"
         [documents]="vm.documents"
@@ -112,18 +119,24 @@ const safeStringify = (value: unknown) => {
           )
         );
       }
-      :host {
-        width: 100%;
+      .paginator {
+        @include mat.paginator-overrides(
+          (
+            container-text-color: var(--mat-sys-on-primary),
+            enabled-icon-color: var(--mat-sys-on-primary),
+          )
+        );
       }
       .workshop-detail-content {
-        display: flex;
-        justify-content: space-evenly;
-        margin-top: 2rem;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 320px;
+        column-gap: 24px;
+        align-items: start;
       }
       .workshop-viewer-container {
-        display: block;
-        padding: 12px 60px;
-
+        display: flex;
+        justify-content: space-around;
+        margin-top: 24px;
         .workshop-detail-card {
           background: var(--mat-sys-surface-container-low);
           padding: 1.5rem;
@@ -140,6 +153,14 @@ const safeStringify = (value: unknown) => {
           margin-bottom: 22px;
         }
       }
+      .page {
+        min-width: 0;
+      }
+      .page-list-sidepanel {
+        position: sticky;
+        top: 112px;
+        width: 320px;
+      }
       .action-bar {
         position: sticky;
         top: 56px;
@@ -151,7 +172,7 @@ const safeStringify = (value: unknown) => {
         align-items: center;
         a,
         button,
-        mat-paginator {
+        .paginator {
           // color: var(--mat-sys-on-primary);
           color: var(--mat-sys-on-primary);
           background: var(--mat-sys-primary);
@@ -165,7 +186,7 @@ export class WorkshopDetailComponent {
   @ViewChild('paginator') paginator!: MatPaginator;
 
   private workshopEditorService = inject(WorkshopEditorService);
-  private navigationService = inject(NavigationService);
+  private matDialog = inject(MatDialog);
   private router = inject(Router);
   private activatedRoute = inject(ActivatedRoute);
 
@@ -228,4 +249,11 @@ export class WorkshopDetailComponent {
       };
     })
   );
+
+  createPage(): void {
+    this.matDialog.open(CreatePageModalComponent, {
+      width: '400px',
+      backdropClass: 'blur-backdrop',
+    });
+  }
 }

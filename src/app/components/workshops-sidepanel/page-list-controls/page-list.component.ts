@@ -24,7 +24,6 @@ import { from, of, Subject, switchMap, take, takeUntil } from 'rxjs';
 import { WorkshopDocumentIdentifier } from '../../../navigation.interface';
 import { NavigationService } from '../../../services/navigation.service';
 import { WorkshopEditorService } from '../../../services/workshops.service';
-import { CreatePageModalComponent } from './modals/create-page-modal/create-page-modal.component';
 import { DeletePageModalComponent } from './modals/delete-page-modal/delete-page-modal.component';
 import { EditPageModalComponent } from './modals/edit-page-modal/edit-page-modal.component';
 
@@ -79,10 +78,6 @@ export class PageListComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.destory.next(true);
-  }
-
-  createPage(): void {
-    this.matDialog.open(CreatePageModalComponent, { width: '400px' });
   }
 
   editPage(event: Event, workshopDocument: unknown): void {

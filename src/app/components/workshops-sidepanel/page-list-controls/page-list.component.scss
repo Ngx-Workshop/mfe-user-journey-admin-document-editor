@@ -6,11 +6,6 @@
     width: 4px;
   }
 
-  .page-list {
-    height: 192px;
-    overflow: auto;
-  }
-
   .mat-icon {
     margin: 0 10px 3px 0;
     vertical-align: middle;
@@ -26,15 +21,16 @@
   }
 
   .page-item {
-    opacity: .65;
+    opacity: 0.65;
     .mat-list-item-content {
       display: flex;
     }
-    .edit-icon, .delete-icon {
+    .edit-icon,
+    .delete-icon {
       margin: 0 0 0 10px;
       opacity: 0;
       &:hover {
-        opacity: 1!important;
+        opacity: 1 !important;
       }
     }
     .mat-list-item-content {
@@ -45,7 +41,8 @@
     }
     &:hover {
       opacity: 1;
-      .edit-icon, .delete-icon {
+      .edit-icon,
+      .delete-icon {
         opacity: 0.45;
       }
     }
