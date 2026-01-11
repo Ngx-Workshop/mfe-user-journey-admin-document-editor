@@ -28,9 +28,9 @@ import { DeleteWorkshopModalComponent } from './modals/delete-category-modal/del
 import { EditWorkshopModalComponent } from './modals/edit-category-modal/edit-workshop-modal.component';
 
 @Component({
-  selector: 'ngx-workshop-list',
-  templateUrl: './workshop-list.component.html',
-  styleUrls: ['./workshop-list.component.scss'],
+  selector: 'ngx-workshop-list-control',
+  templateUrl: './workshop-list-control.component.html',
+  styleUrls: ['./workshop-list-control.component.scss'],
   imports: [
     CommonModule,
     RouterModule,
@@ -39,7 +39,9 @@ import { EditWorkshopModalComponent } from './modals/edit-category-modal/edit-wo
     DragDropModule,
   ],
 })
-export class WorkshopListComponent implements OnInit, OnDestroy {
+export class WorkshopListControlsComponent
+  implements OnInit, OnDestroy
+{
   // TODO: Make it Reactive
   // ! Make this more generic so that it can be used for other components
   destory: Subject<boolean> = new Subject();
@@ -75,6 +77,7 @@ export class WorkshopListComponent implements OnInit, OnDestroy {
   createWorkshop(): void {
     this.matDialog.open(CreateWorkshopModalComponent, {
       width: '400px',
+      backdropClass: 'blur-backdrop',
     });
   }
 
@@ -83,6 +86,7 @@ export class WorkshopListComponent implements OnInit, OnDestroy {
     event.stopImmediatePropagation();
     this.matDialog.open(DeleteWorkshopModalComponent, {
       width: '400px',
+      backdropClass: 'blur-backdrop',
       data: { workshop },
     });
   }
@@ -92,6 +96,7 @@ export class WorkshopListComponent implements OnInit, OnDestroy {
     event.stopImmediatePropagation();
     this.matDialog.open(EditWorkshopModalComponent, {
       width: '400px',
+      backdropClass: 'blur-backdrop',
       data: { workshop },
     });
   }

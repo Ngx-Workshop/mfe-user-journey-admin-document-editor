@@ -21,6 +21,7 @@ import { MatIcon } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
 import { map, tap } from 'rxjs';
 import { NavigationService } from '../../services/navigation.service';
+import { WorkshopListControlsComponent } from '../workshops-sidepanel/workshop-list-controls/workshop-list-control.component';
 
 @Pipe({ name: 'optimizeCloudinaryUrl', standalone: true })
 export class OptimizeCloudinaryUrlPipe implements PipeTransform {
@@ -40,6 +41,7 @@ export class OptimizeCloudinaryUrlPipe implements PipeTransform {
     NgOptimizedImage,
     OptimizeCloudinaryUrlPipe,
     MatButton,
+    WorkshopListControlsComponent,
   ],
   animations: [
     trigger('staggerCircleReveal', [
@@ -80,28 +82,37 @@ export class OptimizeCloudinaryUrlPipe implements PipeTransform {
         <mat-icon>arrow_back</mat-icon> Back to Sections</a
       >
     </div>
-    <div class="workshop-list" [@staggerCircleReveal]>
-      <div
-        class="ngx-mat-card mat-elevation-z6"
-        *ngFor="let workshop of workshops | async"
-        [routerLink]="
-          '../' +
-          workshop.workshopDocumentGroupId +
-          '/' +
-          workshop.workshopDocuments[0]._id
-        "
-      >
-        <div class="img-wrapper">
-          <img
-            [ngSrc]="workshop.thumbnail | optimizeCloudinaryUrl"
-            priority
-            fill
-          />
+    @if(workshops | async; as ws) {
+    <div class="workshop-list-content">
+      <div class="workshop-list" [@staggerCircleReveal]>
+        @for(workshop of ws; track $index) {
+        <div
+          class="ngx-mat-card mat-elevation-z6"
+          [routerLink]="
+            '../' +
+            workshop.workshopDocumentGroupId +
+            '/' +
+            workshop.workshopDocuments[0]._id
+          "
+        >
+          <div class="img-wrapper">
+            <img
+              [ngSrc]="workshop.thumbnail | optimizeCloudinaryUrl"
+              priority
+              fill
+            />
+          </div>
+          <h2>{{ workshop.name }}</h2>
+          <p>{{ workshop.summary }}</p>
         </div>
-        <h2>{{ workshop.name }}</h2>
-        <p>{{ workshop.summary }}</p>
+        }
       </div>
+      <ngx-workshop-list-control
+        class="workshop-list-sidepanel"
+        [workshops]="ws"
+      ></ngx-workshop-list-control>
     </div>
+    }
   `,
   styles: [
     `
@@ -163,6 +174,22 @@ export class OptimizeCloudinaryUrlPipe implements PipeTransform {
           padding: 0px 8px;
           margin: 0 0 24px;
         }
+      }
+
+      .workshop-list-content {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 320px;
+        column-gap: 24px;
+        align-items: start;
+      }
+
+      .page {
+        min-width: 0;
+      }
+      .workshop-list-sidepanel {
+        position: sticky;
+        top: 112px;
+        width: 320px;
       }
 
       .action-bar {

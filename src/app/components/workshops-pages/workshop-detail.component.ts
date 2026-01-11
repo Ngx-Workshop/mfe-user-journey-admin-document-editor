@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, ViewChild } from '@angular/core';
 import { MatButton } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
@@ -51,7 +50,6 @@ const safeStringify = (value: unknown) => {
   imports: [
     CommonModule,
     MatPaginatorModule,
-    MatCardModule,
     NgxEditorJs2Component,
     PageListComponent,
     MatIcon,
@@ -92,6 +90,7 @@ const safeStringify = (value: unknown) => {
           <div class="workshop-detail-card ngx-mat-card">
             <!-- {{ vm.isExam ? 'Exam' : 'Page' }} -->
             <ngx-editor-js2
+              class="ngx-editor-js2-tokens"
               [blocks]="vm.ngxEditorjsBlocks"
               [requestBlocks]="requestValue | async"
               (blocksRequested)="vm.handleSavingBlocks($event)"

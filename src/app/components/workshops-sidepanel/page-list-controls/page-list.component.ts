@@ -85,6 +85,7 @@ export class PageListComponent implements OnInit, OnDestroy {
     event.stopImmediatePropagation();
     this.matDialog.open(EditPageModalComponent, {
       width: '400px',
+      backdropClass: 'blur-backdrop',
       data: { workshopDocument },
     });
   }
@@ -94,6 +95,7 @@ export class PageListComponent implements OnInit, OnDestroy {
     event.stopImmediatePropagation();
     this.matDialog.open(DeletePageModalComponent, {
       width: '400px',
+      backdropClass: 'blur-backdrop',
       data: { workshopDocument },
     });
   }
