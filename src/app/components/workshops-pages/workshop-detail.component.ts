@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, ViewChild } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatChipsModule } from '@angular/material/chips';
 import { MatIcon } from '@angular/material/icon';
 import {
   MatPaginator,
@@ -54,13 +55,17 @@ const safeStringify = (value: unknown) => {
     MatIcon,
     MatButton,
     RouterLink,
+    MatChipsModule,
   ],
   template: `
     @if(viewModel | async; as vm) {
     <div class="action-bar">
-      <a class="back-cta" routerLink="../../" mat-button>
+      <a routerLink="../../" matButton="filled">
         <mat-icon>arrow_back</mat-icon>Back to Workshops</a
       >
+      <mat-chip class="chip-published">Published</mat-chip>
+      <button matButton="filled">New Page</button>
+      <div class="flex-spacer"></div>
       @if(vm.hasMoreThanOneDocument) {
       <mat-paginator
         #paginator
@@ -98,12 +103,22 @@ const safeStringify = (value: unknown) => {
   `,
   styles: [
     `
+      @use '@angular/material' as mat;
+      .chip-published {
+        @include mat.chips-overrides(
+          (
+            label-text-color: var(--mat-sys-primary-container),
+            outline-color: var(--mat-sys-primary-container),
+          )
+        );
+      }
       :host {
         width: 100%;
       }
       .workshop-detail-content {
         display: flex;
         justify-content: space-evenly;
+        margin-top: 2rem;
       }
       .workshop-viewer-container {
         display: block;
@@ -134,11 +149,13 @@ const safeStringify = (value: unknown) => {
         width: 100%;
         background: var(--mat-sys-primary);
         align-items: center;
-        padding: 0 2rem;
         a,
+        button,
         mat-paginator {
+          // color: var(--mat-sys-on-primary);
           color: var(--mat-sys-on-primary);
           background: var(--mat-sys-primary);
+          margin: 0 12px;
         }
       }
     `,

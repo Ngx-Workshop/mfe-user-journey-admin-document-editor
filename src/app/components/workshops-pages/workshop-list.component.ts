@@ -75,9 +75,11 @@ export class OptimizeCloudinaryUrlPipe implements PipeTransform {
     ]),
   ],
   template: `
-    <a class="back-cta" routerLink="../../" mat-button>
-      <mat-icon>arrow_back</mat-icon> Back to Sections</a
-    >
+    <div class="action-bar">
+      <a routerLink="../../" matButton="filled">
+        <mat-icon>arrow_back</mat-icon> Back to Sections</a
+      >
+    </div>
     <div class="workshop-list" [@staggerCircleReveal]>
       <div
         class="ngx-mat-card mat-elevation-z6"
@@ -160,6 +162,26 @@ export class OptimizeCloudinaryUrlPipe implements PipeTransform {
           font-weight: 100;
           padding: 0px 8px;
           margin: 0 0 24px;
+        }
+      }
+
+      .action-bar {
+        position: sticky;
+        top: 56px;
+        height: 56px;
+        z-index: 5;
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+        background: var(--mat-sys-primary);
+        align-items: center;
+        a,
+        button,
+        mat-paginator {
+          // color: var(--mat-sys-on-primary);
+          color: var(--mat-sys-on-primary);
+          background: var(--mat-sys-primary);
+          margin: 0 12px;
         }
       }
     `,
