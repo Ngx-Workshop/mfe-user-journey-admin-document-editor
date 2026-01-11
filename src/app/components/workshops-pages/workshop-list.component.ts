@@ -15,7 +15,9 @@ import {
   Pipe,
   PipeTransform,
 } from '@angular/core';
+import { MatButton } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatIcon } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
 import { map, tap } from 'rxjs';
 import { NavigationService } from '../../services/navigation.service';
@@ -34,8 +36,10 @@ export class OptimizeCloudinaryUrlPipe implements PipeTransform {
     CommonModule,
     RouterModule,
     MatCardModule,
+    MatIcon,
     NgOptimizedImage,
     OptimizeCloudinaryUrlPipe,
+    MatButton,
   ],
   animations: [
     trigger('staggerCircleReveal', [
@@ -71,6 +75,9 @@ export class OptimizeCloudinaryUrlPipe implements PipeTransform {
     ]),
   ],
   template: `
+    <a class="back-cta" routerLink="../../" mat-button>
+      <mat-icon>arrow_back</mat-icon> Back to Sections</a
+    >
     <div class="workshop-list" [@staggerCircleReveal]>
       <div
         class="ngx-mat-card mat-elevation-z6"
@@ -115,6 +122,11 @@ export class OptimizeCloudinaryUrlPipe implements PipeTransform {
           padding: 24px;
           justify-content: center;
         }
+      }
+
+      .back-cta {
+        align-self: flex-start;
+        margin: 16px 24px 0 24px;
       }
 
       .ngx-mat-card {
