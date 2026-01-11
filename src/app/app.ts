@@ -4,11 +4,7 @@ import { RouterOutlet } from '@angular/router';
 @Component({
   selector: 'ngx-document-editor',
   imports: [RouterOutlet],
-  template: `
-    <h1>Welcome to ngx-seed-mfe!</h1>
-    <router-outlet></router-outlet>
-    <h3>Happy coding 🚀</h3>
-  `,
+  template: ` <router-outlet></router-outlet> `,
 })
 export class App {}
 
