@@ -38,6 +38,8 @@
     }
     &.workshop-menu-nav-item-selected {
       opacity: 1;
+      color: var(--mat-sys-on-primary-container);
+      background-color: var(--mat-sys-primary-container);
     }
     &:hover {
       opacity: 1;

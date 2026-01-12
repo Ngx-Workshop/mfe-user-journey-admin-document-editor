@@ -10,7 +10,9 @@
     *ngFor="let document of documents"
     class="page-item"
     [cdkDragDisabled]="cdkDragDisabled"
-    [routerLink]="'./' + workshopDocumentGroupId + '/' + document._id"
+    [routerLink]="
+      '../../' + workshopDocumentGroupId + '/' + document._id
+    "
     routerLinkActive="workshop-menu-nav-item-selected"
   >
     <span class="mat-list-item-content">

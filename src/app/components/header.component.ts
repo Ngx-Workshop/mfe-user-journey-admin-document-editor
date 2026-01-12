@@ -2,16 +2,28 @@ import {
   AfterViewInit,
   Component,
   ElementRef,
+  Input,
   OnDestroy,
   ViewChild,
 } from '@angular/core';
+
+export type SidenavHeaderData = {
+  sectionTitle: string;
+  headerSvgPath: string;
+  currentWorkshopTitle?: string;
+};
 
 @Component({
   selector: 'ngx-menu-management-header',
   template: `
     <div class="header">
       <canvas #bgCanvas class="bg-canvas" aria-hidden="true"></canvas>
-      <h1>Document Editor</h1>
+      <!-- <h1>Document Editor</h1> -->
+      <img [src]="sidenavHeaderData.headerSvgPath" />
+      <h1>
+        {{ sidenavHeaderData.sectionTitle }}:
+        {{ sidenavHeaderData.currentWorkshopTitle ?? 'Workshops' }}
+      </h1>
     </div>
   `,
   styles: [
@@ -37,7 +49,7 @@ import {
         position: relative;
         z-index: 1;
         font-weight: 100;
-        margin: 1.7rem 1rem;
+        margin: 1.7rem 0;
         font-size: 1.85rem;
       }
       .bg-canvas {
@@ -49,12 +61,27 @@ import {
         z-index: 0;
         mix-blend-mode: soft-light;
       }
+      img {
+        width: 64px;
+        z-index: 2;
+        margin-left: 1.5rem;
+        @media (max-width: 959px) {
+          width: 35px;
+          margin: 0;
+        }
+      }
     `,
   ],
 })
 export class HeaderComponent implements AfterViewInit, OnDestroy {
   @ViewChild('bgCanvas', { static: false })
   bgCanvas?: ElementRef<HTMLCanvasElement>;
+
+  @Input() sidenavHeaderData: SidenavHeaderData = {
+    headerSvgPath: 'Default',
+    sectionTitle: '/assets/img/dashboard-color.png',
+    currentWorkshopTitle: 'Default',
+  };
 
   private ctx?: CanvasRenderingContext2D;
   private rafId = 0;

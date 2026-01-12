@@ -1,7 +1,9 @@
 export type KeyValue = { [key: string]: string };
 
 export interface Sections {
-  [key: string]: Section;
+  sections: {
+    [key: string]: Section;
+  };
 }
 export interface Section {
   // Object id of the section item for mongo db.

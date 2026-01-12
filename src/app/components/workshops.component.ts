@@ -1,13 +1,51 @@
-import { Component } from '@angular/core';
+import { AsyncPipe } from '@angular/common';
+import { Component, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { HeaderComponent } from './header.component';
+import { combineLatest, map, tap } from 'rxjs';
+import { NavigationService } from '../services/navigation.service';
+import {
+  HeaderComponent,
+  SidenavHeaderData,
+} from './header.component';
 
 @Component({
   selector: 'ngx-workshops',
-  imports: [RouterModule, HeaderComponent],
+  imports: [RouterModule, HeaderComponent, AsyncPipe],
   template: `
-    <ngx-menu-management-header></ngx-menu-management-header>
+    @if(viewModel$ | async; as vm) {
+    <ngx-menu-management-header
+      [sidenavHeaderData]="vm.sidenavHeaderData"
+    ></ngx-menu-management-header>
+    }
     <router-outlet> </router-outlet>
   `,
 })
-export class WorkshopsComponent {}
+export class WorkshopsComponent {
+  navigationService = inject(NavigationService);
+
+  viewModel$ = combineLatest([
+    this.navigationService
+      .getCurrentWorkshop()
+      .pipe(map((workshop) => workshop?.name)),
+    this.navigationService.getCurrentSection(),
+  ]).pipe(
+    tap(([currentWorkshopTitle, section]) =>
+      console.log('WorkshopsComponent ViewModel', {
+        currentWorkshopTitle,
+        section,
+      })
+    ),
+    map(
+      ([
+        currentWorkshopTitle,
+        { headerSvgPath, sectionTitle } = {},
+      ]) => ({
+        sidenavHeaderData: {
+          headerSvgPath,
+          sectionTitle,
+          currentWorkshopTitle,
+        } as SidenavHeaderData,
+      })
+    )
+  );
+}

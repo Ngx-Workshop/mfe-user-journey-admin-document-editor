@@ -45,7 +45,9 @@ function shareReplayWithTTL<T>(
   providedIn: 'root',
 })
 export class NavigationService {
-  private sections$ = new BehaviorSubject<Sections>({});
+  private sections$ = new BehaviorSubject<Sections>({
+    sections: {},
+  });
   private currentSection$ = new BehaviorSubject<
     Partial<Section> | undefined
   >(undefined);
@@ -79,9 +81,17 @@ export class NavigationService {
 
   navigateToSection(sectionId: string, force = false) {
     return of(sectionId).pipe(
-      tap((id) =>
-        this.currentSection$.next(this.sections$.getValue()[id])
-      ),
+      tap((id) => {
+        console.log(
+          'Navigating to section',
+          id,
+          this.sections$.getValue().sections[id],
+          this.sections$.getValue()
+        );
+        this.currentSection$.next(
+          this.sections$.getValue().sections[id]
+        );
+      }),
       switchMap((id) => this.fetchSectionWorkshops(id, force)),
       tap((workshops) => this.workshops$.next(workshops))
     );

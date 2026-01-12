@@ -163,6 +163,7 @@ const safeStringify = (value: unknown) => {
       .action-bar {
         position: sticky;
         top: 56px;
+        height: 56px;
         z-index: 5;
         display: flex;
         flex-direction: row;
@@ -171,6 +172,7 @@ const safeStringify = (value: unknown) => {
         align-items: center;
         a,
         button,
+        mat-chip,
         .paginator {
           // color: var(--mat-sys-on-primary);
           color: var(--mat-sys-on-primary);
