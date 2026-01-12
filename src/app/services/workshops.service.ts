@@ -47,7 +47,6 @@ export class WorkshopEditorService {
   private readonly baseUrl = '/api';
   private httpClient = inject(HttpClient);
 
-  // ! Worst place to put this, it saves the HTML of the editor
   savePageHTMLSuccessSubject = new Subject<boolean>();
   savePageHTMLErrorSubject = new Subject<boolean>();
   saveEditorDataSubject = new Subject<unknown>();

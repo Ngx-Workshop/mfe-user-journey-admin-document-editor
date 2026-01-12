@@ -1,5 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+} from '@angular/core';
 import {
   FormBuilder,
   ReactiveFormsModule,
@@ -47,16 +51,12 @@ import { WorkshopEditorService } from '../../../../../services/workshops.service
 export class EditPageModalComponent {
   data = inject<{
     workshopDocument: WorkshopDocument;
-}>(MAT_DIALOG_DATA);
+  }>(MAT_DIALOG_DATA);
 
   private workshopEditorService = inject(WorkshopEditorService);
   private navigationService = inject(NavigationService);
   private dialogRef = inject(MatDialogRef<EditPageModalComponent>);
   private formBuilder = inject(FormBuilder);
-
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-  constructor() {}
 
   editPageFormLevelMessage$ = new BehaviorSubject<string | undefined>(
     undefined

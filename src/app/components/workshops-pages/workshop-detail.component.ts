@@ -174,7 +174,6 @@ const safeStringify = (value: unknown) => {
         button,
         mat-chip,
         .paginator {
-          // color: var(--mat-sys-on-primary);
           color: var(--mat-sys-on-primary);
           background: var(--mat-sys-primary);
           margin: 0 12px;

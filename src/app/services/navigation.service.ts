@@ -65,7 +65,7 @@ export class NavigationService {
   private workshopDocumentCache: {
     [workshopDocumentId: string]: Observable<WorkshopDocument>;
   } = {};
-  private cacheTTL = 5 * 60 * 1000; // 5 minutes
+  private cacheTTL = 5 * 60 * 1000;
 
   private http: HttpClient = inject(HttpClient);
 

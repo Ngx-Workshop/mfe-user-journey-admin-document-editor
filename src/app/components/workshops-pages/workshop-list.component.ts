@@ -59,13 +59,13 @@ export class OptimizeCloudinaryUrlPipe implements PipeTransform {
                     marginTop: '15px',
                     clipPath: 'circle(0% at 85% 85%)',
                     offset: 0,
-                  }), // top left
+                  }),
                   style({
                     opacity: 1,
                     marginTop: '0',
                     clipPath: 'circle(200% at 0% 0%)',
                     offset: 1.0,
-                  }), // top left
+                  }),
                 ])
               ),
             ]),
@@ -147,7 +147,6 @@ export class OptimizeCloudinaryUrlPipe implements PipeTransform {
         height: 375px;
         overflow: auto;
         cursor: pointer;
-        // border: 1px solid #e0e0e0;
         border-radius: 16px;
         color: var(--mat-sys-on-secondary-container);
         background-color: var(--mat-sys-secondary-container);
@@ -205,7 +204,6 @@ export class OptimizeCloudinaryUrlPipe implements PipeTransform {
         a,
         button,
         mat-paginator {
-          // color: var(--mat-sys-on-primary);
           color: var(--mat-sys-on-primary);
           background: var(--mat-sys-primary);
           margin: 0 12px;

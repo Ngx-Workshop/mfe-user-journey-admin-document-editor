@@ -134,7 +134,7 @@ export class HeaderComponent implements AfterViewInit, OnDestroy {
     const parent = canvas.parentElement as HTMLElement;
     const dpr = Math.min(2, window.devicePixelRatio || 1);
     const width = parent.clientWidth;
-    const height = parent.clientHeight; // 56px
+    const height = parent.clientHeight;
 
     canvas.width = Math.max(1, Math.floor(width * dpr));
     canvas.height = Math.max(1, Math.floor(height * dpr));
@@ -142,12 +142,11 @@ export class HeaderComponent implements AfterViewInit, OnDestroy {
     canvas.style.height = height + 'px';
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-    // Re-seed particles to match new size density
     this.seedByArea(width, height);
   }
 
   private seedByArea(w: number, h: number): void {
-    const density = 0.0018; // particles per px^2 (very light)
+    const density = 0.0018;
     const target = Math.max(
       8,
       Math.min(60, Math.floor(w * h * density))
@@ -168,12 +167,12 @@ export class HeaderComponent implements AfterViewInit, OnDestroy {
   }
 
   private makeParticle(w: number, h: number) {
-    const speed = 20 + Math.random() * 20; // px/s
+    const speed = 20 + Math.random() * 20;
     const angle = Math.random() * Math.PI * 2;
     const vx = Math.cos(angle) * speed;
     const vy = Math.sin(angle) * speed;
-    const r = 0.8 + Math.random() * 1.8; // radius in px
-    const a = 0.25 + Math.random() * 0.45; // alpha
+    const r = 0.8 + Math.random() * 1.8;
+    const a = 0.25 + Math.random() * 0.45;
     return {
       x: Math.random() * w,
       y: Math.random() * h,
@@ -210,18 +209,15 @@ export class HeaderComponent implements AfterViewInit, OnDestroy {
 
     ctx.clearRect(0, 0, w, h);
 
-    // dotted constellations
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
     for (const p of this.particles) {
-      // point
       ctx.beginPath();
       ctx.fillStyle = `rgba(255,255,255,${(p.a * 0.9).toFixed(3)})`;
       ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
       ctx.fill();
     }
 
-    // subtle connections by distance
     const maxDist = 120;
     for (let i = 0; i < this.particles.length; i++) {
       for (let j = i + 1; j < this.particles.length; j++) {

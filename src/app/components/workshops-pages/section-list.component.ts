@@ -330,7 +330,6 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
           }
 
           p {
-            // text-align: justify;
             padding: 0 19px;
             font-size: 1.2rem;
           }

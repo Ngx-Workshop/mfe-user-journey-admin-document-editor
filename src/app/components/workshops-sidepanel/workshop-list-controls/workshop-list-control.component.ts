@@ -35,8 +35,8 @@ import { EditWorkshopModalComponent } from './modals/edit-category-modal/edit-wo
     RouterModule,
     MatListModule,
     MatIconModule,
-    DragDropModule
-],
+    DragDropModule,
+  ],
 })
 export class WorkshopListControlsComponent
   implements OnInit, OnDestroy
@@ -45,8 +45,6 @@ export class WorkshopListControlsComponent
   private snackBar = inject(MatSnackBar);
   workshopEditorService = inject(WorkshopEditorService);
 
-  // TODO: Make it Reactive
-  // ! Make this more generic so that it can be used for other components
   destory: Subject<boolean> = new Subject();
 
   cdkDragDisabled = false;
@@ -63,10 +61,6 @@ export class WorkshopListControlsComponent
   @Input() workshops: Workshop[] = [];
 
   navigationService = inject(NavigationService);
-
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-  constructor() {}
 
   ngOnInit(): void {
     this.initSortCategories();

@@ -36,16 +36,14 @@ import { EditPageModalComponent } from './modals/edit-page-modal/edit-page-modal
     MatListModule,
     MatIconModule,
     DragDropModule,
-    MatButtonModule
-],
+    MatButtonModule,
+  ],
 })
 export class PageListComponent implements OnInit, OnDestroy {
   matDialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
   workshopEditorService = inject(WorkshopEditorService);
 
-  // TODO: Make it Reactive
-  // ! Make this more generic so that it can be used for other components
   destory: Subject<boolean> = new Subject();
 
   cdkDragDisabled = false;
@@ -65,11 +63,6 @@ export class PageListComponent implements OnInit, OnDestroy {
 
   navigationService = inject(NavigationService);
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-  constructor() {}
-
-  // ! Worst place to put this, it saves the HTML of the editor
   saveEditorData(): void {
     this.workshopEditorService.saveEditorDataSubject.next({});
   }
