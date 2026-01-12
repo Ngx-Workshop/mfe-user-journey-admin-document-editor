@@ -7,9 +7,9 @@ import {
 import {
   Component,
   inject,
-  Input,
   OnDestroy,
   OnInit,
+  input
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -57,9 +57,9 @@ export class PageListComponent implements OnInit, OnDestroy {
   sortDocumentFormError$ = new Subject<boolean>();
   sortDocumentFormSuccess$ = new Subject<boolean>();
 
-  @Input() documents: WorkshopDocumentIdentifier[] = [];
-  @Input() workshopDocumentGroupId = '';
-  @Input() workshopDocumentId = '';
+  readonly documents = input<WorkshopDocumentIdentifier[]>([]);
+  readonly workshopDocumentGroupId = input('');
+  readonly workshopDocumentId = input('');
 
   navigationService = inject(NavigationService);
 
@@ -101,17 +101,17 @@ export class PageListComponent implements OnInit, OnDestroy {
     >
   ) {
     this.cdkDragDisabled = true;
-    const documents = this.documents ?? [];
+    const documents = this.documents() ?? [];
     moveItemInArray(
       documents,
       event.previousIndex,
       event.currentIndex
     );
-    this.documents?.map(
+    this.documents()?.map(
       (document, index) => (document.sortId = index)
     );
     this.workshopEditorService
-      .sortDocuments(documents, this.workshopDocumentId)
+      .sortDocuments(documents, this.workshopDocumentId())
       .subscribe({
         error: () => {
           this.sortDocumentFormError$.next(true);

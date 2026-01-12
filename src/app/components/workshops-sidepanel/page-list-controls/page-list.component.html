@@ -4,14 +4,14 @@
   class="page-list"
   (cdkDropListDropped)="onDrop($event)"
   >
-  @for (document of documents; track document) {
+  @for (document of documents(); track document) {
     <a
       mat-list-item
       cdkDrag
       class="page-item"
       [cdkDragDisabled]="cdkDragDisabled"
     [routerLink]="
-      '../../' + workshopDocumentGroupId + '/' + document._id
+      '../../' + workshopDocumentGroupId() + '/' + document._id
     "
       routerLinkActive="workshop-menu-nav-item-selected"
       >

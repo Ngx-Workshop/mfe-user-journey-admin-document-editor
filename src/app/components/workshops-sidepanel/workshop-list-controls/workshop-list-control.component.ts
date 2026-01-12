@@ -7,9 +7,9 @@ import {
 import {
   Component,
   inject,
-  Input,
   OnDestroy,
   OnInit,
+  input
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
@@ -58,7 +58,7 @@ export class WorkshopListControlsComponent
   sortWorkshopFormError$ = new Subject<boolean>();
   sortWorkshopFormSuccess$ = new Subject<boolean>();
 
-  @Input() workshops: Workshop[] = [];
+  readonly workshops = input<Workshop[]>([]);
 
   navigationService = inject(NavigationService);
 
@@ -103,13 +103,13 @@ export class WorkshopListControlsComponent
     >
   ) {
     this.cdkDragDisabled = true;
-    const workshops = this.workshops ?? [];
+    const workshops = this.workshops() ?? [];
     moveItemInArray(
       workshops,
       event.previousIndex,
       event.currentIndex
     );
-    this.workshops?.map(
+    this.workshops()?.map(
       (workshop, index) => (workshop.sortId = index)
     );
     this.workshopEditorService.sortWorkshops(workshops).subscribe({

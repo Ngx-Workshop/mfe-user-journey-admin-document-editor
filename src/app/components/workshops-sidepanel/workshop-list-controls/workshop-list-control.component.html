@@ -4,7 +4,7 @@
   class="category-list"
   (cdkDropListDropped)="onDrop($event)"
   >
-  @for (workshop of workshops; track workshop) {
+  @for (workshop of workshops(); track workshop) {
     <a
       mat-list-item
       cdkDrag

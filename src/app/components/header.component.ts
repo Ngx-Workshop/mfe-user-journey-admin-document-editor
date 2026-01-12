@@ -2,9 +2,9 @@ import {
   AfterViewInit,
   Component,
   ElementRef,
-  Input,
   OnDestroy,
   ViewChild,
+  input
 } from '@angular/core';
 
 export type SidenavHeaderData = {
@@ -19,10 +19,10 @@ export type SidenavHeaderData = {
     <div class="header">
       <canvas #bgCanvas class="bg-canvas" aria-hidden="true"></canvas>
       <!-- <h1>Document Editor</h1> -->
-      <img [src]="sidenavHeaderData.headerSvgPath" />
+      <img [src]="sidenavHeaderData().headerSvgPath" />
       <h1>
-        {{ sidenavHeaderData.sectionTitle }}:
-        {{ sidenavHeaderData.currentWorkshopTitle ?? 'Workshops' }}
+        {{ sidenavHeaderData().sectionTitle }}:
+        {{ sidenavHeaderData().currentWorkshopTitle ?? 'Workshops' }}
       </h1>
     </div>
   `,
@@ -77,11 +77,11 @@ export class HeaderComponent implements AfterViewInit, OnDestroy {
   @ViewChild('bgCanvas', { static: false })
   bgCanvas?: ElementRef<HTMLCanvasElement>;
 
-  @Input() sidenavHeaderData: SidenavHeaderData = {
+  readonly sidenavHeaderData = input<SidenavHeaderData>({
     headerSvgPath: 'Default',
     sectionTitle: '/assets/img/dashboard-color.png',
     currentWorkshopTitle: 'Default',
-  };
+});
 
   private ctx?: CanvasRenderingContext2D;
   private rafId = 0;
