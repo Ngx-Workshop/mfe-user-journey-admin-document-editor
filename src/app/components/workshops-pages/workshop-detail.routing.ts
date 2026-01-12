@@ -1,19 +1,24 @@
 import { Route } from '@angular/router';
 import { documentResolver } from '../../resolvers/document.resolver';
-import { WorkshopDetailComponent } from './workshop-detail.component';
 
 export const WORKSHOPS_DETAIL_ROUTES: Route[] = [
   {
     path: '',
     data: { alwaysRefresh: true },
     resolve: { documentResolver },
-    component: WorkshopDetailComponent,
+    loadComponent: () =>
+      import('./workshop-detail.component').then(
+        (m) => m.WorkshopDetailComponent
+      ),
   },
   {
     path: ':documentId',
     data: { alwaysRefresh: true },
     resolve: { documentResolver },
-    component: WorkshopDetailComponent,
+    loadComponent: () =>
+      import('./workshop-detail.component').then(
+        (m) => m.WorkshopDetailComponent
+      ),
   },
   { path: '**', redirectTo: '/404' },
 ];

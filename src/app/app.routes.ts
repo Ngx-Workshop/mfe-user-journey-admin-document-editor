@@ -1,7 +1,7 @@
 import { inject } from '@angular/core';
 import { Route } from '@angular/router';
 import { userAuthenticatedGuard } from '@tmdjr/ngx-user-metadata';
-import { WorkshopsComponent } from './components/workshops.component';
+
 import { sectionResolver } from './resolvers/section.resolver';
 import { workshopResolver } from './resolvers/workshop.resolver';
 import { NavigationService } from './services/navigation.service';
@@ -25,7 +25,10 @@ export const Routes: Route[] = [
       {
         path: ':section',
         resolve: { sectionResolver },
-        component: WorkshopsComponent,
+        loadComponent: () =>
+          import('./components/workshops.component').then(
+            (m) => m.WorkshopsComponent
+          ),
         children: [
           {
             path: '',
