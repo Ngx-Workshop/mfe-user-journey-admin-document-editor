@@ -1,4 +1,4 @@
-<ng-container *ngIf="viewModel$ | async as vm; else elseTemplate">
+@if (viewModel$ | async; as vm) {
   <div class="form-container">
     <h2 mat-dialog-title>Create a New Workshop?</h2>
     <form [formGroup]="vm.formGroup" mat-dialog-content>
@@ -12,10 +12,12 @@
           type="text"
           placeholder="Name"
           formControlName="name"
-        />
-        <mat-error *ngIf="vm.formGroup.get('name')?.errors">{{
-          createWorkshopControlsErrorMessage['name']
-        }}</mat-error>
+          />
+        @if (vm.formGroup.get('name')?.errors) {
+          <mat-error>{{
+            createWorkshopControlsErrorMessage['name']
+          }}</mat-error>
+        }
       </mat-form-field>
       <mat-form-field color="accent">
         <mat-label>Summary</mat-label>
@@ -24,62 +26,63 @@
           placeholder="Summary"
           formControlName="summary"
         ></textarea>
-        <mat-error *ngIf="vm.formGroup.get('summary')?.errors">{{
-          createWorkshopControlsErrorMessage['summary']
-        }}</mat-error>
+        @if (vm.formGroup.get('summary')?.errors) {
+          <mat-error>{{
+            createWorkshopControlsErrorMessage['summary']
+          }}</mat-error>
+        }
       </mat-form-field>
       <mat-radio-group
         formControlName="imageURLOrUpload"
         class="radio-image-option"
-      >
+        >
         <mat-radio-button value="url">URL</mat-radio-button>
         <mat-radio-button value="upload">Upload</mat-radio-button>
       </mat-radio-group>
-
       <!-- URL Input -->
-      <mat-form-field
-        color="accent"
-        *ngIf="vm.formGroup.get('imageURLOrUpload')?.value === 'url'"
-      >
-        <mat-label>Image URL</mat-label>
-        <input
-          matInput
-          type="text"
-          placeholder="Enter Image URL"
-          formControlName="thumbnail"
-        />
-      </mat-form-field>
-
-      <!-- Upload Button -->
-      <div
-        *ngIf="
-          vm.formGroup.get('imageURLOrUpload')?.value === 'upload'
-        "
-      >
-        <input
-          #fileInput
-          hidden
-          type="file"
-          formControlName="image"
-          (change)="onFileSelected($event, vm.formGroup)"
-          accept="image/*"
-        />
-        <button
-          mat-raised-button
+      @if (vm.formGroup.get('imageURLOrUpload')?.value === 'url') {
+        <mat-form-field
           color="accent"
-          (click)="fileInput.click()"
-        >
-          Choose File
-        </button>
-      </div>
-
-      <img
-        *ngIf="vm.formGroup.get('thumbnail')?.value"
-        [src]="vm.formGroup.get('thumbnail')?.value"
-        alt="Workshop Image"
-        class="image-preview"
-      />
-
+          >
+          <mat-label>Image URL</mat-label>
+          <input
+            matInput
+            type="text"
+            placeholder="Enter Image URL"
+            formControlName="thumbnail"
+            />
+        </mat-form-field>
+      }
+      <!-- Upload Button -->
+      @if (
+        vm.formGroup.get('imageURLOrUpload')?.value === 'upload'
+        ) {
+        <div
+          >
+          <input
+            #fileInput
+            hidden
+            type="file"
+            formControlName="image"
+            (change)="onFileSelected($event, vm.formGroup)"
+            accept="image/*"
+            />
+          <button
+            mat-raised-button
+            color="accent"
+            (click)="fileInput.click()"
+            >
+            Choose File
+          </button>
+        </div>
+      }
+      @if (vm.formGroup.get('thumbnail')?.value) {
+        <img
+          [src]="vm.formGroup.get('thumbnail')?.value"
+          alt="Workshop Image"
+          class="image-preview"
+          />
+      }
       <mat-dialog-actions align="end">
         <button mat-button mat-dialog-close [disabled]="vm.loading">
           Cancel
@@ -89,11 +92,12 @@
           color="accent"
           (click)="onCreateWorkshop(vm.formGroup.value)"
           [disabled]="vm.formGroup.invalid || vm.loading"
-        >
+          >
           Create
         </button>
       </mat-dialog-actions>
     </form>
   </div>
-</ng-container>
-<ng-template #elseTemplate> loading ... </ng-template>
+} @else {
+  loading ...
+}

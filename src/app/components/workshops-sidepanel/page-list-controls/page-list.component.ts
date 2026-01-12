@@ -3,7 +3,7 @@ import {
   DragDropModule,
   moveItemInArray,
 } from '@angular/cdk/drag-drop';
-import { CommonModule } from '@angular/common';
+
 import {
   Component,
   inject,
@@ -32,13 +32,12 @@ import { EditPageModalComponent } from './modals/edit-page-modal/edit-page-modal
   templateUrl: './page-list.component.html',
   styleUrls: ['./page-list.component.scss'],
   imports: [
-    CommonModule,
     RouterModule,
     MatListModule,
     MatIconModule,
     DragDropModule,
-    MatButtonModule,
-  ],
+    MatButtonModule
+],
 })
 export class PageListComponent implements OnInit, OnDestroy {
   // TODO: Make it Reactive

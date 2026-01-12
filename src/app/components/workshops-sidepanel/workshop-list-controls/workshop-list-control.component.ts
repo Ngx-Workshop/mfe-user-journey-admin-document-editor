@@ -3,7 +3,7 @@ import {
   DragDropModule,
   moveItemInArray,
 } from '@angular/cdk/drag-drop';
-import { CommonModule } from '@angular/common';
+
 import {
   Component,
   inject,
@@ -32,12 +32,11 @@ import { EditWorkshopModalComponent } from './modals/edit-category-modal/edit-wo
   templateUrl: './workshop-list-control.component.html',
   styleUrls: ['./workshop-list-control.component.scss'],
   imports: [
-    CommonModule,
     RouterModule,
     MatListModule,
     MatIconModule,
-    DragDropModule,
-  ],
+    DragDropModule
+],
 })
 export class WorkshopListControlsComponent
   implements OnInit, OnDestroy

@@ -1,4 +1,4 @@
-<ng-container *ngIf="viewModel$ | async as vm; else elseTemplate">
+@if (viewModel$ | async; as vm) {
   <div class="form-container">
     <h2 mat-dialog-title>Edit {{data.workshopDocument.name}}?</h2>
     <form [formGroup]="vm.formGroup" mat-dialog-content>
@@ -6,7 +6,9 @@
       <mat-form-field color="accent">
         <mat-label>Name</mat-label>
         <input matInput type="text" placeholder="Name" formControlName="name">
-        <mat-error *ngIf="vm.formGroup.get('password')?.errors">{{editPageControlsErrorMessages['password']}}</mat-error>
+        @if (vm.formGroup.get('password')?.errors) {
+          <mat-error>{{editPageControlsErrorMessages['password']}}</mat-error>
+        }
       </mat-form-field>
       <mat-dialog-actions align="end">
         <button mat-button mat-dialog-close [disabled]="vm.loading">Cancel</button>
@@ -14,7 +16,6 @@
       </mat-dialog-actions>
     </form>
   </div>
-</ng-container>
-<ng-template #elseTemplate>
+} @else {
   loading ...
-</ng-template>
+}

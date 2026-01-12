@@ -1,4 +1,4 @@
-<ng-container *ngIf="viewModel$ | async as vm; else elseTemplate">
+@if (viewModel$ | async; as vm) {
   <div class="form-container">
     <h2 mat-dialog-title>Create a New Page?</h2>
     <form [formGroup]="vm.formGroup" mat-dialog-content>
@@ -6,10 +6,14 @@
       <mat-form-field color="accent">
         <mat-label>Name</mat-label>
         <input matInput type="text" placeholder="Name" formControlName="name">
-        <mat-error *ngIf="vm.formGroup.get('name')?.errors">{{createPageControlsErrorMessages['name']}}</mat-error>
+        @if (vm.formGroup.get('name')?.errors) {
+          <mat-error>{{createPageControlsErrorMessages['name']}}</mat-error>
+        }
       </mat-form-field>
       <mat-radio-group class="page-type-ratio-group" formControlName="pageType">
-        <mat-radio-button *ngFor="let pageType of pageTypes" [value]="pageType.value">{{ pageType.viewValue }}</mat-radio-button>
+        @for (pageType of pageTypes; track pageType) {
+          <mat-radio-button [value]="pageType.value">{{ pageType.viewValue }}</mat-radio-button>
+        }
       </mat-radio-group>
       <mat-dialog-actions align="end">
         <button mat-button mat-dialog-close [disabled]="vm.loading">Cancel</button>
@@ -17,7 +21,6 @@
       </mat-dialog-actions>
     </form>
   </div>
-</ng-container>
-<ng-template #elseTemplate>
+} @else {
   loading ...
-</ng-template>
+}
