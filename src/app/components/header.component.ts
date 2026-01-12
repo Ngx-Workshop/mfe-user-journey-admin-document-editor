@@ -3,8 +3,8 @@ import {
   Component,
   ElementRef,
   OnDestroy,
-  ViewChild,
-  input
+  input,
+  viewChild,
 } from '@angular/core';
 
 export type SidenavHeaderData = {
@@ -74,14 +74,14 @@ export type SidenavHeaderData = {
   ],
 })
 export class HeaderComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('bgCanvas', { static: false })
-  bgCanvas?: ElementRef<HTMLCanvasElement>;
+  readonly bgCanvas =
+    viewChild<ElementRef<HTMLCanvasElement>>('bgCanvas');
 
   readonly sidenavHeaderData = input<SidenavHeaderData>({
     headerSvgPath: 'Default',
     sectionTitle: '/assets/img/dashboard-color.png',
     currentWorkshopTitle: 'Default',
-});
+  });
 
   private ctx?: CanvasRenderingContext2D;
   private rafId = 0;
@@ -97,7 +97,7 @@ export class HeaderComponent implements AfterViewInit, OnDestroy {
   private resizeObserver?: ResizeObserver;
 
   ngAfterViewInit(): void {
-    const canvas = this.bgCanvas?.nativeElement;
+    const canvas = this.bgCanvas()?.nativeElement;
     if (!canvas) return;
 
     this.ctx = canvas.getContext('2d') ?? undefined;
@@ -127,7 +127,7 @@ export class HeaderComponent implements AfterViewInit, OnDestroy {
   }
 
   private handleResize(): void {
-    const canvas = this.bgCanvas?.nativeElement;
+    const canvas = this.bgCanvas()?.nativeElement;
     const ctx = this.ctx;
     if (!canvas || !ctx) return;
 
@@ -160,7 +160,7 @@ export class HeaderComponent implements AfterViewInit, OnDestroy {
   }
 
   private initParticles(): void {
-    const canvas = this.bgCanvas?.nativeElement;
+    const canvas = this.bgCanvas()?.nativeElement;
     if (!canvas) return;
     this.particles = [];
     this.seedByArea(canvas.clientWidth, canvas.clientHeight);
@@ -184,7 +184,7 @@ export class HeaderComponent implements AfterViewInit, OnDestroy {
   }
 
   private update(dt: number): void {
-    const canvas = this.bgCanvas?.nativeElement;
+    const canvas = this.bgCanvas()?.nativeElement;
     if (!canvas) return;
     const w = canvas.clientWidth;
     const h = canvas.clientHeight;
@@ -202,7 +202,7 @@ export class HeaderComponent implements AfterViewInit, OnDestroy {
 
   private draw(): void {
     const ctx = this.ctx;
-    const canvas = this.bgCanvas?.nativeElement;
+    const canvas = this.bgCanvas()?.nativeElement;
     if (!ctx || !canvas) return;
     const w = canvas.width;
     const h = canvas.height;

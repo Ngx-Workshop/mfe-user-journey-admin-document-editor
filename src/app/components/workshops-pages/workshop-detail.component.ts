@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, ViewChild } from '@angular/core';
+import { Component, inject, viewChild } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDialog } from '@angular/material/dialog';
@@ -182,7 +182,7 @@ const safeStringify = (value: unknown) => {
   ],
 })
 export class WorkshopDetailComponent {
-  @ViewChild('paginator') paginator!: MatPaginator;
+  readonly paginator = viewChild.required<MatPaginator>('paginator');
 
   private workshopEditorService = inject(WorkshopEditorService);
   private matDialog = inject(MatDialog);
