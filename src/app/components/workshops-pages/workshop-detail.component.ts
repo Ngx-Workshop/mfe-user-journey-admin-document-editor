@@ -80,8 +80,7 @@ const safeStringify = (value: unknown) => {
         [pageIndex]="vm.pageIndex"
         (page)="vm.pageEventChange($event)"
         aria-label="Select page"
-      >
-      </mat-paginator>
+      />
       }
     </div>
     <div class="workshop-detail-content">
@@ -94,7 +93,7 @@ const safeStringify = (value: unknown) => {
               [blocks]="vm.ngxEditorjsBlocks"
               [requestBlocks]="requestValue | async"
               (blocksRequested)="vm.handleSavingBlocks($event)"
-            ></ngx-editor-js2>
+            />
           </div>
         </div>
       </div>
@@ -103,7 +102,7 @@ const safeStringify = (value: unknown) => {
         [workshopDocumentGroupId]="vm.workshopDocumentGroupId"
         [workshopDocumentId]="vm.workshopDocumentId"
         [documents]="vm.documents"
-      ></ngx-page-list>
+      />
     </div>
     } @else { LOADING!!! }
   `,

@@ -15,9 +15,9 @@ import {
     @if(viewModel$ | async; as vm) {
     <ngx-menu-management-header
       [sidenavHeaderData]="vm.sidenavHeaderData"
-    ></ngx-menu-management-header>
+    />
     }
-    <router-outlet> </router-outlet>
+    <router-outlet />
   `,
 })
 export class WorkshopsComponent {

@@ -110,7 +110,7 @@ export class OptimizeCloudinaryUrlPipe implements PipeTransform {
       <ngx-workshop-list-control
         class="workshop-list-sidepanel"
         [workshops]="ws"
-      ></ngx-workshop-list-control>
+      />
     </div>
     }
   `,
