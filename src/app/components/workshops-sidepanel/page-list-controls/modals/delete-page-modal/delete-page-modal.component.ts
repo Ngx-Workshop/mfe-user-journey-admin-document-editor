@@ -1,10 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  Inject,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import {
   FormBuilder,
   ReactiveFormsModule,
@@ -51,14 +46,18 @@ import { WorkshopEditorService } from '../../../../../services/workshops.service
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DeletePageModalComponent {
+  data = inject<{
+    workshopDocument: WorkshopDocument;
+}>(MAT_DIALOG_DATA);
+
   private workshopEditorService = inject(WorkshopEditorService);
   private navigationService = inject(NavigationService);
   private dialogRef = inject(MatDialogRef<DeletePageModalComponent>);
   private formBuilder = inject(FormBuilder);
-  constructor(
-    @Inject(MAT_DIALOG_DATA)
-    public data: { workshopDocument: WorkshopDocument }
-  ) {}
+
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+  constructor() {}
 
   deletePageFormLevelMessage$ = new BehaviorSubject<
     string | undefined

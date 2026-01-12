@@ -41,6 +41,10 @@ import { EditWorkshopModalComponent } from './modals/edit-category-modal/edit-wo
 export class WorkshopListControlsComponent
   implements OnInit, OnDestroy
 {
+  matDialog = inject(MatDialog);
+  private snackBar = inject(MatSnackBar);
+  workshopEditorService = inject(WorkshopEditorService);
+
   // TODO: Make it Reactive
   // ! Make this more generic so that it can be used for other components
   destory: Subject<boolean> = new Subject();
@@ -59,11 +63,10 @@ export class WorkshopListControlsComponent
   @Input() workshops: Workshop[] = [];
 
   navigationService = inject(NavigationService);
-  constructor(
-    public matDialog: MatDialog,
-    private snackBar: MatSnackBar,
-    public workshopEditorService: WorkshopEditorService
-  ) {}
+
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+  constructor() {}
 
   ngOnInit(): void {
     this.initSortCategories();

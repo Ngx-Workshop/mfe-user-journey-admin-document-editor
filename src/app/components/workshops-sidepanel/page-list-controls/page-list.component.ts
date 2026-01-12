@@ -40,6 +40,10 @@ import { EditPageModalComponent } from './modals/edit-page-modal/edit-page-modal
 ],
 })
 export class PageListComponent implements OnInit, OnDestroy {
+  matDialog = inject(MatDialog);
+  private snackBar = inject(MatSnackBar);
+  workshopEditorService = inject(WorkshopEditorService);
+
   // TODO: Make it Reactive
   // ! Make this more generic so that it can be used for other components
   destory: Subject<boolean> = new Subject();
@@ -60,11 +64,10 @@ export class PageListComponent implements OnInit, OnDestroy {
   @Input() workshopDocumentId = '';
 
   navigationService = inject(NavigationService);
-  constructor(
-    public matDialog: MatDialog,
-    private snackBar: MatSnackBar,
-    public workshopEditorService: WorkshopEditorService
-  ) {}
+
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+  constructor() {}
 
   // ! Worst place to put this, it saves the HTML of the editor
   saveEditorData(): void {
