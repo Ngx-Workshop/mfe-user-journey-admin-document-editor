@@ -23,7 +23,7 @@ import { map, tap } from 'rxjs';
 import { NavigationService } from '../../services/navigation.service';
 import { WorkshopListControlsComponent } from '../workshops-sidepanel/workshop-list-controls/workshop-list-control.component';
 
-@Pipe({ name: 'optimizeCloudinaryUrl', standalone: true })
+@Pipe({ name: 'optimizeCloudinaryUrl' })
 export class OptimizeCloudinaryUrlPipe implements PipeTransform {
   transform(url: string): string {
     const parts = url.split('/upload/');
