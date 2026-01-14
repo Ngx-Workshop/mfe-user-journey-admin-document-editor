@@ -44,7 +44,7 @@ export type KeyValue = { [key: string]: string };
   providedIn: 'root',
 })
 export class WorkshopEditorService {
-  private readonly baseUrl = '/api';
+  private readonly baseUrl = '/api/documents';
   private httpClient = inject(HttpClient);
 
   savePageHTMLSuccessSubject = new Subject<boolean>();

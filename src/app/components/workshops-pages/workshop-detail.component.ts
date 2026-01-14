@@ -19,12 +19,14 @@ import {
   combineLatest,
   lastValueFrom,
   map,
-  Observable,
   of,
   switchMap,
   tap,
 } from 'rxjs';
-import { WorkshopDocument } from '../../navigation.interface';
+import {
+  WorkshopDocument,
+  WorkshopDocumentIdentifier,
+} from '../../navigation.interface';
 import { NavigationService } from '../../services/navigation.service';
 import { WorkshopEditorService } from '../../services/workshops.service';
 import { CreatePageModalComponent } from '../workshops-sidepanel/page-list-controls/modals/create-page-modal/create-page-modal.component';
@@ -78,7 +80,7 @@ const safeStringify = (value: unknown) => {
         [hidePageSize]="true"
         [pageSize]="1"
         [pageIndex]="vm.pageIndex"
-        (page)="vm.pageEventChange($event)"
+        (page)="pageEventChange($event, vm.documents)"
         aria-label="Select page"
       />
       }
@@ -92,7 +94,7 @@ const safeStringify = (value: unknown) => {
               class="ngx-editor-js2-tokens"
               [blocks]="vm.ngxEditorjsBlocks"
               [requestBlocks]="requestValue | async"
-              (blocksRequested)="vm.handleSavingBlocks($event)"
+              (formChanged)="handleSavingBlocks($event, vm.document)"
             />
           </div>
         </div>
@@ -204,6 +206,7 @@ export class WorkshopDetailComponent {
     }),
     map(({ document, documents = [], workshop }) => {
       return {
+        document,
         documents,
         ngxEditorjsBlocks: safeParse(document.html),
         hasMoreThanOneDocument: documents.length > 1,
@@ -215,36 +218,6 @@ export class WorkshopDetailComponent {
         pageIndex: documents.findIndex(
           (workshopDocument) => workshopDocument._id === document._id
         ),
-        pageEventChange: ({ pageIndex }: PageEvent) => {
-          this.router.navigate(['../', documents[pageIndex]._id], {
-            relativeTo: this.activatedRoute,
-          });
-        },
-        handleSavingBlocks: (
-          blocks$: Observable<NgxEditorJsBlock[]>
-        ) => {
-          void lastValueFrom(
-            blocks$.pipe(
-              switchMap((blocks) =>
-                this.workshopEditorService.savePageHTML(
-                  safeStringify(blocks),
-                  document._id
-                )
-              ),
-              tap(() =>
-                this.workshopEditorService.savePageHTMLSuccessSubject.next(
-                  true
-                )
-              ),
-              catchError(() => {
-                this.workshopEditorService.savePageHTMLErrorSubject.next(
-                  true
-                );
-                return of([]);
-              })
-            )
-          );
-        },
       };
     })
   );
@@ -254,5 +227,41 @@ export class WorkshopDetailComponent {
       width: '400px',
       backdropClass: 'blur-backdrop',
     });
+  }
+
+  pageEventChange(
+    { pageIndex }: PageEvent,
+    documents: WorkshopDocumentIdentifier[]
+  ): void {
+    this.router.navigate(['../', documents[pageIndex]._id], {
+      relativeTo: this.activatedRoute,
+    });
+  }
+
+  handleSavingBlocks(
+    blocks: NgxEditorJsBlock[],
+    document: WorkshopDocument
+  ): void {
+    void lastValueFrom(
+      of(blocks).pipe(
+        switchMap((blocks) =>
+          this.workshopEditorService.savePageHTML(
+            safeStringify(blocks),
+            document._id
+          )
+        ),
+        tap(() =>
+          this.workshopEditorService.savePageHTMLSuccessSubject.next(
+            true
+          )
+        ),
+        catchError(() => {
+          this.workshopEditorService.savePageHTMLErrorSubject.next(
+            true
+          );
+          return of([]);
+        })
+      )
+    );
   }
 }

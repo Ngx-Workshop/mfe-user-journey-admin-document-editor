@@ -7,9 +7,9 @@ import {
 import {
   Component,
   inject,
+  input,
   OnDestroy,
   OnInit,
-  input
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -62,10 +62,6 @@ export class PageListComponent implements OnInit, OnDestroy {
   readonly workshopDocumentId = input('');
 
   navigationService = inject(NavigationService);
-
-  saveEditorData(): void {
-    this.workshopEditorService.saveEditorDataSubject.next({});
-  }
 
   ngOnInit(): void {
     this.initSortPages();

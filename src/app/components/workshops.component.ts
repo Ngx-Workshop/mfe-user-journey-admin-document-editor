@@ -1,7 +1,7 @@
 import { AsyncPipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { combineLatest, map, tap } from 'rxjs';
+import { combineLatest, map } from 'rxjs';
 import { NavigationService } from '../services/navigation.service';
 import {
   HeaderComponent,
@@ -29,12 +29,6 @@ export class WorkshopsComponent {
       .pipe(map((workshop) => workshop?.name)),
     this.navigationService.getCurrentSection(),
   ]).pipe(
-    tap(([currentWorkshopTitle, section]) =>
-      console.log('WorkshopsComponent ViewModel', {
-        currentWorkshopTitle,
-        section,
-      })
-    ),
     map(
       ([
         currentWorkshopTitle,

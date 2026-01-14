@@ -82,12 +82,6 @@ export class NavigationService {
   navigateToSection(sectionId: string, force = false) {
     return of(sectionId).pipe(
       tap((id) => {
-        console.log(
-          'Navigating to section',
-          id,
-          this.sections$.getValue().sections[id],
-          this.sections$.getValue()
-        );
         this.currentSection$.next(
           this.sections$.getValue().sections[id]
         );
