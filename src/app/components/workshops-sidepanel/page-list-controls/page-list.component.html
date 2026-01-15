@@ -3,31 +3,30 @@
   cdkDropList
   class="page-list"
   (cdkDropListDropped)="onDrop($event)"
-  >
+>
   @for (document of documents(); track document) {
-    <a
-      mat-list-item
-      cdkDrag
-      class="page-item"
-      [cdkDragDisabled]="cdkDragDisabled"
+  <a
+    mat-list-item
+    cdkDrag
+    class="page-item"
     [routerLink]="
       '../../' + workshopDocumentGroupId() + '/' + document._id
     "
-      routerLinkActive="workshop-menu-nav-item-selected"
+    routerLinkActive="workshop-menu-nav-item-selected"
+  >
+    <span class="mat-list-item-content">
+      <mat-icon>drag_indicator</mat-icon>
+      {{ document.name }}
+      <div class="flex-spacer"></div>
+      <mat-icon class="edit-icon" (click)="editPage($event, document)"
+        >edit</mat-icon
       >
-      <span class="mat-list-item-content">
-        <mat-icon>drag_indicator</mat-icon>
-        {{ document.name }}
-        <div class="flex-spacer"></div>
-        <mat-icon class="edit-icon" (click)="editPage($event, document)"
-          >edit</mat-icon
-          >
-          <mat-icon
-            class="delete-icon"
-            (click)="deletePage($event, document)"
-            >delete</mat-icon
-            >
-          </span>
-        </a>
-      }
-    </mat-nav-list>
+      <mat-icon
+        class="delete-icon"
+        (click)="deletePage($event, document)"
+        >delete</mat-icon
+      >
+    </span>
+  </a>
+  }
+</mat-nav-list>

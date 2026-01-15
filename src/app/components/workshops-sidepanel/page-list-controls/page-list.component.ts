@@ -40,22 +40,21 @@ import { EditPageModalComponent } from './modals/edit-page-modal/edit-page-modal
   ],
 })
 export class PageListComponent implements OnInit, OnDestroy {
-  matDialog = inject(MatDialog);
-  private snackBar = inject(MatSnackBar);
-  workshopEditorService = inject(WorkshopEditorService);
+  private readonly matDialog = inject(MatDialog);
+  private readonly snackBar = inject(MatSnackBar);
+  private readonly workshopEditorService = inject(
+    WorkshopEditorService
+  );
 
-  destory: Subject<boolean> = new Subject();
+  private readonly destory$: Subject<boolean> = new Subject();
+  private readonly sortDocumentFormError$ = new Subject<boolean>();
+  private readonly sortDocumentFormSuccess$ = new Subject<boolean>();
 
-  cdkDragDisabled = false;
-
-  snackBarOptiions: MatSnackBarConfig = {
+  private readonly snackBarOptions: MatSnackBarConfig = {
     duration: 3000,
     horizontalPosition: 'right',
-    verticalPosition: 'top',
+    verticalPosition: 'bottom',
   };
-
-  sortDocumentFormError$ = new Subject<boolean>();
-  sortDocumentFormSuccess$ = new Subject<boolean>();
 
   readonly documents = input<WorkshopDocumentIdentifier[]>([]);
   readonly workshopDocumentGroupId = input('');
@@ -68,7 +67,7 @@ export class PageListComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.destory.next(true);
+    this.destory$.next(true);
   }
 
   editPage(event: Event, workshopDocument: unknown): void {
@@ -96,7 +95,6 @@ export class PageListComponent implements OnInit, OnDestroy {
       { previousIndex: number; currentIndex: number }[]
     >
   ) {
-    this.cdkDragDisabled = true;
     const documents = this.documents() ?? [];
     moveItemInArray(
       documents,
@@ -136,43 +134,22 @@ export class PageListComponent implements OnInit, OnDestroy {
 
   initSortPages(): void {
     this.sortDocumentFormError$
-      .pipe(takeUntil(this.destory))
+      .pipe(takeUntil(this.destory$))
       .subscribe(() => {
         this.snackBar.open(
           '😿 Error updating the categories new order',
           undefined,
-          this.snackBarOptiions
+          this.snackBarOptions
         );
-        this.cdkDragDisabled = false;
       });
 
     this.sortDocumentFormSuccess$
-      .pipe(takeUntil(this.destory))
+      .pipe(takeUntil(this.destory$))
       .subscribe(() => {
         this.snackBar.open(
           '😸 Categories new order updated',
           undefined,
-          this.snackBarOptiions
-        );
-        this.cdkDragDisabled = false;
-      });
-
-    this.workshopEditorService.savePageHTMLErrorSubject
-      .pipe(takeUntil(this.destory))
-      .subscribe(() => {
-        this.snackBar.open(
-          '😿 Error saving workshop',
-          undefined,
-          this.snackBarOptiions
-        );
-      });
-    this.workshopEditorService.savePageHTMLSuccessSubject
-      .pipe(takeUntil(this.destory))
-      .subscribe(() => {
-        this.snackBar.open(
-          '😸 Workshop was saved',
-          undefined,
-          this.snackBarOptiions
+          this.snackBarOptions
         );
       });
   }

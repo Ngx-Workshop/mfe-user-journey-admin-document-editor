@@ -47,8 +47,6 @@ export class WorkshopEditorService {
   private readonly baseUrl = '/api/documents';
   private httpClient = inject(HttpClient);
 
-  savePageHTMLSuccessSubject = new Subject<boolean>();
-  savePageHTMLErrorSubject = new Subject<boolean>();
   saveEditorDataSubject = new Subject<unknown>();
   saveEditorData$ = this.saveEditorDataSubject.asObservable();
   savePageHTML(html: string, _id: string) {

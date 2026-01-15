@@ -9,6 +9,7 @@ import {
   MatPaginatorModule,
   PageEvent,
 } from '@angular/material/paginator';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   NgxEditorJs2Component,
@@ -188,6 +189,7 @@ export class WorkshopDetailComponent {
 
   private workshopEditorService = inject(WorkshopEditorService);
   private matDialog = inject(MatDialog);
+  private snackBar = inject(MatSnackBar);
   private router = inject(Router);
   private activatedRoute = inject(ActivatedRoute);
 
@@ -251,14 +253,20 @@ export class WorkshopDetailComponent {
           )
         ),
         tap(() =>
-          this.workshopEditorService.savePageHTMLSuccessSubject.next(
-            true
-          )
+          this.snackBar.open('Save Successful', undefined, {
+            duration: 300,
+            horizontalPosition: 'right',
+            verticalPosition: 'bottom',
+            panelClass: 'snackbar-success',
+          })
         ),
         catchError(() => {
-          this.workshopEditorService.savePageHTMLErrorSubject.next(
-            true
-          );
+          this.snackBar.open('😿 Error saving workshop', undefined, {
+            duration: 3000,
+            horizontalPosition: 'right',
+            verticalPosition: 'bottom',
+            panelClass: 'snackbar-failure',
+          });
           return of([]);
         })
       )
