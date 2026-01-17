@@ -87,14 +87,16 @@ const safeStringify = (value: unknown) => {
       }
     </div>
     <div class="workshop-detail-content">
-      <div class="workshop-viewer-container">
-        <div class="workshop-detail-card">
-          <!-- {{ vm.isExam ? 'Exam' : 'Page' }} -->
-          <ngx-editor-js2
-            [blocks]="vm.ngxEditorjsBlocks"
-            [requestBlocks]="requestValue | async"
-            (formChanged)="handleSavingBlocks($event, vm.document)"
-          />
+      <div class="page">
+        <div class="workshop-viewer-container">
+          <div class="workshop-detail-card ngx-mat-card">
+            <!-- {{ vm.isExam ? 'Exam' : 'Page' }} -->
+            <ngx-editor-js2
+              [blocks]="vm.ngxEditorjsBlocks"
+              [requestBlocks]="requestValue | async"
+              (formChanged)="handleSavingBlocks($event, vm.document)"
+            />
+          </div>
         </div>
       </div>
       <ngx-page-list

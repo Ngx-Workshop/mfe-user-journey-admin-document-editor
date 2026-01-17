@@ -116,7 +116,6 @@ export class OptimizeCloudinaryUrlPipe implements PipeTransform {
   `,
   styles: [
     `
-      @use '@angular/material' as mat;
       :host {
         display: flex;
         flex-direction: column;
