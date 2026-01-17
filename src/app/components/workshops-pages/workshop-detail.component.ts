@@ -87,17 +87,14 @@ const safeStringify = (value: unknown) => {
       }
     </div>
     <div class="workshop-detail-content">
-      <div class="page">
-        <div class="workshop-viewer-container">
-          <div class="workshop-detail-card ngx-mat-card">
-            <!-- {{ vm.isExam ? 'Exam' : 'Page' }} -->
-            <ngx-editor-js2
-              class="ngx-editor-js2-tokens"
-              [blocks]="vm.ngxEditorjsBlocks"
-              [requestBlocks]="requestValue | async"
-              (formChanged)="handleSavingBlocks($event, vm.document)"
-            />
-          </div>
+      <div class="workshop-viewer-container">
+        <div class="workshop-detail-card">
+          <!-- {{ vm.isExam ? 'Exam' : 'Page' }} -->
+          <ngx-editor-js2
+            [blocks]="vm.ngxEditorjsBlocks"
+            [requestBlocks]="requestValue | async"
+            (formChanged)="handleSavingBlocks($event, vm.document)"
+          />
         </div>
       </div>
       <ngx-page-list
@@ -148,10 +145,6 @@ const safeStringify = (value: unknown) => {
           margin-bottom: 2rem;
 
           max-width: 750px;
-          transition: box-shadow 280ms cubic-bezier(0.4, 0, 0.2, 1);
-          display: block;
-          position: relative;
-          margin-bottom: 22px;
         }
       }
       .page {
