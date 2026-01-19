@@ -104,6 +104,7 @@ const safeStringify = (value: unknown) => {
         [workshopDocumentGroupId]="vm.workshopDocumentGroupId"
         [workshopDocumentId]="vm.workshopDocumentId"
         [documents]="vm.documents"
+        [workshopId]="vm.workshopId"
       />
     </div>
     } @else { LOADING!!! }
@@ -208,6 +209,7 @@ export class WorkshopDetailComponent {
         ngxEditorjsBlocks: safeParse(document.html),
         hasMoreThanOneDocument: documents.length > 1,
         workshopDocumentsLength: documents.length,
+        workshopId: workshop?._id || '',
         workshopDocumentGroupId:
           workshop?.workshopDocumentGroupId || '',
         workshopDocumentId: document._id,
