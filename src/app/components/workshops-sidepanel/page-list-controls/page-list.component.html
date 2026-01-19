@@ -1,12 +1,11 @@
 <h3>Page List</h3>
-<mat-nav-list
+<div
   cdkDropList
   class="page-list"
   (cdkDropListDropped)="onDrop($event)"
 >
   @for (document of documents(); track document) {
   <a
-    mat-list-item
     cdkDrag
     class="page-item"
     [routerLink]="
@@ -14,7 +13,7 @@
     "
     routerLinkActive="workshop-menu-nav-item-selected"
   >
-    <span class="mat-list-item-content">
+    <div class="mat-list-item-content">
       <mat-icon>drag_indicator</mat-icon>
       {{ document.name }}
       <div class="flex-spacer"></div>
@@ -26,7 +25,7 @@
         (click)="deletePage($event, document)"
         >delete</mat-icon
       >
-    </span>
+    </div>
   </a>
   }
-</mat-nav-list>
+</div>

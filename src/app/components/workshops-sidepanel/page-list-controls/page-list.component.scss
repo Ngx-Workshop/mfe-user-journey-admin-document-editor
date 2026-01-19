@@ -11,20 +11,20 @@
     vertical-align: middle;
   }
 
-  .mdc-list {
-    padding: 0;
-  }
-
-  .publish-actions {
-    padding: 10px 10px;
-    text-align: right;
-  }
-
   .page-item {
+    text-decoration: none;
     opacity: 0.65;
-    .mat-list-item-content {
-      display: flex;
-    }
+    color: var(--mat-button-tonal-on-container-color),
+      var(--mat-sys-secondary-on-container);
+    background-color: var(
+      --mat-button-tonal-container-color,
+      var(--mat-sys-secondary-container)
+    );
+    border-radius: var(
+      --mat-button-tonal-container-shape,
+      var(--mat-sys-corner-full)
+    );
+
     .edit-icon,
     .delete-icon {
       margin: 0 0 0 10px;
@@ -33,9 +33,7 @@
         opacity: 1 !important;
       }
     }
-    .mat-list-item-content {
-      display: flex;
-    }
+
     &.workshop-menu-nav-item-selected {
       opacity: 1;
       color: var(--mat-sys-on-primary-container);
@@ -48,5 +46,18 @@
         opacity: 0.45;
       }
     }
+  }
+
+  .mat-list-item-content {
+    display: flex;
+    margin: 8px 12px;
+    align-items: center;
+  }
+
+  .page-list {
+    display: flex;
+    gap: 0.5rem;
+    flex-direction: column;
+    padding: 1rem;
   }
 }
