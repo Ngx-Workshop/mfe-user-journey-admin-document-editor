@@ -1,22 +1,38 @@
 @if (viewModel$ | async; as vm) {
-  <div class="form-container">
-    <h2 mat-dialog-title>Delete {{data.workshopDocument.name}}?</h2>
-    <form [formGroup]="vm.formGroup" mat-dialog-content>
-      <p>Type in the page name to continue.</p>
-      <span class="form-level-error-message">{{vm.deletePageFormLevelMessage}}</span>
-      <mat-form-field color="accent">
-        <mat-label>Name</mat-label>
-        <input matInput type="text" placeholder="Name" formControlName="name">
-        @if (vm.formGroup.get('name')?.errors) {
-          <mat-error>{{deletePageControlsErrorMessages['name']}}</mat-error>
-        }
-      </mat-form-field>
-      <mat-dialog-actions align="end">
-        <button mat-button mat-dialog-close [disabled]="vm.loading">Cancel</button>
-        <button mat-raised-button color="warn" (click)="onDeletePage(vm.formGroup.value)" [disabled]="vm.formGroup.invalid || vm.loading">Delete</button>
-      </mat-dialog-actions>
-    </form>
-  </div>
-} @else {
-  loading ...
-}
+<div class="form-container">
+  <h2 mat-dialog-title>Delete {{ data.workshopDocument.name }}?</h2>
+  <form [formGroup]="vm.formGroup" mat-dialog-content>
+    <p>Type in the page name to continue.</p>
+    <span class="form-level-error-message">{{
+      vm.deletePageFormLevelMessage
+    }}</span>
+    <mat-form-field color="accent">
+      <mat-label>Name</mat-label>
+      <input
+        matInput
+        type="text"
+        placeholder="Name"
+        formControlName="name"
+      />
+      @if (vm.formGroup.get('name')?.errors) {
+      <mat-error>{{
+        deletePageControlsErrorMessages['name']
+      }}</mat-error>
+      }
+    </mat-form-field>
+    <mat-dialog-actions align="end">
+      <button mat-button mat-dialog-close [disabled]="vm.loading">
+        Cancel
+      </button>
+      <button
+        mat-raised-button
+        color="warn"
+        (click)="onDeletePage(vm.formGroup.value)"
+        [disabled]="vm.formGroup.invalid || vm.loading"
+      >
+        Delete
+      </button>
+    </mat-dialog-actions>
+  </form>
+</div>
+} @else { loading ... }

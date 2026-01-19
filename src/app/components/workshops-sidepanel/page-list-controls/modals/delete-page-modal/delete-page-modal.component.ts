@@ -29,6 +29,7 @@ import {
 } from 'rxjs';
 import { MatchStringValidator } from '../../../../../match-string.validator';
 import {
+  DeletePageParamsDto,
   KeyValue,
   WorkshopDocument,
 } from '../../../../../navigation.interface';
@@ -109,9 +110,8 @@ export class DeletePageModalComponent {
   });
 
   onDeletePage(formGroupValue: unknown) {
-    const { workshopId } = formGroupValue as { workshopId: string };
     this.workshopEditorService
-      .deletePage(formGroupValue as WorkshopDocument, workshopId)
+      .deletePage(formGroupValue as DeletePageParamsDto)
       .pipe(
         tap(() => this.loading$.next(true)),
         mergeMap(() =>

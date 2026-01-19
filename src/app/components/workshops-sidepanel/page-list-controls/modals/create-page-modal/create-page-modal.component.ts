@@ -110,9 +110,8 @@ export class CreatePageModalComponent {
   });
 
   onCreatePage(formGroupValue: unknown) {
-    const { workshopId } = formGroupValue as { workshopId: string };
     this.workshopEditorService
-      .createPage(formGroupValue as WorkshopDocument, workshopId)
+      .createPage(formGroupValue as WorkshopDocument)
       .pipe(
         tap(() => this.loading$.next(true)),
         mergeMap(() =>

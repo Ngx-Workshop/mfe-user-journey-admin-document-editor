@@ -4,6 +4,7 @@ import { FormGroup } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import {
+  DeletePageParamsDto,
   Workshop,
   WorkshopDocument,
   WorkshopDocumentIdentifier,
@@ -104,17 +105,17 @@ export class WorkshopEditorService {
     );
   }
 
-  createPage(page: WorkshopDocument, workshopId: string) {
+  createPage(page: WorkshopDocument) {
     return this.apiCall<WorkshopDocument>(
       '/navigation/page/create-page',
-      { page, workshopId }
+      page
     );
   }
 
-  deletePage(page: WorkshopDocument, workshopId: string) {
+  deletePage(page: DeletePageParamsDto) {
     return this.apiCall<WorkshopDocument>(
       '/navigation/page/delete-page-and-update-workshop',
-      { page, workshopId }
+      page
     );
   }
 

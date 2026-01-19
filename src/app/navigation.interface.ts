@@ -39,3 +39,9 @@ export interface WorkshopDocument {
   lastUpdated: Date;
   html: string;
 }
+
+export interface DeletePageParamsDto {
+  _id: string;
+  workshopId: string;
+  name: string;
+}
