@@ -4,6 +4,7 @@ import { FormGroup } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import {
+  CreateWorkshopFormValue,
   DeletePageParamsDto,
   Workshop,
   WorkshopDocument,
@@ -77,14 +78,22 @@ export class WorkshopEditorService {
     );
   }
 
-  createWorkshop(workshop: Workshop) {
+  createWorkshop({
+    imageURLOrUpload,
+    image,
+    ...workshop
+  }: CreateWorkshopFormValue) {
     return this.apiCall<Workshop>(
       '/navigation/workshop/create-workshop',
       workshop
     );
   }
 
-  editWorkshopNameAndSummary(workshop: Workshop) {
+  editWorkshopNameAndSummary({
+    imageURLOrUpload,
+    image,
+    ...workshop
+  }: CreateWorkshopFormValue) {
     return this.apiCall<Workshop>(
       '/navigation/workshop/edit-workshop-name-and-summary',
       workshop

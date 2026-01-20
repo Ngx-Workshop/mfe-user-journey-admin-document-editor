@@ -45,3 +45,13 @@ export interface DeletePageParamsDto {
   workshopId: string;
   name: string;
 }
+
+export interface CreateWorkshopFormValue {
+  imageURLOrUpload: 'url' | 'upload';
+  image: File | null;
+  thumbnail: string | null;
+  name: string;
+  sectionId: string;
+  sortId: number;
+  summary: string;
+}

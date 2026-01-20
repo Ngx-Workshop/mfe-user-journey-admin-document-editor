@@ -9,10 +9,12 @@ import {
 } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
 import { map, tap } from 'rxjs';
 import { NavigationService } from '../../services/navigation.service';
+import { CreateWorkshopModalComponent } from '../workshops-sidepanel/workshop-list-controls/modals/create-category-modal/create-workshop-modal.component';
 import { WorkshopListControlsComponent } from '../workshops-sidepanel/workshop-list-controls/workshop-list-control.component';
 
 @Pipe({ name: 'optimizeCloudinaryUrl' })
@@ -207,6 +209,7 @@ export class OptimizeCloudinaryUrlPipe implements PipeTransform {
 })
 export class WorkshopListComponent {
   animationTriggered = signal(false);
+  private matDialog = inject(MatDialog);
 
   workshops = inject(NavigationService)
     .getWorkshops()
@@ -221,5 +224,10 @@ export class WorkshopListComponent {
       })
     );
 
-  createWorkshop() {}
+  createWorkshop() {
+    this.matDialog.open(CreateWorkshopModalComponent, {
+      width: '400px',
+      backdropClass: 'blur-backdrop',
+    });
+  }
 }

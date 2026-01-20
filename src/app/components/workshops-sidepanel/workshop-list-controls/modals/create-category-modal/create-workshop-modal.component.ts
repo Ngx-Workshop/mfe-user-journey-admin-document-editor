@@ -25,8 +25,8 @@ import {
   tap,
 } from 'rxjs';
 import {
+  CreateWorkshopFormValue,
   KeyValue,
-  Workshop,
 } from '../../../../../navigation.interface';
 import { NavigationService } from '../../../../../services/navigation.service';
 import { WorkshopEditorService } from '../../../../../services/workshops.service';
@@ -107,7 +107,7 @@ export class CreateWorkshopModalComponent {
 
   onCreateWorkshop(formGroupValue: unknown) {
     this.workshopEditorService
-      .createWorkshop(formGroupValue as Workshop)
+      .createWorkshop(formGroupValue as CreateWorkshopFormValue)
       .pipe(
         tap(() => this.loading$.next(true)),
         mergeMap(() =>

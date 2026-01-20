@@ -27,8 +27,8 @@ import {
 
 import { MatRadioModule } from '@angular/material/radio';
 import {
+  CreateWorkshopFormValue,
   KeyValue,
-  Workshop,
 } from '../../../../../navigation.interface';
 import { NavigationService } from '../../../../../services/navigation.service';
 import { WorkshopEditorService } from '../../../../../services/workshops.service';
@@ -108,7 +108,9 @@ export class EditWorkshopModalComponent {
 
   onEditWorkshop(formGroupValue: unknown): void {
     this.workshopEditorService
-      .editWorkshopNameAndSummary(formGroupValue as Workshop)
+      .editWorkshopNameAndSummary(
+        formGroupValue as CreateWorkshopFormValue
+      )
       .pipe(
         tap(() => this.loading$.next(true)),
         mergeMap(() =>
