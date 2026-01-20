@@ -7,9 +7,9 @@ import {
 import {
   Component,
   inject,
+  input,
   OnDestroy,
   OnInit,
-  input
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
@@ -27,6 +27,45 @@ import { CreateWorkshopModalComponent } from './modals/create-category-modal/cre
 import { DeleteWorkshopModalComponent } from './modals/delete-category-modal/delete-workshop-modal.component';
 import { EditWorkshopModalComponent } from './modals/edit-category-modal/edit-workshop-modal.component';
 
+import { Pipe, PipeTransform } from '@angular/core';
+
+@Pipe({
+  name: 'truncate',
+})
+export class TruncatePipe implements PipeTransform {
+  /**
+   * Truncate a string to a given length and append an ending.
+   * @param value The original string.
+   * @param limit Maximum length before truncation (default: 20).
+   * @param trail String to append after truncation (default: '...').
+   */
+  transform(
+    value: unknown,
+    limit: number = 20,
+    trail: string = '...'
+  ): string {
+    // Validate input type
+    if (typeof value !== 'string') {
+      return '';
+    }
+
+    // Handle null/empty string
+    if (!value) {
+      return '';
+    }
+
+    // Ensure limit is a positive integer
+    if (limit <= 0) {
+      return value;
+    }
+
+    // Truncate only if needed
+    return value.length > limit
+      ? value.substring(0, limit) + trail
+      : value;
+  }
+}
+
 @Component({
   selector: 'ngx-workshop-list-control',
   templateUrl: './workshop-list-control.component.html',
@@ -36,6 +75,7 @@ import { EditWorkshopModalComponent } from './modals/edit-category-modal/edit-wo
     MatListModule,
     MatIconModule,
     DragDropModule,
+    TruncatePipe,
   ],
 })
 export class WorkshopListControlsComponent

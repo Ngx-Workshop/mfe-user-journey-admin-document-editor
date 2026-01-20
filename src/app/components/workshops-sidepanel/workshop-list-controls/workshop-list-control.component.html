@@ -1,38 +1,36 @@
 <h3>Workshop Lists</h3>
-<mat-nav-list
+<div
   cdkDropList
   class="category-list"
   (cdkDropListDropped)="onDrop($event)"
-  >
+>
   @for (workshop of workshops(); track workshop) {
-    <a
-      mat-list-item
-      cdkDrag
-      class="category-item"
-      [cdkDragDisabled]="cdkDragDisabled"
+  <a
+    cdkDrag
+    class="category-item"
     [routerLink]="
       '../' +
       workshop.workshopDocumentGroupId +
       '/' +
       workshop.workshopDocuments[0]._id
     "
-      routerLinkActive="workshop-menu-nav-item-selected"
+    routerLinkActive="workshop-menu-nav-item-selected"
+  >
+    <div class="mat-list-item-content">
+      <mat-icon>drag_indicator</mat-icon>
+      {{ workshop.name | truncate : 21 : '...' }}
+      <div class="flex-spacer"></div>
+      <mat-icon
+        class="edit-icon"
+        (click)="editWorkshop($event, workshop)"
+        >edit</mat-icon
       >
-      <span class="mat-list-item-content">
-        <mat-icon>drag_indicator</mat-icon>
-        {{ workshop.name }}
-        <div class="flex-spacer"></div>
-        <mat-icon
-          class="edit-icon"
-          (click)="editWorkshop($event, workshop)"
-          >edit</mat-icon
-          >
-          <mat-icon
-            class="delete-icon"
-            (click)="deleteWorkshop($event, workshop)"
-            >delete</mat-icon
-            >
-          </span>
-        </a>
-      }
-    </mat-nav-list>
+      <mat-icon
+        class="delete-icon"
+        (click)="deleteWorkshop($event, workshop)"
+        >delete</mat-icon
+      >
+    </div>
+  </a>
+  }
+</div>

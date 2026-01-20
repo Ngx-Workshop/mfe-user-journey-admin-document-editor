@@ -67,10 +67,6 @@ const safeStringify = (value: unknown) => {
         <mat-icon>arrow_back</mat-icon>Back to Workshops</a
       >
       <div class="flex-spacer"></div>
-      <button matButton="filled" (click)="createPage()">
-        <mat-icon>note_add</mat-icon>
-        New Page
-      </button>
       <mat-chip class="chip-published">Published</mat-chip>
       @if(vm.hasMoreThanOneDocument) {
       <mat-paginator
@@ -84,6 +80,10 @@ const safeStringify = (value: unknown) => {
         (page)="pageEventChange($event, vm.documents)"
         aria-label="Select page"
       />
+      <button matButton="filled" (click)="createPage()">
+        <mat-icon>note_add</mat-icon>
+        Create New Page
+      </button>
       }
     </div>
     <div class="workshop-detail-content">

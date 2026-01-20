@@ -81,6 +81,11 @@ export class OptimizeCloudinaryUrlPipe implements PipeTransform {
       <a routerLink="../../" matButton="filled">
         <mat-icon>arrow_back</mat-icon> Back to Sections</a
       >
+      <div class="flex-spacer"></div>
+      <button matButton="filled" (click)="createWorkshop()">
+        <mat-icon>note_add</mat-icon>
+        Create New Workshop
+      </button>
     </div>
     @if(workshops | async; as ws) {
     <div class="workshop-list-content">
@@ -221,4 +226,6 @@ export class WorkshopListComponent {
       ),
       tap(() => window.document.body.scrollTo(0, 0))
     );
+
+  createWorkshop() {}
 }
