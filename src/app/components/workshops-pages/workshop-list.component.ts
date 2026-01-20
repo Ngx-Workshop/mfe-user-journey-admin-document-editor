@@ -1,12 +1,3 @@
-import {
-  animate,
-  keyframes,
-  query,
-  stagger,
-  style,
-  transition,
-  trigger,
-} from '@angular/animations';
 import { CommonModule, NgOptimizedImage } from '@angular/common';
 import {
   ChangeDetectionStrategy,
@@ -14,6 +5,7 @@ import {
   inject,
   Pipe,
   PipeTransform,
+  signal,
 } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -43,39 +35,6 @@ export class OptimizeCloudinaryUrlPipe implements PipeTransform {
     MatButton,
     WorkshopListControlsComponent,
   ],
-  animations: [
-    trigger('staggerCircleReveal', [
-      transition(':enter', [
-        query(
-          '.ngx-mat-card',
-          [
-            style({ opacity: 0, marginTop: '100px' }),
-            stagger('150ms', [
-              animate(
-                '0.6s ease-in-out',
-                keyframes([
-                  style({
-                    opacity: 0,
-                    marginTop: '15px',
-                    clipPath: 'circle(0% at 85% 85%)',
-                    offset: 0,
-                  }),
-                  style({
-                    opacity: 1,
-                    marginTop: '0',
-                    clipPath: 'circle(200% at 0% 0%)',
-                    offset: 1.0,
-                  }),
-                ])
-              ),
-            ]),
-          ],
-          { optional: true }
-        ),
-      ]),
-      transition(':leave', [animate(600, style({ opacity: 0 }))]),
-    ]),
-  ],
   template: `
     <div class="action-bar">
       <a routerLink="../../" matButton="filled">
@@ -87,12 +46,17 @@ export class OptimizeCloudinaryUrlPipe implements PipeTransform {
         Create New Workshop
       </button>
     </div>
-    @if(workshops | async; as ws) {
+    @if (workshops | async; as ws) {
     <div class="workshop-list-content">
-      <div class="workshop-list" [@staggerCircleReveal]>
-        @for(workshop of ws; track $index) {
+      <div
+        class="workshop-list"
+        [class.animate]="animationTriggered()"
+      >
+        @for (workshop of ws; track workshop.workshopDocumentGroupId;
+        let i = $index) {
         <div
           class="ngx-mat-card mat-elevation-z6"
+          [style.--animation-order]="i"
           [routerLink]="
             '../' +
             workshop.workshopDocumentGroupId +
@@ -154,6 +118,17 @@ export class OptimizeCloudinaryUrlPipe implements PipeTransform {
         border-radius: 16px;
         color: var(--mat-sys-on-secondary-container);
         background-color: var(--mat-sys-secondary-container);
+
+        /* Initial state for animation */
+        opacity: 0;
+        margin-top: 100px;
+        clip-path: circle(0% at 85% 85%);
+
+        .animate & {
+          animation: circleReveal 0.6s ease-in-out forwards;
+          animation-delay: calc(var(--animation-order, 0) * 150ms);
+        }
+
         .img-wrapper {
           position: relative;
           width: 100%;
@@ -176,6 +151,19 @@ export class OptimizeCloudinaryUrlPipe implements PipeTransform {
           font-weight: 100;
           padding: 0px 8px;
           margin: 0 0 24px;
+        }
+      }
+
+      @keyframes circleReveal {
+        0% {
+          opacity: 0;
+          margin-top: 15px;
+          clip-path: circle(0% at 85% 85%);
+        }
+        100% {
+          opacity: 1;
+          margin-top: 0;
+          clip-path: circle(200% at 0% 0%);
         }
       }
 
@@ -218,13 +206,19 @@ export class OptimizeCloudinaryUrlPipe implements PipeTransform {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WorkshopListComponent {
+  animationTriggered = signal(false);
+
   workshops = inject(NavigationService)
     .getWorkshops()
     .pipe(
       map((workshops) =>
         workshops.sort((a, b) => a.sortId - b.sortId)
       ),
-      tap(() => window.document.body.scrollTo(0, 0))
+      tap(() => {
+        window.document.body.scrollTo(0, 0);
+        // Trigger animation after data loads
+        this.animationTriggered.set(true);
+      })
     );
 
   createWorkshop() {}
