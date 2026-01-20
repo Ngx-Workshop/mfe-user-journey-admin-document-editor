@@ -2,6 +2,15 @@
   display: flex;
   flex-direction: column;
 
+  h3 {
+    font-size: 1.3rem;
+    font-weight: 100;
+    margin: 0.5rem;
+    padding: 0.5rem;
+    color: var(--mat-sys-primary);
+    border-bottom: 1px solid var(--mat-sys-primary);
+  }
+
   ::-webkit-scrollbar {
     width: 4px;
   }
@@ -16,10 +25,10 @@
     opacity: 0.65;
     color: var(--mat-button-tonal-on-container-color),
       var(--mat-sys-secondary-on-container);
-    background-color: var(
-      --mat-button-tonal-container-color,
-      var(--mat-sys-secondary-container)
-    );
+    // background-color: var(
+    //   --mat-button-tonal-container-color,
+    //   var(--mat-sys-secondary-container)
+    // );
     border-radius: var(
       --mat-button-tonal-container-shape,
       var(--mat-sys-corner-full)
@@ -41,6 +50,10 @@
     }
     &:hover {
       opacity: 1;
+      background-color: var(
+        --mat-button-tonal-container-color,
+        var(--mat-sys-secondary-container)
+      );
       .edit-icon,
       .delete-icon {
         opacity: 0.45;
