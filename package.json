@@ -40,6 +40,7 @@
     "@tmdjr/ngx-editor-js2-pop-quiz": "^21.0.1",
     "@tmdjr/ngx-shared-headers": "21.0.5",
     "@tmdjr/ngx-user-metadata": "^21.0.4",
+    "@tmdjr/document-contracts": "0.0.21",
     "@types/jasmine": "~5.1.0",
     "jasmine-core": "~5.7.0",
     "karma": "~6.4.0",

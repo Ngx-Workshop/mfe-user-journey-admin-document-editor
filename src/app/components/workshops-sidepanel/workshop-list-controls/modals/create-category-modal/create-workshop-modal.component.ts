@@ -15,6 +15,7 @@ import {
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
+import { CreateWorkshopDto } from '@tmdjr/document-contracts';
 import {
   BehaviorSubject,
   combineLatest,
@@ -24,10 +25,7 @@ import {
   takeUntil,
   tap,
 } from 'rxjs';
-import {
-  CreateWorkshopFormValue,
-  KeyValue,
-} from '../../../../../navigation.interface';
+import { KeyValue } from '../../../../../interfaces/common.interface';
 import { NavigationService } from '../../../../../services/navigation.service';
 import { WorkshopEditorService } from '../../../../../services/workshops.service';
 
@@ -107,7 +105,7 @@ export class CreateWorkshopModalComponent {
 
   onCreateWorkshop(formGroupValue: unknown) {
     this.workshopEditorService
-      .createWorkshop(formGroupValue as CreateWorkshopFormValue)
+      .createWorkshop(formGroupValue as CreateWorkshopDto)
       .pipe(
         tap(() => this.loading$.next(true)),
         mergeMap(() =>

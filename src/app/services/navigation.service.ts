@@ -1,6 +1,12 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import {
+  SectionDto,
+  SectionsMapDto,
+  WorkshopDto,
+  WorkshopPageDto,
+} from '@tmdjr/document-contracts';
+import {
   BehaviorSubject,
   MonoTypeOperatorFunction,
   Observable,
@@ -14,14 +20,8 @@ import {
   takeUntil,
   tap,
 } from 'rxjs/operators';
-import {
-  Section,
-  Sections,
-  Workshop,
-  WorkshopDocument,
-} from '../navigation.interface';
 
-const staticPages: Map<string, Partial<Workshop>> = new Map([
+const staticPages: Map<string, Partial<WorkshopDto>> = new Map([
   ['Angular', { name: 'Angular' }],
   ['NestJS', { name: 'NestJS' }],
   ['RxJS', { name: 'RxJS' }],
@@ -45,33 +45,28 @@ function shareReplayWithTTL<T>(
   providedIn: 'root',
 })
 export class NavigationService {
-  private sections$ = new BehaviorSubject<Sections>({
+  private sections$ = new BehaviorSubject<SectionsMapDto>({
     sections: {},
   });
   private currentSection$ = new BehaviorSubject<
-    Partial<Section> | undefined
+    SectionDto | undefined
   >(undefined);
-  private workshops$ = new BehaviorSubject<Workshop[]>([]);
+  private workshops$ = new BehaviorSubject<WorkshopDto[]>([]);
   private currentWorkshop$ = new BehaviorSubject<
-    Partial<Workshop> | undefined
-  >(undefined);
-  private workshopDocument$ = new BehaviorSubject<
-    WorkshopDocument | undefined
+    Partial<WorkshopDto> | undefined
   >(undefined);
 
   private sectionWorkshopsCache: {
-    [sectionId: string]: Observable<Workshop[]>;
+    [sectionId: string]: Observable<WorkshopDto[]>;
   } = {};
-  private workshopDocumentCache: {
-    [workshopDocumentId: string]: Observable<WorkshopDocument>;
-  } = {};
+
   private cacheTTL = 5 * 60 * 1000;
 
   private http: HttpClient = inject(HttpClient);
 
   fetchSections() {
     return this.http
-      .get<Sections>('/api/documents/navigation/sections')
+      .get<SectionsMapDto>('/api/documents/navigation/sections')
       .pipe(
         tap((sections) => {
           this.sections$.next(sections);
@@ -94,7 +89,7 @@ export class NavigationService {
   private fetchSectionWorkshops(sectionId: string, force = false) {
     if (force || !this.sectionWorkshopsCache[sectionId]) {
       this.sectionWorkshopsCache[sectionId] = this.http
-        .get<Workshop[]>('/api/documents/navigation/workshops', {
+        .get<WorkshopDto[]>('/api/documents/navigation/workshops', {
           params: { section: sectionId },
         })
         .pipe(shareReplayWithTTL(1, this.cacheTTL));
@@ -119,13 +114,9 @@ export class NavigationService {
   }
 
   navigateToDocument(workshopDocumentId: string) {
-    return this.http.get<WorkshopDocument>(
+    return this.http.get<WorkshopPageDto>(
       `/api/documents/workshop/${workshopDocumentId}`
     );
-  }
-
-  getSections() {
-    return this.sections$.asObservable();
   }
 
   getCurrentSection() {
@@ -138,9 +129,5 @@ export class NavigationService {
 
   getCurrentWorkshop() {
     return this.currentWorkshop$.asObservable();
-  }
-
-  getWorkshopDocument() {
-    return this.workshopDocument$.asObservable();
   }
 }

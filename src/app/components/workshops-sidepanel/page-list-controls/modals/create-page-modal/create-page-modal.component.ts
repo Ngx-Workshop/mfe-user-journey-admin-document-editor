@@ -20,6 +20,7 @@ import { MatRadioModule as MatRatioModule } from '@angular/material/radio';
 import {
   BehaviorSubject,
   combineLatest,
+  filter,
   map,
   mergeMap,
   switchMap,
@@ -27,10 +28,9 @@ import {
   takeUntil,
   tap,
 } from 'rxjs';
-import {
-  KeyValue,
-  WorkshopDocument,
-} from '../../../../../navigation.interface';
+
+import { CreateWorkshopPageDto } from '@tmdjr/document-contracts';
+import { KeyValue } from '../../../../../interfaces/common.interface';
 import { NavigationService } from '../../../../../services/navigation.service';
 import { WorkshopEditorService } from '../../../../../services/workshops.service';
 
@@ -38,7 +38,6 @@ interface PageType {
   value: string;
   viewValue: string;
 }
-
 @Component({
   selector: 'ngx-create-page-modal',
   templateUrl: './create-page-modal.component.html',
@@ -78,15 +77,19 @@ export class CreatePageModalComponent {
 
   loading$ = new BehaviorSubject<boolean>(false);
   formGroup$ = this.navigationService.getCurrentWorkshop().pipe(
-    map((workshop) => {
-      return this.formBuilder.group({
-        workshopGroupId: [workshop?.workshopDocumentGroupId],
-        workshopId: [workshop?._id],
-        sortId: [workshop?.workshopDocuments?.length],
-        name: ['', [Validators.required]],
-        pageType: ['PAGE', [Validators.required]],
-      });
-    })
+    filter(
+      (workshop): workshop is NonNullable<typeof workshop> =>
+        !!workshop
+    ),
+    map((workshop) =>
+      this.formBuilder.nonNullable.group({
+        workshopGroupId: workshop.workshopDocumentGroupId,
+        workshopId: workshop._id,
+        sortId: workshop.workshopDocuments?.length,
+        name: ['', Validators.required],
+        pageType: ['PAGE', Validators.required],
+      })
+    )
   );
 
   viewModel$ = combineLatest({
@@ -111,7 +114,7 @@ export class CreatePageModalComponent {
 
   onCreatePage(formGroupValue: unknown) {
     this.workshopEditorService
-      .createPage(formGroupValue as WorkshopDocument)
+      .createPage(formGroupValue as CreateWorkshopPageDto)
       .pipe(
         tap(() => this.loading$.next(true)),
         mergeMap(() =>

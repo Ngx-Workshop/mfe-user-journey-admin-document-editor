@@ -20,8 +20,8 @@ import {
   MatSnackBarConfig,
 } from '@angular/material/snack-bar';
 import { RouterModule } from '@angular/router';
+import { WorkshopPageIdentifierDto } from '@tmdjr/document-contracts';
 import { from, of, Subject, switchMap, take, takeUntil } from 'rxjs';
-import { WorkshopDocumentIdentifier } from '../../../navigation.interface';
 import { NavigationService } from '../../../services/navigation.service';
 import { WorkshopEditorService } from '../../../services/workshops.service';
 import { DeletePageModalComponent } from './modals/delete-page-modal/delete-page-modal.component';
@@ -56,7 +56,7 @@ export class PageListComponent implements OnInit, OnDestroy {
     verticalPosition: 'bottom',
   };
 
-  readonly documents = input<WorkshopDocumentIdentifier[]>([]);
+  readonly documents = input<WorkshopPageIdentifierDto[]>([]);
   readonly workshopDocumentGroupId = input('');
   readonly workshopDocumentId = input('');
   readonly workshopId = input('');

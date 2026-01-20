@@ -1,15 +1,20 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { FormGroup } from '@angular/forms';
+import {
+  CreateWorkshopDto,
+  CreateWorkshopPageDto,
+  DeletePageParamsDto,
+  DeleteResultDto,
+  EditPageNameUpdateWorkshopDto,
+  UpdateWorkshopDto,
+  WorkshopDto,
+  WorkshopPageDto,
+  WorkshopPageIdentifierDto,
+} from '@tmdjr/document-contracts';
 import { Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
-import {
-  CreateWorkshopFormValue,
-  DeletePageParamsDto,
-  Workshop,
-  WorkshopDocument,
-  WorkshopDocumentIdentifier,
-} from '../navigation.interface';
+import { KeyValue } from '../interfaces/common.interface';
 
 export interface CloudinaryUploadResponse {
   asset_id: string;
@@ -40,8 +45,6 @@ export interface Result<T> {
   error?: number;
 }
 
-export type KeyValue = { [key: string]: string };
-
 @Injectable({
   providedIn: 'root',
 })
@@ -52,7 +55,7 @@ export class WorkshopEditorService {
   saveEditorDataSubject = new Subject<unknown>();
   saveEditorData$ = this.saveEditorDataSubject.asObservable();
   savePageHTML(html: string, _id: string) {
-    return this.apiCall<WorkshopDocument>(
+    return this.apiCall<WorkshopPageDto>(
       '/workshop/update-workshop-html',
       { _id, html }
     );
@@ -78,23 +81,15 @@ export class WorkshopEditorService {
     );
   }
 
-  createWorkshop({
-    imageURLOrUpload,
-    image,
-    ...workshop
-  }: CreateWorkshopFormValue) {
-    return this.apiCall<Workshop>(
+  createWorkshop(workshop: CreateWorkshopDto) {
+    return this.apiCall<WorkshopDto>(
       '/navigation/workshop/create-workshop',
       workshop
     );
   }
 
-  editWorkshopNameAndSummary({
-    imageURLOrUpload,
-    image,
-    ...workshop
-  }: CreateWorkshopFormValue) {
-    return this.apiCall<Workshop>(
+  editWorkshopNameAndSummary(workshop: UpdateWorkshopDto) {
+    return this.apiCall<WorkshopDto>(
       '/navigation/workshop/edit-workshop-name-and-summary',
       workshop
     );
@@ -107,40 +102,40 @@ export class WorkshopEditorService {
     );
   }
 
-  sortWorkshops(workshop: Workshop[]) {
-    return this.apiCall<Workshop[]>(
+  sortWorkshops(workshop: UpdateWorkshopDto[]) {
+    return this.apiCall<WorkshopDto[]>(
       '/navigation/workshop/sort-workshops',
       workshop
     );
   }
 
-  createPage(page: WorkshopDocument) {
-    return this.apiCall<WorkshopDocument>(
+  createPage(page: CreateWorkshopPageDto) {
+    return this.apiCall<WorkshopDto>(
       '/navigation/page/create-page',
       page
     );
   }
 
   deletePage(page: DeletePageParamsDto) {
-    return this.apiCall<WorkshopDocument>(
+    return this.apiCall<DeleteResultDto>(
       '/navigation/page/delete-page-and-update-workshop',
       page
     );
   }
 
-  editPageName(page: WorkshopDocument) {
-    return this.apiCall<Workshop>(
+  editPageName(page: EditPageNameUpdateWorkshopDto) {
+    return this.apiCall<WorkshopDto>(
       '/navigation/page/edit-page-name-update-workshop',
       page
     );
   }
 
   sortDocuments(
-    pages: WorkshopDocumentIdentifier[],
+    pages: WorkshopPageIdentifierDto[],
     workshopId: string
   ) {
     const params = new HttpParams().set('workshopId', workshopId);
-    return this.apiCall<WorkshopDocument[]>(
+    return this.apiCall<WorkshopDto[]>(
       '/navigation/page/sort-pages',
       pages,
       'post',

@@ -20,7 +20,6 @@ import {
 } from '@angular/material/snack-bar';
 import { RouterModule } from '@angular/router';
 import { from, of, Subject, switchMap, take, takeUntil } from 'rxjs';
-import { Workshop } from '../../../navigation.interface';
 import { NavigationService } from '../../../services/navigation.service';
 import { WorkshopEditorService } from '../../../services/workshops.service';
 import { CreateWorkshopModalComponent } from './modals/create-category-modal/create-workshop-modal.component';
@@ -28,6 +27,7 @@ import { DeleteWorkshopModalComponent } from './modals/delete-category-modal/del
 import { EditWorkshopModalComponent } from './modals/edit-category-modal/edit-workshop-modal.component';
 
 import { Pipe, PipeTransform } from '@angular/core';
+import { WorkshopDto } from '@tmdjr/document-contracts';
 
 @Pipe({
   name: 'truncate',
@@ -98,7 +98,7 @@ export class WorkshopListControlsComponent
   sortWorkshopFormError$ = new Subject<boolean>();
   sortWorkshopFormSuccess$ = new Subject<boolean>();
 
-  readonly workshops = input<Workshop[]>([]);
+  readonly workshops = input<WorkshopDto[]>([]);
 
   navigationService = inject(NavigationService);
 
@@ -117,7 +117,7 @@ export class WorkshopListControlsComponent
     });
   }
 
-  deleteWorkshop(event: Event, workshop: Workshop): void {
+  deleteWorkshop(event: Event, workshop: WorkshopDto): void {
     event.preventDefault();
     event.stopImmediatePropagation();
     this.matDialog.open(DeleteWorkshopModalComponent, {
@@ -127,7 +127,7 @@ export class WorkshopListControlsComponent
     });
   }
 
-  editWorkshop(event: Event, workshop: Workshop): void {
+  editWorkshop(event: Event, workshop: WorkshopDto): void {
     event.preventDefault();
     event.stopImmediatePropagation();
     this.matDialog.open(EditWorkshopModalComponent, {

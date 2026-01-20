@@ -18,6 +18,10 @@ import {
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import {
+  EditPageNameUpdateWorkshopDto,
+  WorkshopPageDto,
+} from '@tmdjr/document-contracts';
+import {
   BehaviorSubject,
   combineLatest,
   map,
@@ -27,10 +31,7 @@ import {
   takeUntil,
   tap,
 } from 'rxjs';
-import {
-  KeyValue,
-  WorkshopDocument,
-} from '../../../../../navigation.interface';
+import { KeyValue } from '../../../../../interfaces/common.interface';
 import { NavigationService } from '../../../../../services/navigation.service';
 import { WorkshopEditorService } from '../../../../../services/workshops.service';
 
@@ -50,7 +51,7 @@ import { WorkshopEditorService } from '../../../../../services/workshops.service
 })
 export class EditPageModalComponent {
   data = inject<{
-    workshopDocument: WorkshopDocument;
+    workshopDocument: WorkshopPageDto;
   }>(MAT_DIALOG_DATA);
 
   private workshopEditorService = inject(WorkshopEditorService);
@@ -103,7 +104,7 @@ export class EditPageModalComponent {
 
   onEditPage(formGroupValue: unknown) {
     this.workshopEditorService
-      .editPageName(formGroupValue as WorkshopDocument)
+      .editPageName(formGroupValue as EditPageNameUpdateWorkshopDto)
       .pipe(
         tap(() => this.loading$.next(true)),
         mergeMap(() =>

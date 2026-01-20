@@ -12,6 +12,10 @@ import {
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
+  WorkshopPageDto,
+  WorkshopPageIdentifierDto,
+} from '@tmdjr/document-contracts';
+import {
   NgxEditorJs2Component,
   NgxEditorJsBlock,
 } from '@tmdjr/ngx-editor-js2';
@@ -24,10 +28,6 @@ import {
   switchMap,
   tap,
 } from 'rxjs';
-import {
-  WorkshopDocument,
-  WorkshopDocumentIdentifier,
-} from '../../navigation.interface';
 import { NavigationService } from '../../services/navigation.service';
 import { WorkshopEditorService } from '../../services/workshops.service';
 import { CreatePageModalComponent } from '../workshops-sidepanel/page-list-controls/modals/create-page-modal/create-page-modal.component';
@@ -197,7 +197,7 @@ export class WorkshopDetailComponent {
   ]).pipe(
     map(([blocks, workshop]) => {
       return {
-        document: blocks['documentResolver'] as WorkshopDocument,
+        document: blocks['documentResolver'] as WorkshopPageDto,
         documents: workshop?.workshopDocuments,
         workshop,
       };
@@ -230,7 +230,7 @@ export class WorkshopDetailComponent {
 
   pageEventChange(
     { pageIndex }: PageEvent,
-    documents: WorkshopDocumentIdentifier[]
+    documents: WorkshopPageIdentifierDto[]
   ): void {
     this.router.navigate(['../', documents[pageIndex]._id], {
       relativeTo: this.activatedRoute,
@@ -239,7 +239,7 @@ export class WorkshopDetailComponent {
 
   handleSavingBlocks(
     blocks: NgxEditorJsBlock[],
-    document: WorkshopDocument
+    document: WorkshopPageIdentifierDto
   ): void {
     void lastValueFrom(
       of(blocks).pipe(

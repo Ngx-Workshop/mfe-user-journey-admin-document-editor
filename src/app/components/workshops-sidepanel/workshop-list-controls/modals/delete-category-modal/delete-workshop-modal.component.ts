@@ -22,8 +22,8 @@ import {
   takeUntil,
   tap,
 } from 'rxjs';
-import { MatchStringValidator } from '../../../../../match-string.validator';
-import { KeyValue } from '../../../../../navigation.interface';
+import { MatchStringValidator } from '../../../../../form-validators/match-string.validator';
+import { KeyValue } from '../../../../../interfaces/common.interface';
 import { NavigationService } from '../../../../../services/navigation.service';
 import { WorkshopEditorService } from '../../../../../services/workshops.service';
 

@@ -18,6 +18,10 @@ import {
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import {
+  DeletePageParamsDto,
+  WorkshopPageDto,
+} from '@tmdjr/document-contracts';
+import {
   BehaviorSubject,
   combineLatest,
   map,
@@ -27,12 +31,8 @@ import {
   takeUntil,
   tap,
 } from 'rxjs';
-import { MatchStringValidator } from '../../../../../match-string.validator';
-import {
-  DeletePageParamsDto,
-  KeyValue,
-  WorkshopDocument,
-} from '../../../../../navigation.interface';
+import { MatchStringValidator } from '../../../../../form-validators/match-string.validator';
+import { KeyValue } from '../../../../../interfaces/common.interface';
 import { NavigationService } from '../../../../../services/navigation.service';
 import { WorkshopEditorService } from '../../../../../services/workshops.service';
 
@@ -52,7 +52,7 @@ import { WorkshopEditorService } from '../../../../../services/workshops.service
 })
 export class DeletePageModalComponent {
   data = inject<{
-    workshopDocument: WorkshopDocument;
+    workshopDocument: WorkshopPageDto;
   }>(MAT_DIALOG_DATA);
 
   private workshopEditorService = inject(WorkshopEditorService);
