@@ -2,7 +2,6 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import {
-  CreateWorkshopDto,
   CreateWorkshopPageDto,
   DeletePageParamsDto,
   DeleteResultDto,
@@ -81,7 +80,7 @@ export class WorkshopEditorService {
     );
   }
 
-  createWorkshop(workshop: CreateWorkshopDto) {
+  createWorkshop(workshop: UpdateWorkshopDto) {
     return this.apiCall<WorkshopDto>(
       '/navigation/workshop/create-workshop',
       workshop

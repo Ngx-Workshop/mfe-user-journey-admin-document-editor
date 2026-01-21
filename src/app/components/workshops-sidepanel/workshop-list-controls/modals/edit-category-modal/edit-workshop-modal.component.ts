@@ -31,6 +31,20 @@ import { KeyValue } from '../../../../../interfaces/common.interface';
 import { NavigationService } from '../../../../../services/navigation.service';
 import { WorkshopEditorService } from '../../../../../services/workshops.service';
 
+interface EditWorkshopFromGroup extends UpdateWorkshopDto {
+  image?: File | null;
+  imageURLOrUpload?: 'url' | 'upload';
+}
+
+type EditWorkshopFormControls = {
+  _id: FormControl<string>;
+  name: FormControl<string>;
+  summary: FormControl<string>;
+  imageURLOrUpload: FormControl<'url' | 'upload'>;
+  thumbnail: FormControl<string>;
+  image: FormControl<File | null>;
+};
+
 @Component({
   selector: 'ngx-edit-workshop-modal',
   templateUrl: './edit-workshop-modal.component.html',
@@ -68,18 +82,40 @@ export class EditWorkshopModalComponent {
 
   loading$ = new BehaviorSubject<boolean>(false);
   formGroup$ = of(
-    this.formBuilder.group({
-      _id: [this.workshop.workshop?._id],
-      name: [this.workshop.workshop?.name, [Validators.required]],
-      summary: [
-        this.workshop.workshop?.summary,
-        [Validators.required],
-      ],
-      imageURLOrUpload: ['url'],
-      thumbnail: [
-        this.workshop.workshop?.thumbnail,
-        [Validators.required],
-      ],
+    this.formBuilder.group<EditWorkshopFormControls>({
+      _id: this.formBuilder.control(
+        this.workshop.workshop?._id ?? '',
+        {
+          nonNullable: true,
+        }
+      ),
+      name: this.formBuilder.control(
+        this.workshop.workshop?.name ?? '',
+        {
+          nonNullable: true,
+          validators: [Validators.required],
+        }
+      ),
+      summary: this.formBuilder.control(
+        this.workshop.workshop?.summary ?? '',
+        {
+          nonNullable: true,
+          validators: [Validators.required],
+        }
+      ),
+      imageURLOrUpload: this.formBuilder.control<'url' | 'upload'>(
+        'url',
+        {
+          nonNullable: true,
+        }
+      ),
+      thumbnail: this.formBuilder.control(
+        this.workshop.workshop?.thumbnail ?? '',
+        {
+          nonNullable: true,
+          validators: [Validators.required],
+        }
+      ),
       image: new FormControl<File | null>(null),
     })
   );
@@ -104,9 +140,13 @@ export class EditWorkshopModalComponent {
     editWorkshopFormLevelMessage: this.editWorkshopFormLevelMessage$,
   });
 
-  onEditWorkshop(formGroupValue: unknown): void {
+  onEditWorkshop({
+    image,
+    imageURLOrUpload,
+    ...updateWorkshopDto
+  }: EditWorkshopFromGroup): void {
     this.workshopEditorService
-      .editWorkshopNameAndSummary(formGroupValue as UpdateWorkshopDto)
+      .editWorkshopNameAndSummary(updateWorkshopDto)
       .pipe(
         tap(() => this.loading$.next(true)),
         mergeMap(() =>

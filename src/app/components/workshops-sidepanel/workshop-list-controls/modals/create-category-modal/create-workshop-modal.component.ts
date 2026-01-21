@@ -15,7 +15,7 @@ import {
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
-import { CreateWorkshopDto } from '@tmdjr/document-contracts';
+import { UpdateWorkshopDto } from '@tmdjr/document-contracts';
 import {
   BehaviorSubject,
   combineLatest,
@@ -28,6 +28,21 @@ import {
 import { KeyValue } from '../../../../../interfaces/common.interface';
 import { NavigationService } from '../../../../../services/navigation.service';
 import { WorkshopEditorService } from '../../../../../services/workshops.service';
+
+interface CreateWorkshopFormValue extends UpdateWorkshopDto {
+  image?: File | null;
+  imageURLOrUpload?: 'url' | 'upload';
+}
+
+type CreateWorkshopFormControls = {
+  sectionId: FormControl<string>;
+  sortId: FormControl<number>;
+  name: FormControl<string>;
+  summary: FormControl<string>;
+  imageURLOrUpload: FormControl<'url' | 'upload'>;
+  thumbnail: FormControl<string>;
+  image: FormControl<File | null>;
+};
 
 @Component({
   selector: 'ngx-create-workshop-modal',
@@ -70,14 +85,33 @@ export class CreateWorkshopModalComponent {
     workshops: inject(NavigationService).getWorkshops(),
   }).pipe(
     map(({ section, workshops }) => {
-      return this.formBuilder.group({
-        sectionId: [section?._id],
-        sortId: [workshops.length],
-        name: ['', [Validators.required]],
-        summary: ['', [Validators.required]],
-        imageURLOrUpload: ['url'],
-        thumbnail: new FormControl<string | null>(null),
-        image: new FormControl<File | null>(null),
+      return this.formBuilder.group<CreateWorkshopFormControls>({
+        sectionId: this.formBuilder.control(section?._id ?? '', {
+          nonNullable: true,
+        }),
+        sortId: this.formBuilder.control(workshops.length, {
+          nonNullable: true,
+        }),
+        name: this.formBuilder.control('', {
+          nonNullable: true,
+          validators: [Validators.required],
+        }),
+        summary: this.formBuilder.control('', {
+          nonNullable: true,
+          validators: [Validators.required],
+        }),
+        imageURLOrUpload: this.formBuilder.control<'url' | 'upload'>(
+          'url',
+          {
+            nonNullable: true,
+          }
+        ),
+        thumbnail: this.formBuilder.control<string>('', {
+          nonNullable: true,
+        }),
+        image: this.formBuilder.control<File | null>(null, {
+          nonNullable: true,
+        }),
       });
     })
   );
@@ -103,9 +137,13 @@ export class CreateWorkshopModalComponent {
       this.createWorkshopFormLevelMessage$,
   });
 
-  onCreateWorkshop(formGroupValue: unknown) {
+  onCreateWorkshop({
+    image,
+    imageURLOrUpload,
+    ...createWorkshopDto
+  }: CreateWorkshopFormValue) {
     this.workshopEditorService
-      .createWorkshop(formGroupValue as CreateWorkshopDto)
+      .createWorkshop(createWorkshopDto)
       .pipe(
         tap(() => this.loading$.next(true)),
         mergeMap(() =>

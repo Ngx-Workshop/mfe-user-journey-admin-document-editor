@@ -1,103 +1,95 @@
 @if (viewModel$ | async; as vm) {
-  <div class="form-container">
-    <h2 mat-dialog-title>Edit {{ workshop.workshop.name }}?</h2>
-    <form [formGroup]="vm.formGroup" mat-dialog-content>
-      <span class="form-level-error-message">{{
-        vm.editWorkshopFormLevelMessage
-      }}</span>
-      <mat-form-field color="accent">
-        <mat-label>Name</mat-label>
-        <input
-          matInput
-          type="text"
-          placeholder="Name"
-          formControlName="name"
-          />
-        @if (vm.formGroup.get('password')?.errors) {
-          <mat-error>{{
-            editWorkshopControlsErrorMessages['password']
-          }}</mat-error>
-        }
-      </mat-form-field>
-      <mat-form-field color="accent">
-        <mat-label>Summary</mat-label>
-        <textarea
-          matInput
-          placeholder="Summary"
-          formControlName="summary"
-        ></textarea>
-        @if (vm.formGroup.get('summary')?.errors) {
-          <mat-error>{{
-            editWorkshopControlsErrorMessages['summary']
-          }}</mat-error>
-        }
-      </mat-form-field>
-      <mat-radio-group
-        formControlName="imageURLOrUpload"
-        class="radio-image-option"
-        >
-        <mat-radio-button value="url">URL</mat-radio-button>
-        <mat-radio-button value="upload">Upload</mat-radio-button>
-      </mat-radio-group>
-      <!-- URL Input -->
-      @if (vm.formGroup.get('imageURLOrUpload')?.value === 'url') {
-        <mat-form-field
-          color="accent"
-          >
-          <mat-label>Image URL</mat-label>
-          <input
-            matInput
-            type="text"
-            placeholder="Enter Image URL"
-            formControlName="thumbnail"
-            />
-        </mat-form-field>
+<div class="form-container">
+  <h2 mat-dialog-title>Edit {{ workshop.workshop.name }}?</h2>
+  <form [formGroup]="vm.formGroup" mat-dialog-content>
+    <span class="form-level-error-message">{{
+      vm.editWorkshopFormLevelMessage
+    }}</span>
+    <mat-form-field color="accent">
+      <mat-label>Name</mat-label>
+      <input
+        matInput
+        type="text"
+        placeholder="Name"
+        formControlName="name"
+      />
+      @if (vm.formGroup.get('password')?.errors) {
+      <mat-error>{{
+        editWorkshopControlsErrorMessages['password']
+      }}</mat-error>
       }
-      <!-- Upload Button -->
-      @if (
-        vm.formGroup.get('imageURLOrUpload')?.value === 'upload'
-        ) {
-        <div
-          >
-          <input
-            #fileInput
-            hidden
-            type="file"
-            formControlName="image"
-            (change)="onFileSelected($event, vm.formGroup)"
-            accept="image/*"
-            />
-          <button
-            mat-raised-button
-            color="accent"
-            (click)="fileInput.click()"
-            >
-            Choose File
-          </button>
-        </div>
+    </mat-form-field>
+    <mat-form-field color="accent">
+      <mat-label>Summary</mat-label>
+      <textarea
+        matInput
+        placeholder="Summary"
+        formControlName="summary"
+      ></textarea>
+      @if (vm.formGroup.get('summary')?.errors) {
+      <mat-error>{{
+        editWorkshopControlsErrorMessages['summary']
+      }}</mat-error>
       }
-      @if (vm.formGroup.get('thumbnail')?.value) {
-        <img
-          [src]="vm.formGroup.get('thumbnail')?.value"
-          alt="Workshop Image"
-          class="image-preview"
-          />
-      }
-      <mat-dialog-actions align="end">
-        <button mat-button mat-dialog-close [disabled]="vm.loading">
-          Cancel
-        </button>
-        <button
-          mat-raised-button
-          color="accent"
-          (click)="onEditWorkshop(vm.formGroup.value)"
-          [disabled]="vm.formGroup.invalid || vm.loading"
-          >
-          Edit
-        </button>
-      </mat-dialog-actions>
-    </form>
-  </div>
-} @else {
-  loading ...
-}
+    </mat-form-field>
+    <mat-radio-group
+      formControlName="imageURLOrUpload"
+      class="radio-image-option"
+    >
+      <mat-radio-button value="url">URL</mat-radio-button>
+      <mat-radio-button value="upload">Upload</mat-radio-button>
+    </mat-radio-group>
+    <!-- URL Input -->
+    @if (vm.formGroup.get('imageURLOrUpload')?.value === 'url') {
+    <mat-form-field color="accent">
+      <mat-label>Image URL</mat-label>
+      <input
+        matInput
+        type="text"
+        placeholder="Enter Image URL"
+        formControlName="thumbnail"
+      />
+    </mat-form-field>
+    }
+    <!-- Upload Button -->
+    @if ( vm.formGroup.get('imageURLOrUpload')?.value === 'upload' ) {
+    <div>
+      <input
+        #fileInput
+        hidden
+        type="file"
+        formControlName="image"
+        (change)="onFileSelected($event, vm.formGroup)"
+        accept="image/*"
+      />
+      <button
+        mat-raised-button
+        color="accent"
+        (click)="fileInput.click()"
+      >
+        Choose File
+      </button>
+    </div>
+    } @if (vm.formGroup.get('thumbnail')?.value) {
+    <img
+      [src]="vm.formGroup.get('thumbnail')?.value"
+      alt="Workshop Image"
+      class="image-preview"
+    />
+    }
+    <mat-dialog-actions align="end">
+      <button mat-button mat-dialog-close [disabled]="vm.loading">
+        Cancel
+      </button>
+      <button
+        mat-raised-button
+        color="accent"
+        (click)="onEditWorkshop(vm.formGroup.getRawValue())"
+        [disabled]="vm.formGroup.invalid || vm.loading"
+      >
+        Edit
+      </button>
+    </mat-dialog-actions>
+  </form>
+</div>
+} @else { loading ... }
