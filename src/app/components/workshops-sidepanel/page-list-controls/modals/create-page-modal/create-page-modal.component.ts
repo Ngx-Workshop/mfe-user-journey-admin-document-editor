@@ -83,7 +83,6 @@ export class CreatePageModalComponent {
     ),
     map((workshop) =>
       this.formBuilder.nonNullable.group({
-        workshopGroupId: workshop.workshopDocumentGroupId,
         workshopId: workshop._id,
         sortId: workshop.workshopDocuments?.length,
         name: ['', Validators.required],

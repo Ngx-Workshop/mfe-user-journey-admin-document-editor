@@ -73,7 +73,7 @@ export class EditPageModalComponent {
     map((workshop) => {
       return this.formBuilder.group({
         _id: [this.data.workshopDocument._id],
-        workshopGroupId: [workshop?._id],
+        workshopId: [workshop?._id],
         name: [
           this.data.workshopDocument.name,
           [Validators.required],
