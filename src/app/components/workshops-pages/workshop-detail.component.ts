@@ -80,11 +80,11 @@ const safeStringify = (value: unknown) => {
         (page)="pageEventChange($event, vm.documents)"
         aria-label="Select page"
       />
+      }
       <button matButton="filled" (click)="createPage()">
         <mat-icon>note_add</mat-icon>
         Create New Page
       </button>
-      }
     </div>
     <div class="workshop-detail-content">
       <div class="page">
