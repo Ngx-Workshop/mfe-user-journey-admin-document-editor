@@ -1,109 +1,64 @@
-# Implementation Plan: [FEATURE]
+# Implementation plan: <feature>
 
-**Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
-**Input**: Feature specification from `/specs/[###-feature-name]/spec.md`
-
-**Note**: This template is filled in by the `/speckit.plan` command. See `.specify/templates/commands/plan.md` for the execution workflow.
-
-## Summary
-
-[Extract from feature spec: primary requirement + technical approach from research]
+Status: Draft
+Spec: [spec.md](spec.md)
+Updated: <date>
 
 ## Technical Context
 
-<!--
-  ACTION REQUIRED: Replace the content in this section with the technical details
-  for the project. The structure here is presented in advisory capacity to guide
-  the iteration process.
--->
+**Language/Version**: TypeScript ~5.9.3 / Angular 21.1.0 (verify package.json)
+**Primary Dependencies**: Angular Material/CDK, RxJS, editor-js2, document-contracts, Module Federation
+**Storage**: Browser in-memory state; persistence owned by service-document
+**Project Type**: Host-mounted Angular document authoring remote
 
-**Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]
-**Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]
-**Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]
-**Testing**: [e.g., pytest, XCTest, cargo test or NEEDS CLARIFICATION]
-**Target Platform**: [e.g., Linux server, iOS 15+, WASM or NEEDS CLARIFICATION]
-**Project Type**: [single/web/mobile - determines source structure]
-**Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec, 60 fps or NEEDS CLARIFICATION]
-**Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]
-**Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
+## Source baseline
+
+<Commit/reference, relevant source files, current behavior, and inherited
+limitations that affect this feature. Verify dependency versions from manifests.>
+
+## Design and requirement mapping
+
+| Requirement | Approach | Files/boundaries affected |
+| --- | --- | --- |
+| FR-001 | <Concrete approach> | <Actual paths and integration points> |
 
 ## Constitution Check
 
-_GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
+<For each applicable principle: satisfied, N/A with reason, or an explicit
+deviation with rationale/impact/follow-up. Revisit after implementation.>
 
-- Code quality: strict typing, idiomatic Angular patterns, small focused components.
-- Testing: test coverage added/updated for all new behavior; regression tests for bugs.
-- UX consistency: states (loading/empty/error) defined; no ad-hoc UX divergence.
-- Accessibility: keyboard support, labels/semantics, focus management for dialogs.
-- MFE remote constraints: no host/bootstrap assumptions; exposed contracts documented.
+## Data, API, and integration contracts
 
-## Project Structure
+<Requests, responses, validation, access policy, ownership, generated artifacts,
+and compatibility. Include host exports/routes for frontend changes or DTO/
+schema/OpenAPI changes for services as applicable. Mark unchanged boundaries.>
 
-### Documentation (this feature)
+## External dependencies and delivery order
 
-```text
-specs/[###-feature]/
-├── plan.md              # This file (/speckit.plan command output)
-├── research.md          # Phase 0 output (/speckit.plan command)
-├── data-model.md        # Phase 1 output (/speckit.plan command)
-├── quickstart.md        # Phase 1 output (/speckit.plan command)
-├── contracts/           # Phase 1 output (/speckit.plan command)
-└── tasks.md             # Phase 2 output (/speckit.tasks command - NOT created by /speckit.plan)
-```
+| Owner repository | Required contract/change | Compatibility and ordering | Local fallback / pending check |
+| --- | --- | --- | --- |
+| <Owner or none> | <Exact dependency> | <Producer/consumer sequence> | <Test double and verification limit> |
 
-### Source Code (repository root)
+## Verification plan
 
-<!--
-  ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
-  for this feature. Delete unused options and expand the chosen structure with
-  real paths (e.g., apps/admin, packages/something). The delivered plan must
-  not include Option labels.
--->
+| Acceptance scenario | Check/test | Environment or prerequisites |
+| --- | --- | --- |
+| AC-001 | <Observable check and test path/command> | <Local, test DB, host, etc.> |
 
-```text
-# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
-src/
-├── models/
-├── services/
-├── cli/
-└── lib/
+<Use the repo development guide. Distinguish unit/build checks from integration.>
 
-tests/
-├── contract/
-├── integration/
-└── unit/
+## Risks and migration
 
-# [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
-backend/
-├── src/
-│   ├── models/
-│   ├── services/
-│   └── api/
-└── tests/
+<Relevant failure modes, data migration, backward compatibility, rollout/rollback,
+or N/A with explanation. Avoid unrelated deployment work.>
 
-frontend/
-├── src/
-│   ├── components/
-│   ├── pages/
-│   └── services/
-└── tests/
+## Decisions and open questions
 
-# [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
-api/
-└── [same as backend above]
+<Resolved choices with evidence; unresolved decisions and which tasks they block.>
 
-ios/ or android/
-└── [platform-specific structure: feature modules, UI flows, platform tests]
-```
+## Document-specific review
 
-**Structure Decision**: [Document the selected structure and reference the real
-directories captured above]
-
-## Complexity Tracking
-
-> **Fill ONLY if Constitution Check has violations that must be justified**
-
-| Violation                  | Why Needed         | Simpler Alternative Rejected Because |
-| -------------------------- | ------------------ | ------------------------------------ |
-| [e.g., 4th project]        | [current need]     | [why 3 projects insufficient]        |
-| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient]  |
+Review docs/api-contracts.md and docs/document-readiness.md. Record affected
+section keys, workshop slugs/IDs, page IDs, block serialization, admin/public access,
+ordering, partial failure and consumer compatibility. Mark irrelevant areas N/A
+with reasons. Do not assume publication/versioning or upload endpoints exist.

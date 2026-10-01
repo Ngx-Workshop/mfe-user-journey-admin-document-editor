@@ -1,139 +1,61 @@
-<!--
-Sync Impact Report
+# Constitution — Document editor remote
 
-- Version change: unversioned template -> 1.0.0
-- Modified principles: N/A (initial adoption)
-- Added sections: Core Principles, Architecture & Constraints, Workflow & Quality Gates, Governance
-- Removed sections: N/A
-- Templates requiring updates:
-	- UPDATED: .specify/templates/plan-template.md
-	- UPDATED: .specify/templates/tasks-template.md
-	- UNCHANGED: .specify/templates/spec-template.md
-	- UNCHANGED: .specify/templates/checklist-template.md
-	- UNCHANGED: .specify/templates/agent-file-template.md
-- Follow-up TODOs:
-	- TODO(RATIFICATION_DATE): Original adoption date is unknown.
--->
+Version: 1.1.0 · Last amended: 2026-10-01
+Original ratification date is unknown; the previous 1.0.0 record was amended 2026-01-12.
 
-# mfe-user-journey-admin-document-editor Constitution
+This amendment preserves the five original principles and expands them with
+repository-specific boundaries and the local workflow. Updated dependent templates
+and context documents accompany this migration. These are requirements for future
+changes, not evidence that inherited code already meets every requirement.
 
-## Core Principles
+## 1. Code quality
 
-### 1) Code Quality Is Non-Negotiable
+Keep strict TypeScript and Angular template checking. Prefer standalone components,
+Angular control flow, typed reactive forms, signals and RxJS as appropriate to the
+existing zoneless Angular application. Avoid new any types and unnecessary state
+frameworks. Keep orchestration, presentation and HTTP responsibilities explicit.
 
-We ship maintainable code that is idiomatic to Angular + TypeScript.
+## 2. Testing
 
-Non-negotiables:
+Cover changed logic with meaningful unit tests, changed UI with observable component
+checks, and bug fixes with regressions. Tests must be deterministic and isolated.
+Verify route resolution, payload mapping and failure recovery where affected.
+A build or mocked response is not evidence of host/service integration.
 
-- TypeScript stays strict; avoid `any` (use `unknown` + narrowing).
-- Prefer clear, conventional Angular patterns over "clever" shortcuts.
-- Keep components small, single-responsibility, and dependency-light.
-- Prefer Angular-native control flow (`@if`, `@for`, `@switch`) over legacy
-  structural directives.
+## 3. Consistent user experience
 
-Rationale: This repo is a micro-frontend remote; clarity and predictability reduce
-integration risk.
+Use Angular Material and established shared components. Make loading, empty,
+validation, saving, success and error states truthful. Preserve recoverable edits
+and prevent ambiguous duplicate mutations. Do not imply publication/versioning
+from the current static Published label.
 
-### 2) Testing Is a Delivery Requirement
+## 4. Accessibility
 
-Every behavior change must be covered by tests appropriate to the risk:
+Interactive controls must support keyboard access and useful labels. Use semantic
+HTML, deliberate dialog focus handling and responsive layouts. Ordering actions
+need an accessible equivalent where drag-and-drop alone is insufficient.
 
-Non-negotiables:
+## 5. Simple, idiomatic design
 
-- New/changed logic must have unit tests.
-- New/changed UI behavior must have component tests (or equivalent) that verify
-  user-visible outcomes.
-- Bugs must be fixed with a regression test.
-- Tests must be deterministic and isolated; no reliance on execution order.
+Prefer small focused components and existing patterns. Inline templates/styles
+are the default unless size harms readability; retain external templates where
+appropriate. Avoid unrelated refactors in feature work.
 
-Rationale: A remote can break hosts silently; tests are the first integration
-contract.
+## 6. Document integration boundaries
 
-### 3) UX Consistency Over Local Optimizations
+The shell owns composition and auth context. Preserve default App, named Routes,
+remoteEntry.js and ./Component / ./Routes exposures, including shared dependency
+compatibility. The legacy federation name is a contract until deliberately migrated.
+The service owns authorization and data; frontend authentication is not an admin
+permission boundary. Use published document DTOs and explicit request mapping.
+Preserve the distinction between workshop Mongo ID, workshop slug, page ID and
+section key. The html field contains serialized editor blocks, not raw page markup.
+Changes to its format require consumer compatibility and migration decisions.
 
-User experience must remain consistent across the NGX Workshop ecosystem.
+## Workflow and governance
 
-Non-negotiables:
-
-- Reuse established components and patterns before introducing new ones.
-- Keep interactions predictable: loading, empty, and error states are explicit.
-- Avoid ad-hoc visual divergence that makes the remote feel like a separate app.
-
-Rationale: Micro frontends are perceived as one product by users.
-
-### 4) Accessibility Is a First-Class Feature
-
-Accessibility is part of “done”, not a follow-up.
-
-Non-negotiables:
-
-- All interactive elements are keyboard accessible.
-- Use semantic HTML and correct labeling (e.g., form labels, button names).
-- Manage focus when dialogs/modals open and close.
-- Avoid ARIA when native semantics suffice; when ARIA is used, it must be correct.
-
-Rationale: Accessibility improves usability and reduces product risk.
-
-### 5) Prefer Simple, But Stay Idiomatic
-
-We prefer simplicity over complexity, but we do not trade away idiomatic Angular
-architecture for superficial “simplicity”.
-
-Non-negotiables:
-
-- Choose the simplest solution that remains idiomatic and scalable.
-- Avoid premature abstractions; introduce patterns only when they solve a
-  demonstrated problem.
-- Prefer inline templates and inline styles by default; move to external files
-  only when size/complexity makes inline usage harmful to readability.
-
-Rationale: Idiomatic patterns reduce long-term cost; unnecessary complexity
-increases it.
-
-## Architecture & Constraints
-
-This repository is a micro-frontend remote.
-
-- The bootstrap/orchestration of the overall shell does not happen here.
-  Do not introduce assumptions that require the host to change unexpectedly.
-- Public exposure points (Module Federation exposes, route entry points, and any
-  exported APIs) are treated as contracts.
-- Prefer the orchestration/presentation split:
-  - Orchestration (container) components coordinate data loading, routing,
-    state, and composition.
-  - Presentation components are UI-focused, accept inputs/outputs, and avoid
-    direct service calls.
-- Keep side effects and integration boundaries explicit (host integration,
-  module federation wiring, remote entry).
-
-## Workflow & Quality Gates
-
-- PRs must demonstrate compliance with these principles.
-- Code review must include: correctness, readability, tests, UX consistency, and
-  accessibility.
-- Breaking changes to remote contracts must be documented with a migration plan.
-- Prefer small, incremental PRs; avoid mixing refactors with feature behavior
-  changes unless required.
-
-## Governance
-
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
-
-This constitution supersedes local conventions and individual preferences.
-
-Amendment procedure:
-
-- Proposed changes must be made as a PR with explicit rationale and examples.
-- The PR must include updates to dependent templates under `.specify/templates/`.
-- Versioning follows semantic versioning for governance changes:
-  - MAJOR: Principle removals/redefinitions or backward-incompatible governance.
-  - MINOR: New principle/section or materially expanded guidance.
-  - PATCH: Clarifications/wording that do not change meaning.
-
-Compliance expectations:
-
-- Every plan/spec/tasks set must include a "Constitution Check" gate derived
-  from these principles.
-- Reviewers may block merges that violate non-negotiables.
-
-**Version**: 1.0.0 | **Ratified**: TODO(RATIFICATION_DATE): Original adoption date unknown. | **Last Amended**: 2026-01-12
+Read local context before work; maintain spec, plan, tasks and handoff for substantive
+behavior changes. Include a Constitution Check in each spec/plan/tasks set. Check
+correctness, tests, UX and accessibility, and document contract migration plans.
+Record existing gaps separately. Amend principles intentionally with rationale,
+version/date changes and dependent-template review; use a PR when submitting.

@@ -2,6 +2,20 @@
 description: Generate a custom checklist for the current feature based on user requirements.
 ---
 
+## Repository context (document workflow)
+
+Read `AGENTS.md`, `docs/architecture.md`, `docs/development.md`,
+`docs/api-contracts.md` and `.specify/README.md` before this command.
+This repository uses the local Markdown workflow. When generic instructions below
+conflict with it, follow the local workflow: use explicit user-selected feature
+folders, optional research/data-model/quickstart artifacts, and evidence-based
+handoffs. Ordinary file edits are supported; do not require helper scripts, branch
+creation, agent delegation or repeated approvals. Do not overwrite an existing plan
+with setup-plan.sh or regenerate the maintained AGENTS.md. Treat the constitution
+as an adopted document, not an unfilled template. Keep stable context in docs and
+feature progress in specs. Creating remote issues requires a user request for that action.
+
+
 ## Checklist Purpose: "Unit Tests for English"
 
 **CRITICAL CONCEPT**: Checklists are **UNIT TESTS FOR REQUIREMENTS WRITING** - they validate the quality, clarity, and completeness of requirements in a given domain.
