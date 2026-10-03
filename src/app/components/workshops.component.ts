@@ -9,14 +9,16 @@ import { NavigationService } from '../services/navigation.service';
   selector: 'ngx-workshops',
   imports: [RouterModule, AsyncPipe, NgxParticleHeader],
   template: `
-    @if(viewModel$ | async; as vm) {
-    <ngx-particle-header>
-      <img [src]="vm.headerSvgPath" />
-      <h1>
-        {{ vm.sectionTitle }}:
-        {{ vm.currentWorkshopTitle ?? 'Workshops' }}
-      </h1>
-    </ngx-particle-header>
+    @if (viewModel$ | async; as vm) {
+      <ngx-particle-header>
+        @if (vm.headerSvgPath) {
+          <img [src]="vm.headerSvgPath" alt="" />
+        }
+        <h1>
+          {{ vm.sectionTitle }}:
+          {{ vm.currentWorkshopTitle ?? 'Workshops' }}
+        </h1>
+      </ngx-particle-header>
     }
     <router-outlet />
   `,

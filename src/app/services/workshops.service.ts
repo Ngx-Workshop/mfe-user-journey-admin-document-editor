@@ -1,7 +1,9 @@
+import { environment } from '../../environments/environment';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import {
+  SectionDto,
   CreateWorkshopPageDto,
   DeletePageParamsDto,
   DeleteResultDto,
@@ -48,7 +50,7 @@ export interface Result<T> {
   providedIn: 'root',
 })
 export class WorkshopEditorService {
-  private readonly baseUrl = '/api/documents';
+  private readonly baseUrl = environment.documentsApiBaseUrl;
   private httpClient = inject(HttpClient);
 
   saveEditorDataSubject = new Subject<unknown>();
@@ -76,7 +78,14 @@ export class WorkshopEditorService {
     );
 
     return request.pipe(
-      map((data: T) => ({ success: data } as Result<T>))
+      map((data: T) => ({ success: data }) as Result<T>)
+    );
+  }
+
+  createSection(section: Pick<SectionDto, 'sectionTitle'>) {
+    return this.httpClient.post<SectionDto>(
+      `${this.baseUrl}/navigation/section/create-section`,
+      section
     );
   }
 

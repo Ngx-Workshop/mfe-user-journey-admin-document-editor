@@ -1,11 +1,12 @@
 # Document HTTP contract map
 
-Source review: 2026-10-01. This describes current controllers and caller mappings,
-not a live integration test. The browser adds `/api/documents` to these service
-paths; gateway routing is external. No global prefix is set in service main.ts.
+Source review: 2026-10-03. This describes current controllers and caller mappings,
+not a live integration test. Production adds `/api/documents` to these service
+paths through the gateway; development uses `http://localhost:3007` directly. No global prefix is set in service main.ts.
 
 | Method and service path | Request | Actual service return | Declared access |
 | --- | --- | --- | --- |
+| POST /navigation/section/create-section | `{ sectionTitle }` (trimmed, 1–120 chars) | SectionDto, HTTP 201 | Admin |
 | GET /navigation/sections | none | `{ sections: Record<string, SectionDto> }` | Public |
 | GET /navigation/workshops | `section` query | WorkshopDto[] ordered by sortId | Public |
 | POST /navigation/workshop/create-workshop | CreateWorkshopDto | WorkshopDto with initial page reference | Admin |
@@ -17,7 +18,7 @@ paths; gateway routing is external. No global prefix is set in service main.ts.
 | POST /navigation/page/edit-page-name-update-workshop | _id, workshopId, name | Updated WorkshopDto (embedded reference renamed) | Admin |
 | POST /navigation/page/sort-pages | WorkshopPageIdentifierDto[]; workshopId query | One updated WorkshopDto | Admin |
 | GET /workshop/health | none | `{ status: 'All good Maybe....?' }` | Global guards; no public exemption |
-| GET /workshop/workshops | none | WorkshopPage[] | Global guards plus RemoteAuthGuard |
+| GET /workshop/workshops | none | WorkshopPage[] | Global guards plus DocumentAuthGuard |
 | GET /workshop/:objectId | page Mongo ID | WorkshopPage document | Public |
 | POST /workshop/update-workshop-html | `{ _id, html }` | Updated WorkshopPage document | Admin |
 
@@ -28,9 +29,9 @@ Nest's default POST status is 201 even where Swagger advertises ApiOkResponse.
 
 ## Data distinctions
 
-- Section keys come from Section._id stringification. The UI links use angular,
-  nestjs and rxjs, while the service schema declares an ObjectId. Verify stored
-  records and section routing before claiming these keys match.
+- Section keys come from Section._id stringification. The catalog links use returned
+  IDs, preserving legacy angular/nestjs/rxjs keys. New sections get ObjectIds; no
+  existing records or workshop sectionId values are migrated.
 - Workshop._id identifies mutations; workshopDocumentGroupId is a name-derived
   slug used by the UI route named :workshopId. Renaming recalculates that slug.
 - Workshop.workshopDocuments contains {_id, name, sortId} references; page records
@@ -44,15 +45,15 @@ Nest's default POST status is 201 even where Swagger advertises ApiOkResponse.
 
 - Editor sortDocuments is typed as WorkshopDto[]; the service returns WorkshopDto.
   Editor deleteWorkshop expects `{ id }`; the service returns DeleteResultDto.
-- Sections are a single wrapper object, but the controller's Swagger response
-  marks SectionsMapDto as an array. Some workshop Swagger responses use the
-  Mongoose Workshop schema rather than the actual mapped WorkshopDto.
+- Sections are a single wrapper object and Swagger now describes that shape.
+  Some workshop Swagger responses still use the Mongoose Workshop schema rather
+  than the actual mapped WorkshopDto.
 - The editor pins @tmdjr/document-contracts 0.0.22. The service source package says
   0.0.1, while deployment derives the patch from GITHUB_RUN_NUMBER. This is not proof
-  of the current published version. Checked-in generated models use older
-  WorkshopDocumentDto/PageParamsDto names, unlike current WorkshopPageDto and
-  DeletePageParamsDto source/OpenAPI. The barrel also exports a missing
-  models/Workshop file while a WorkshopDoc file exists.
+  of the current published version. Generated artifacts were refreshed during section
+  creation work and now use current WorkshopPage/DeletePageParams source names.
+  The editor's section request uses the published SectionDto name field and its
+  response uses SectionDto, so this feature needs no frontend package upgrade.
 - POST /api/documents/uploader/image-upload accepts multipart `image` and the editor
   expects secure_url. No uploader controller/module exists in service-document.
   Its gateway destination and owner remain unverified.
@@ -65,5 +66,12 @@ UI recovery. The gateway owner must confirm `/api/documents` routing, upload rou
 and auth forwarding; the admin shell owns route mounting and identity providers.
 For contract changes: agree on runtime shapes, fix producer metadata, generate and
 build contracts, review compatibility, publish only in an authorized release, then
-update the consumer and verify the full journey. This migration changes none of
-those runtime interfaces.
+update the consumer and verify the full journey. Section creation adds one admin endpoint; deploy it before enabling the editor flow.
+
+## Local authentication mode
+
+DocumentAuthGuard wraps the existing AuthenticationGuard. Only explicit non-production
+DOCUMENT_LOCAL_DEV mode with the exact document_local URI, a loopback connection and
+an approved origin supplies local-document-admin. RolesGuard is unchanged. Standalone
+local development needs no live auth service; production and hosted shell auth remain
+normal. See development.md for commands and origin restrictions.

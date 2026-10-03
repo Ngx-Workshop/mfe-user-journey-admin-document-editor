@@ -1,3 +1,4 @@
+import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import {
@@ -45,6 +46,7 @@ function shareReplayWithTTL<T>(
   providedIn: 'root',
 })
 export class NavigationService {
+  private readonly baseUrl = environment.documentsApiBaseUrl;
   private sections$ = new BehaviorSubject<SectionsMapDto>({
     sections: {},
   });
@@ -66,12 +68,27 @@ export class NavigationService {
 
   fetchSections() {
     return this.http
-      .get<SectionsMapDto>('/api/documents/navigation/sections')
+      .get<SectionsMapDto>(`${this.baseUrl}/navigation/sections`)
       .pipe(
         tap((sections) => {
           this.sections$.next(sections);
         })
       );
+  }
+
+  getSections() {
+    return this.sections$.pipe(
+      map(({ sections }) => Object.values(sections))
+    );
+  }
+
+  addSection(section: SectionDto): void {
+    this.sections$.next({
+      sections: {
+        ...this.sections$.value.sections,
+        [section._id]: section,
+      },
+    });
   }
 
   navigateToSection(sectionId: string, force = false) {
@@ -89,7 +106,7 @@ export class NavigationService {
   private fetchSectionWorkshops(sectionId: string, force = false) {
     if (force || !this.sectionWorkshopsCache[sectionId]) {
       this.sectionWorkshopsCache[sectionId] = this.http
-        .get<WorkshopDto[]>('/api/documents/navigation/workshops', {
+        .get<WorkshopDto[]>(`${this.baseUrl}/navigation/workshops`, {
           params: { section: sectionId },
         })
         .pipe(shareReplayWithTTL(1, this.cacheTTL));
@@ -115,7 +132,7 @@ export class NavigationService {
 
   navigateToDocument(workshopDocumentId: string) {
     return this.http.get<WorkshopPageDto>(
-      `/api/documents/workshop/${workshopDocumentId}`
+      `${this.baseUrl}/workshop/${workshopDocumentId}`
     );
   }
 

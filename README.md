@@ -17,12 +17,12 @@ Start with [AGENTS.md](AGENTS.md) for the repository context and working rules.
 
 ```bash
 npm ci
-npm start
+npm run dev:bundle
 ```
 
-The development server exposes remoteEntry.js on localhost:4201. A host must mount
-./Routes and provide routing/auth context to display the authoring journey; the
-standalone App is empty. API requests use /api/documents through the gateway.
+The watched static bundle exposes remoteEntry.js on localhost:4202. Load it through
+the admin shell’s Dev Mode override at https://admin.ngx-workshop.io/document-editor. Development calls
+localhost:3007; production calls /api/documents through the gateway.
 Build with npm run build. See the development guide for full prerequisites and checks.
 
 ## Integration snapshot
@@ -35,3 +35,12 @@ migrating the host. The UI's Published label does not implement a publishing lif
 The repository-local Markdown workflow is adapted from the seed/assessment repos.
 Existing Spec Kit prompts and shell helpers remain optional adapters; see the
 workflow guide before using them on existing feature files.
+
+## Isolated local development
+
+With MongoDB on 127.0.0.1:27017, run npm run start:local in service-document and
+npm run dev:bundle in mfe-user-journey-admin-document-editor. Set the document editor
+Dev Mode remote entry to http://localhost:4202/remoteEntry.js, then open
+https://admin.ngx-workshop.io/document-editor.
+The local API uses 3007 and the isolated document_local database; production keeps
+its existing auth and API URLs. See [setup and hosted bundle instructions](docs/development.md).

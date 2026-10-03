@@ -28,3 +28,11 @@ integration checks are required for completion and which remain external.
 No runtime fixes were made. [Development](development.md) records the verification
 performed for this documentation migration. Both repositories contain a local
 [contract map](api-contracts.md), so future work can proceed without sibling access.
+
+## Section creation update — 2026-10-03
+
+[001 Create sections](../specs/001-create-sections/handoff.md) implements named section
+creation and dynamic ID-based catalog links, resolving the static catalog portion
+of UI-02/API-03. Section-list Swagger shape is corrected and contracts regenerated,
+including the missing-model build repair. Existing workshop slug and unrelated
+validation/CRUD findings remain open. Live integration acceptance is still pending.

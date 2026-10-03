@@ -49,40 +49,48 @@ export class OptimizeCloudinaryUrlPipe implements PipeTransform {
       </button>
     </div>
     @if (workshops | async; as ws) {
-    <div class="workshop-list-content">
-      <div
-        class="workshop-list"
-        [class.animate]="animationTriggered()"
-      >
-        @for (workshop of ws; track workshop.workshopDocumentGroupId;
-        let i = $index) {
+      <div class="workshop-list-content">
         <div
-          class="ngx-mat-card mat-elevation-z6"
-          [style.--animation-order]="i"
-          [routerLink]="
-            '../' +
-            workshop.workshopDocumentGroupId +
-            '/' +
-            workshop.workshopDocuments[0]._id
-          "
+          class="workshop-list"
+          [class.animate]="animationTriggered()"
         >
-          <div class="img-wrapper">
-            <img
-              [ngSrc]="workshop.thumbnail | optimizeCloudinaryUrl"
-              priority
-              fill
-            />
-          </div>
-          <h2>{{ workshop.name }}</h2>
-          <p>{{ workshop.summary }}</p>
+          @for (
+            workshop of ws;
+            track workshop.workshopDocumentGroupId;
+            let i = $index
+          ) {
+            <div
+              class="ngx-mat-card mat-elevation-z6"
+              [style.--animation-order]="i"
+              [routerLink]="
+                '../' +
+                workshop.workshopDocumentGroupId +
+                '/' +
+                workshop.workshopDocuments[0]._id
+              "
+            >
+              <div class="img-wrapper">
+                <img
+                  [ngSrc]="workshop.thumbnail | optimizeCloudinaryUrl"
+                  priority
+                  fill
+                />
+              </div>
+              <h2>{{ workshop.name }}</h2>
+              <p>{{ workshop.summary }}</p>
+            </div>
+          } @empty {
+            <p>
+              No workshops yet. Use Create New Workshop to add the
+              first one.
+            </p>
+          }
         </div>
-        }
+        <ngx-workshop-list-control
+          class="workshop-list-sidepanel"
+          [workshops]="ws"
+        />
       </div>
-      <ngx-workshop-list-control
-        class="workshop-list-sidepanel"
-        [workshops]="ws"
-      />
-    </div>
     }
   `,
   styles: [
