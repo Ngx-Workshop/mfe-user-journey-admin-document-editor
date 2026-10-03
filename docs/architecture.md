@@ -18,17 +18,17 @@ reuses the same configuration.
 
 ## Source map
 
-| Area | Local source | Responsibility |
-| --- | --- | --- |
-| Bootstrap | src/main.ts, src/bootstrap.ts, src/app/app.config.ts | Standalone app, zoneless detection, HTTP DI interceptors and animations |
-| Host entry | src/app/app.ts, src/app/app.routes.ts, webpack.config.js | Empty root App and host-mounted route tree |
-| Resolution | src/app/resolvers/ | Sections, workshop slug selection and page lookup |
-| Navigation | src/app/services/navigation.service.ts | HTTP reads, BehaviorSubject state, per-section replay cache |
-| Mutations | src/app/services/workshops.service.ts | Workshop/page CRUD, ordering, save and image upload calls |
-| Catalog/editor | src/app/components/workshops-pages/ | Persisted section catalog, workshop cards and editor/paginator |
-| Context header | src/app/components/workshops.component.ts | Section header and nested router outlet |
-| Controls/dialogs | src/app/components/workshops-sidepanel/ | Drag ordering, metadata forms, typed-name delete confirmation |
-| Validation | src/app/form-validators/match-string.validator.ts | Name confirmation validator |
+| Area             | Local source                                             | Responsibility                                                          |
+| ---------------- | -------------------------------------------------------- | ----------------------------------------------------------------------- |
+| Bootstrap        | src/main.ts, src/bootstrap.ts, src/app/app.config.ts     | Standalone app, zoneless detection, HTTP DI interceptors and animations |
+| Host entry       | src/app/app.ts, src/app/app.routes.ts, webpack.config.js | Empty root App and host-mounted route tree                              |
+| Resolution       | src/app/resolvers/                                       | Sections, workshop slug selection and page lookup                       |
+| Navigation       | src/app/services/navigation.service.ts                   | HTTP reads, BehaviorSubject state, per-section replay cache             |
+| Mutations        | src/app/services/workshops.service.ts                    | Workshop/page CRUD, ordering, save and image upload calls               |
+| Catalog/editor   | src/app/components/workshops-pages/                      | Persisted section catalog, workshop cards and editor/paginator          |
+| Context header   | src/app/components/workshops.component.ts                | Section header and nested router outlet                                 |
+| Controls/dialogs | src/app/components/workshops-sidepanel/                  | Drag ordering, metadata forms, typed-name delete confirmation           |
+| Validation       | src/app/form-validators/match-string.validator.ts        | Name confirmation validator                                             |
 
 ## Routes and data flow
 
@@ -64,7 +64,7 @@ See the local [HTTP contract map](api-contracts.md) for every call, payload, ret
 shape and discrepancy. The service owns MongoDB, validation and admin authorization.
 The remote's guard checks authentication; it does not establish admin rights.
 Production uses same-origin gateway paths; development replaces the environment
-with localhost:3007. A watched static bundle on 4202 is loaded through the hosted
+with localhost:3007. A watched static bundle on 4201 is loaded through the hosted
 shell’s remote-entry override. Upload routing is unresolved.
 
 See [readiness](document-readiness.md) for observed gaps and proposed verification.

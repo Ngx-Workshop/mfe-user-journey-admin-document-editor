@@ -18,24 +18,24 @@ npm run dev:bundle
 
 Open the MFE Orchestrator at https://admin.ngx-workshop.io/list-mfe-remotes. For the
 document editor, open the code-icon Dev Mode Options, enable Dev Mode, and set
-Remote Entry Point to http://localhost:4202/remoteEntry.js. Then open
+Remote Entry Point to http://localhost:4201/remoteEntry.js. Then open
 https://admin.ngx-workshop.io/document-editor and reload after changes. The override
 applies only to your browser; the global registry is unchanged. The document API is http://localhost:3007; data is stored
-only in mongodb://127.0.0.1:27017/document_local. Port 4202 avoids the assessment
+only in mongodb://127.0.0.1:27017/document_local. Port 4201 avoids the assessment
 remote on 4201. This database starts empty; use Create Section, then Create New
 Workshop. No production records are copied or required.
 
 The local service sets DOCUMENT_LOCAL_DEV=true and NODE_ENV=development, overrides
 MONGODB_URI/PORT, binds only to loopback and supplies local-document-admin. It rejects
 other database URIs, non-loopback peers and unapproved origins. CORS allows
-https://admin.ngx-workshop.io, http://localhost:4202 and http://127.0.0.1:4202.
+https://admin.ngx-workshop.io, http://localhost:4201 and http://127.0.0.1:4201.
 Production mode and normal start:dev retain the platform authentication guard and
 public-route metadata. Do not tunnel or reverse-proxy local auth mode.
 
 The signed-in hosted shell owns routing and authentication. The root App remains
 empty and the exported Routes retain userAuthenticatedGuard. Development bundles
 use environment.development.ts for localhost:3007; production bundles use
-/api/documents. Port 4202 serves assets, not a standalone editor.
+/api/documents. Port 4201 serves assets, not a standalone editor.
 Build production into a separate folder while the bundle watcher runs:
 npm run build -- --output-path /tmp/document-editor-production-check.
 
@@ -53,15 +53,15 @@ Use the repository's package-lock.json with npm ci. CI uses Node 22; use a Node 
 release compatible with the pinned Angular toolchain. Packages must be available
 from the configured registry; do not embed registry credentials in source.
 
-| Command | Purpose / prerequisites |
-| --- | --- |
-| npm ci | Install locked dependencies |
-| npm start | Stock Angular server; not the hosted-shell development workflow |
-| npm run build | Production bundle into dist/mfe-user-journey-admin-document-editor |
-| npm run watch | Development watch build |
-| npm run serve:bundle | Static bundle server on 4202; requires existing output |
-| npm run dev:bundle | Watch + static bundle server for the hosted-shell override |
-| npm test -- --watch=false --browsers=ChromeHeadless | Configured Karma runner; requires Chrome and real specs |
+| Command                                               | Purpose / prerequisites                                                             |
+| ----------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| npm ci                                                | Install locked dependencies                                                         |
+| npm start                                             | Stock Angular server; not the hosted-shell development workflow                     |
+| npm run build                                         | Production bundle into dist/mfe-user-journey-admin-document-editor                  |
+| npm run watch                                         | Development watch build                                                             |
+| npm run serve:bundle                                  | Static bundle server on 4201; requires existing output                              |
+| npm run dev:bundle                                    | Watch + static bundle server for the hosted-shell override                          |
+| npm test -- --watch=false --browsers=ChromeHeadless   | Configured Karma runner; requires Chrome and real specs                             |
 | ./node_modules/.bin/tsc --noEmit -p tsconfig.app.json | TypeScript source check; does not validate Angular templates or runtime integration |
 
 The shell mounts the exported Routes and supplies authentication context.

@@ -28,9 +28,7 @@
                 "output": "."
               }
             ],
-            "styles": [
-              "src/styles.scss"
-            ],
+            "styles": ["src/styles.scss"],
             "main": "src/main.ts",
             "outputPath": "dist/mfe-user-journey-admin-document-editor",
             "index": "src/index.html",
@@ -81,8 +79,8 @@
           },
           "defaultConfiguration": "development",
           "options": {
-            "port": 4202,
-            "publicHost": "http://localhost:4202",
+            "port": 4201,
+            "publicHost": "http://localhost:4201",
             "extraWebpackConfig": "webpack.config.js"
           }
         },
@@ -100,9 +98,7 @@
                 "input": "public"
               }
             ],
-            "styles": [
-              "src/styles.scss"
-            ]
+            "styles": ["src/styles.scss"]
           }
         }
       }
