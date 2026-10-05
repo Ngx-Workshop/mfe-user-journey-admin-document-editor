@@ -60,9 +60,11 @@ Nest's default POST status is 201 even where Swagger advertises ApiOkResponse.
   The editor's creation request uses CreateSectionDto plus a Pick of published
   SectionDto for menuSvgPath/headerSvgPath. Description is declared by the creation
   DTO, but image paths are not; their acceptance remains unverified.
-- POST /api/documents/uploader/image-upload accepts multipart `image` and the editor
-  expects secure_url. No uploader controller/module exists in service-document.
-  Its gateway destination and owner remain unverified.
+- The retained legacy uploadImage method targets POST
+  /api/documents/uploader/image-upload with multipart `image` and expects secure_url.
+  No uploader controller/module exists in service-document; its gateway destination
+  and owner remain unverified. Section/workshop authoring use the shell uploader
+  adapter instead; the obsolete workshop upload dialogs have been removed.
 
 ## Compatibility handoff
 
@@ -87,6 +89,28 @@ normal. See development.md for commands and origin restrictions.
 The new picker uses the shell's uploader adapter rather than the legacy image-upload call: GET /api/uploader/folders returns FolderDto[], GET /api/uploader?archived=false&folderId=<MongoId> returns AssetDto[], POST /api/uploader/upload sends multipart file and folderId and returns AssetDto. The gateway translates /api/uploader to service-native /uploader. Requests retain shell HTTP interceptors and credentials. Published uploader types are consumed through @tmdjr/ngx-asset-manager 21.1.0 (peer contracts 0.0.13).
 
 The folder name documents is looked up on the consumer side; only the returned folder ID is sent to the uploader. The creation page permits image/* and retains selected/uploaded assets. Users can apply a usable asset URL to either menuSvgPath or headerSvgPath; no asset ID is sent to the document service.
+
+## Workshop authoring pages - 2026-10-05
+
+Workshop create/edit use the same shell asset adapter, documents-folder Mongo ID,
+image-only full gallery and upload acceptance. Selection/upload does not save
+workshop metadata until the user explicitly applies its URL and submits the form.
+No asset ID or file data is sent to service-document.
+
+Fresh edit values come from GET `/navigation/workshops?section=<sectionId>`,
+selected by WorkshopDto._id. No workshop metadata GET endpoint was introduced.
+Create sends `{ sectionId, sortId, name, summary, thumbnail }` to the existing
+create-workshop POST; edit sends `{ _id, name, summary, thumbnail }` to the existing
+edit-workshop-name-and-summary POST. Create sortId is the fresh list count, matching
+the former dialog. The server generates the workshop ID/slug/default page.
+Published CreateWorkshopDto still requires _id; the consumer retains its existing
+UpdateWorkshopDto mutation signature rather than inventing an ID. Backend runtime
+acceptance/authorization remains a live check, not a contract-package change.
+
+New route `:section/edit-workshop/:workshopId` uses the Mongo ID; existing editor
+`:section/:workshopId/:documentId` continues using the workshop slug. Confirmed
+responses refresh keyed navigation state and invalidate only the affected section
+workshop cache. Section/page identifiers and serialized editor blocks are unchanged.
 
 ## Section creation request extension - 2026-10-05
 

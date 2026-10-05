@@ -119,6 +119,14 @@ import { WorkshopEditorService } from '../../services/workshops.service';
           <mat-hint>Used in the section catalog and header.</mat-hint>
         </mat-form-field>
 
+        @if (form.controls.headerSvgPath.value) {
+        <img
+          class="image-preview"
+          [src]="form.controls.headerSvgPath.value"
+          alt="Sections thumbnail preview"
+        />
+        }
+
         <div class="asset-manager-wrapper">
           @if (loadingAssetFolder()) {
           <p role="status">Loading document images…</p>

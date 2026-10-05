@@ -41,6 +41,24 @@ export const Routes: Route[] = [
             .then((m) => m.CreateSectionComponent),
       },
       {
+        path: ':section/create-workshop',
+        canDeactivate: [
+          (component: { saving: () => boolean }) => !component.saving(),
+        ],
+        loadComponent: () =>
+          import('./components/workshops-pages/create-workshop.component')
+            .then((m) => m.CreateWorkshopComponent),
+      },
+      {
+        path: ':section/edit-workshop/:workshopId',
+        canDeactivate: [
+          (component: { saving: () => boolean }) => !component.saving(),
+        ],
+        loadComponent: () =>
+          import('./components/workshops-pages/create-workshop.component')
+            .then((m) => m.CreateWorkshopComponent),
+      },
+      {
         path: ':section',
         resolve: { sectionResolver },
         loadComponent: () =>

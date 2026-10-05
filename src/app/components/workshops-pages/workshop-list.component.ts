@@ -9,17 +9,18 @@ import {
 } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MatDialog } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
 import { map, tap } from 'rxjs';
 import { NavigationService } from '../../services/navigation.service';
-import { CreateWorkshopModalComponent } from '../workshops-sidepanel/workshop-list-controls/modals/create-category-modal/create-workshop-modal.component';
 import { WorkshopListControlsComponent } from '../workshops-sidepanel/workshop-list-controls/workshop-list-control.component';
 
 @Pipe({ name: 'optimizeCloudinaryUrl' })
 export class OptimizeCloudinaryUrlPipe implements PipeTransform {
   transform(url: string): string {
+    if (!/^https?:\/\/res\.cloudinary\.com\/[^/]+\/image\/upload\//.test(url)) {
+      return url;
+    }
     const parts = url.split('/upload/');
     return `${parts[0]}/upload/w_650,q_auto:best,f_auto/${parts[1]}`;
   }
@@ -43,10 +44,10 @@ export class OptimizeCloudinaryUrlPipe implements PipeTransform {
         <mat-icon>arrow_back</mat-icon> Back to Sections</a
       >
       <div class="flex-spacer"></div>
-      <button matButton="filled" (click)="createWorkshop()">
+      <a matButton="filled" routerLink="../create-workshop">
         <mat-icon>note_add</mat-icon>
         Create New Workshop
-      </button>
+      </a>
     </div>
     @if (workshops | async; as ws) {
     <div class="workshop-list-content">
@@ -67,11 +68,16 @@ export class OptimizeCloudinaryUrlPipe implements PipeTransform {
           "
         >
           <div class="img-wrapper">
+            @if (workshop.thumbnail) {
             <img
               [ngSrc]="workshop.thumbnail | optimizeCloudinaryUrl"
+              [alt]="workshop.name"
               priority
               fill
             />
+            } @else {
+            <mat-icon aria-hidden="true">image</mat-icon>
+            }
           </div>
           <h2>{{ workshop.name }}</h2>
           <p>{{ workshop.summary }}</p>
@@ -216,7 +222,6 @@ export class OptimizeCloudinaryUrlPipe implements PipeTransform {
 })
 export class WorkshopListComponent {
   animationTriggered = signal(false);
-  private matDialog = inject(MatDialog);
 
   workshops = inject(NavigationService)
     .getWorkshops()
@@ -231,10 +236,4 @@ export class WorkshopListComponent {
       })
     );
 
-  createWorkshop() {
-    this.matDialog.open(CreateWorkshopModalComponent, {
-      width: '400px',
-      backdropClass: 'blur-backdrop',
-    });
-  }
 }

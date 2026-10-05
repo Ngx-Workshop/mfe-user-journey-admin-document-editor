@@ -12,6 +12,7 @@ import {
   OnInit,
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import {
@@ -22,9 +23,7 @@ import { RouterModule } from '@angular/router';
 import { from, of, Subject, switchMap, take, takeUntil } from 'rxjs';
 import { NavigationService } from '../../../services/navigation.service';
 import { WorkshopEditorService } from '../../../services/workshops.service';
-import { CreateWorkshopModalComponent } from './modals/create-category-modal/create-workshop-modal.component';
 import { DeleteWorkshopModalComponent } from './modals/delete-category-modal/delete-workshop-modal.component';
-import { EditWorkshopModalComponent } from './modals/edit-category-modal/edit-workshop-modal.component';
 
 import { Pipe, PipeTransform } from '@angular/core';
 import { WorkshopDto } from '@tmdjr/document-contracts';
@@ -74,6 +73,7 @@ export class TruncatePipe implements PipeTransform {
     RouterModule,
     MatListModule,
     MatIconModule,
+    MatButtonModule,
     DragDropModule,
     TruncatePipe,
   ],
@@ -110,27 +110,10 @@ export class WorkshopListControlsComponent
     this.destory.next(true);
   }
 
-  createWorkshop(): void {
-    this.matDialog.open(CreateWorkshopModalComponent, {
-      width: '400px',
-      backdropClass: 'blur-backdrop',
-    });
-  }
-
   deleteWorkshop(event: Event, workshop: WorkshopDto): void {
     event.preventDefault();
     event.stopImmediatePropagation();
     this.matDialog.open(DeleteWorkshopModalComponent, {
-      width: '400px',
-      backdropClass: 'blur-backdrop',
-      data: { workshop },
-    });
-  }
-
-  editWorkshop(event: Event, workshop: WorkshopDto): void {
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    this.matDialog.open(EditWorkshopModalComponent, {
       width: '400px',
       backdropClass: 'blur-backdrop',
       data: { workshop },

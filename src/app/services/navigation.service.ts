@@ -82,6 +82,22 @@ export class NavigationService {
     );
   }
 
+  addWorkshop(workshop: WorkshopDto): void {
+    delete this.sectionWorkshopsCache[workshop.sectionId];
+    if (this.currentSection$.value?._id === workshop.sectionId) {
+      const workshops = this.workshops$.value;
+      const exists = workshops.some((item) => item._id === workshop._id);
+      this.workshops$.next(
+        exists
+          ? workshops.map((item) => item._id === workshop._id ? workshop : item)
+          : [...workshops, workshop]
+      );
+    }
+    if (this.currentWorkshop$.value?._id === workshop._id) {
+      this.currentWorkshop$.next(workshop);
+    }
+  }
+
   addSection(section: SectionDto): void {
     this.sections$.next({
       sections: {

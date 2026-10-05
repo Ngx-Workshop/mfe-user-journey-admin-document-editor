@@ -39,9 +39,10 @@ use environment.development.ts for localhost:3007; production bundles use
 Build production into a separate folder while the bundle watcher runs:
 npm run build -- --output-path /tmp/document-editor-production-check.
 
-All navigation, content, mutation and upload requests use the environment API base.
-The service has no uploader endpoint: image URL entry works, local file uploads
-require the external uploader and are outside this setup.
+Navigation, content and document mutations use the environment API base.
+Section/workshop image selection and uploads use the shell's hosted uploader
+adapter, not the local document service. Manual image URL entry also works.
+The document service has no uploader endpoint.
 
 Verified: 29 service tests, 8 browser unit/component tests, production builds,
 production API URL isolation and live browser/HTTP checks against local MongoDB.
@@ -146,6 +147,35 @@ request and hosted route acceptance remain pending.
 
 Deploy or serve the changed mfe-shell-admin before using the shared picker: the host supplies provideAssetManager({ apiUrl: '/api/uploader' }) in its root app.config. A local document remote cannot apply a provider from its standalone app.config to the hosted shell. Both host and remote require the same singleton @tmdjr/ngx-asset-manager 21.1.0. Restart the remote watcher after federation configuration changes, then reload the browser.
 
-Only the document API uses the local service-document on port 3007. Asset requests intentionally use the authenticated hosted /api/uploader gateway; service-document has no uploader endpoint. The existing documents folder is resolved to its ID before showing the image-only gallery/upload control. Do not pass the folder name as folderId or uploadFolderId. Legacy WorkshopEditorService.uploadImage still targets the separate unresolved endpoint; it was not refactored by this setup.
+Only the document API uses the local service-document on port 3007. Asset requests intentionally use the authenticated hosted /api/uploader gateway; service-document has no uploader endpoint. The existing documents folder is resolved to its ID before showing the image-only gallery/upload control. Do not pass the folder name as folderId or uploadFolderId. Legacy WorkshopEditorService.uploadImage still targets the separate unresolved endpoint; workshop authoring no longer calls it.
 
 Verified: remote ChromeHeadless 11 passing tests; shell ChromeHeadless 3 passing tests; both production builds to separate /tmp output paths. Mock tests cover token mapping, folder IDs, credentials, image upload restriction, missing-folder/403 recovery and section creation. Live folder lookup and picker rendering are verified in deployed shell d314574 with the localhost:4201 remote: Destination: documents, image gallery, and no console errors. The earlier missing ASSET_DATA_SOURCE error did not reproduce. Reload the admin shell after a host deployment and restart the remote watcher after federation configuration changes. Real production uploads were not attempted; no production mutation was performed.
+
+## Workshop authoring pages - 2026-10-05
+
+Create New Workshop now opens `:section/create-workshop`; the sidebar's labelled
+edit link opens `:section/edit-workshop/:workshopId` using the workshop Mongo ID.
+Both pages use fresh section workshop reads and the full documents-folder image
+picker. Apply the selected/uploaded image with Use for thumbnail, or enter a URL.
+Creating without an image remains allowed; editing keeps the existing required
+thumbnail validation. Success refreshes the section catalog; pending saves block
+departure and duplicate submission. Read/save/folder failures are recoverable.
+
+PASS: 44 focused ChromeHeadless tests (20 workshop tests plus 24 existing section
+and environment regressions):
+
+```bash
+npm test -- --watch=false --browsers=ChromeHeadless \
+  --include='src/app/components/workshops-pages/workshop-authoring.spec.ts' \
+  --include='src/app/components/workshops-pages/section-creation.spec.ts' \
+  --include='src/app/services/document-api-environment.spec.ts'
+```
+
+PASS: production compilation using `npm run build -- --output-path
+/tmp/document-editor-workshop-pages-6d08b5df`; temporary output removed, watched
+bundle untouched. Existing section-list stylesheet warning remains 139 bytes over
+4.00 kB. Tests use simulated host routing and mocked HTTP; synthetic thumbnail
+paths cause harmless test-server image 404 warnings. No dependencies were changed.
+The editor test-discovery tool found no tests, so the actual configured Angular
+Karma runner above was used. Live backend persistence/auth, hosted navigation and
+real uploader writes were not run. See [007 handoff](../specs/007-workshop-authoring-pages/handoff.md).

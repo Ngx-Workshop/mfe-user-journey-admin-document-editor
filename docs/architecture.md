@@ -26,6 +26,7 @@ reuses the same configuration.
 | Navigation       | src/app/services/navigation.service.ts                   | HTTP reads, BehaviorSubject state, per-section replay cache             |
 | Mutations        | src/app/services/workshops.service.ts                    | Workshop/page CRUD, ordering, save and image upload calls               |
 | Catalog/editor   | src/app/components/workshops-pages/                      | Persisted section catalog, workshop cards and editor/paginator          |
+| Workshop authoring | src/app/components/workshops-pages/create-workshop.component.ts | Routed create/edit metadata and documents-folder thumbnail picker |
 | Context header   | src/app/components/workshops.component.ts                | Section header and nested router outlet                                 |
 | Controls/dialogs | src/app/components/workshops-sidepanel/                  | Drag ordering, metadata forms, typed-name delete confirmation           |
 | Validation       | src/app/form-validators/match-string.validator.ts        | Name confirmation validator                                             |
@@ -38,6 +39,9 @@ Routes are relative to the shell mount point:
 - create-section: dedicated section authoring page, matched before :section.
 - edit-section/:sectionId: the same authoring page, loading via GET and saving
   through PATCH /navigation/section/{id}; matched before :section.
+- :section/create-workshop and :section/edit-workshop/:workshopId: dedicated
+  workshop authoring pages, matched before :section. Here workshopId is the Mongo
+  mutation ID, not the slug used by the existing document editor route.
 - :section: resolve section and workshops, then mount WorkshopsComponent.
 - :section/workshop-list: catalog; :section alone redirects here.
 - :section/:workshopId/:documentId: select workshop by slug and read page by ID.
@@ -63,9 +67,17 @@ and posts a save, showing a success/failure snackbar. Each event starts a separa
 subscription; there is no revision, save queue or unsaved-navigation guard here.
 The Published chip is static UI, not a publication state.
 
-Workshop creation includes a default page on the server. Dialogs create/edit/delete
-metadata and pages; the editor supports PAGE/EXAM values without a distinct exam
-execution UI. Sort controls optimistically mutate input arrays and post ordering.
+Workshop creation includes a default page on the server. CreateWorkshopComponent
+loads fresh workshops for the route's section and uses a typed Material form for
+create/edit name, summary and thumbnail. Confirmed mutations merge by Mongo ID,
+invalidate the affected section cache and return to the refreshed catalog.
+Pending saves block departure and duplicate submissions; failures expose retry
+without discarding edits. Catalog create and sidebar edit links replace the old
+workshop dialogs. Thumbnail URLs outside Cloudinary image delivery are preserved,
+and absent thumbnails use a generic image icon.
+Dialogs still delete workshops and create/edit/delete pages; the editor supports
+PAGE/EXAM values without a distinct exam execution UI. Sort controls optimistically
+mutate input arrays and post ordering.
 
 ## External boundaries
 
@@ -80,6 +92,11 @@ See [readiness](document-readiness.md) for observed gaps and proposed verificati
 
 ## Shared asset picker — 2026-10-04
 
-The Create Section page consumes @tmdjr/ngx-asset-manager 21.1.0. The admin shell owns ASSET_DATA_SOURCE via provideAssetManager({ apiUrl: '/api/uploader' }); the remote's app.config and Routes do not register the adapter or replace host HTTP. Both federation entries share the package as a strict 21.1.0 singleton to preserve token identity.
+The section and workshop authoring pages consume @tmdjr/ngx-asset-manager 21.1.0. The admin shell owns ASSET_DATA_SOURCE via provideAssetManager({ apiUrl: '/api/uploader' }); the remote's app.config and Routes do not register the adapter or replace host HTTP. Both federation entries share the package as a strict 21.1.0 singleton to preserve token identity.
 
 DocumentAssetsService resolves the existing documents folder by name through the shell data source, and the page supplies its Mongo ID to both gallery and upload. Missing/failed folder reads show retry without falling back to root. The picker shows and uploads images only. Users explicitly apply its image URL to the menu or header path. The frontend sends sectionTitle, sectionDescription, menuSvgPath and headerSvgPath. Published 0.0.33 declares descriptions for creation and updates; CreateSectionDto still does not declare image paths, so creation artwork acceptance needs separate confirmation. The uploader gateway is hosted even when documents use localhost:3007. See [003 handoff](../specs/003-shared-asset-picker/handoff.md) for historical picker verification, [004 handoff](../specs/004-section-creation-page/handoff.md) for creation, [005 handoff](../specs/005-edit-sections/handoff.md) for editing, and [006 handoff](../specs/006-section-description/handoff.md) for current description behavior and contracts.
+
+Workshop pages use the same full image gallery and upload scope. Applying a selected
+or uploaded image sets thumbnail to its usable URL; manual URL entry remains
+available. The legacy document image-upload endpoint is no longer used by workshop
+authoring. See [007 handoff](../specs/007-workshop-authoring-pages/handoff.md).
