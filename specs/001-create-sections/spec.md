@@ -15,8 +15,9 @@ new publication behavior are out of scope.
   The dialog prevents duplicate submissions while pending; failures retain input
   and allow retry; cancellation does not create a section.
 - FR-003 / AC-003: Non-admin callers cannot create sections; reads remain public.
-- FR-004 / AC-004: Existing section IDs are unchanged. Legacy artwork remains;
-  new sections have a generic icon. Empty catalogs and workshop lists are useful.
+- FR-004 / AC-004: Existing section IDs are unchanged. Cards display artwork from
+  each section's `headerSvgPath`, with a generic icon when no path is configured.
+  Empty catalogs and workshop lists are useful.
 
 ## Decisions
 Name only for this first creation flow. Existing numeric summary and SVG path

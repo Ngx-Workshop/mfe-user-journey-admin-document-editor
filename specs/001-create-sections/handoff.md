@@ -2,13 +2,19 @@
 Status: Implemented; integration pending · Updated: 2026-10-03
 [Spec](spec.md) · [Plan](plan.md) · [Tasks](tasks.md)
 
+The modal/title-only frontend flow below is historical. The
+[004 handoff](../004-section-creation-page/handoff.md) records the replacement
+routed form, expanded payload, current local verification, and backend dependency.
+
 ## Delivered
 Admin POST /navigation/section/create-section accepts {sectionTitle}, trims it,
 validates 1–120 characters and persists server-generated IDs/defaults. Existing
 GET sections shape and existing IDs are preserved. The editor's Create Section
 button opens a Material dialog; confirmed results merge into shared section state.
-The catalog renders persisted sections, retains legacy artwork and links via IDs.
-New sections have an empty-workshop message; headers omit absent artwork.
+The catalog renders persisted sections, uses each section's `headerSvgPath` for
+artwork and links via IDs. Sections without a configured path use the generic
+folder icon. New sections have an empty-workshop message; headers omit absent
+artwork.
 The user's pre-existing header changes and line-height adjustments were preserved.
 
 ## Verification

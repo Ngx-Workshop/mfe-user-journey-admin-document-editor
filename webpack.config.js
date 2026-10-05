@@ -82,5 +82,11 @@ module.exports = withModuleFederationPlugin({
       strictVersion: true,
       requiredVersion: '21.0.5',
     },
+
+    '@tmdjr/ngx-asset-manager': {
+      singleton: true,
+      strictVersion: true,
+      requiredVersion: '21.1.0',
+    },
   },
 });

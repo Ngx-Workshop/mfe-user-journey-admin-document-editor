@@ -4,6 +4,8 @@ import { inject, Injectable } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import {
   SectionDto,
+  CreateSectionDto,
+  UpdateSectionDto,
   CreateWorkshopPageDto,
   DeletePageParamsDto,
   DeleteResultDto,
@@ -82,9 +84,27 @@ export class WorkshopEditorService {
     );
   }
 
-  createSection(section: Pick<SectionDto, 'sectionTitle'>) {
+  createSection(
+    section: CreateSectionDto & Pick<
+      SectionDto,
+      'menuSvgPath' | 'headerSvgPath'
+    >
+  ) {
     return this.httpClient.post<SectionDto>(
       `${this.baseUrl}/navigation/section/create-section`,
+      section
+    );
+  }
+
+  getSection(id: string) {
+    return this.httpClient.get<SectionDto>(
+      `${this.baseUrl}/navigation/section/${encodeURIComponent(id)}`
+    );
+  }
+
+  updateSection(id: string, section: UpdateSectionDto) {
+    return this.httpClient.patch<SectionDto>(
+      `${this.baseUrl}/navigation/section/${encodeURIComponent(id)}`,
       section
     );
   }

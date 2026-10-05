@@ -89,6 +89,9 @@ export class NavigationService {
         [section._id]: section,
       },
     });
+    if (this.currentSection$.value?._id === section._id) {
+      this.currentSection$.next(section);
+    }
   }
 
   navigateToSection(sectionId: string, force = false) {

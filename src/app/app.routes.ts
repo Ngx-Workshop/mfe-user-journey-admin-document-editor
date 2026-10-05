@@ -23,6 +23,24 @@ export const Routes: Route[] = [
           ).then((m) => m.SectionListComponent),
       },
       {
+        path: 'create-section',
+        canDeactivate: [
+          (component: { saving: () => boolean }) => !component.saving(),
+        ],
+        loadComponent: () =>
+          import('./components/workshops-pages/create-section.component')
+            .then((m) => m.CreateSectionComponent),
+      },
+      {
+        path: 'edit-section/:sectionId',
+        canDeactivate: [
+          (component: { saving: () => boolean }) => !component.saving(),
+        ],
+        loadComponent: () =>
+          import('./components/workshops-pages/create-section.component')
+            .then((m) => m.CreateSectionComponent),
+      },
+      {
         path: ':section',
         resolve: { sectionResolver },
         loadComponent: () =>

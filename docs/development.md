@@ -106,3 +106,46 @@ was performed. See [feature handoff](../specs/001-create-sections/handoff.md).
 Earlier migration results above are historical; generated-contract compilation now
 passes, while the direct TypeScript deleteOutDir configuration issue remains separate
 from the successful Nest production build.
+
+## Shared asset picker setup — 2026-10-04
+
+Current description behavior (2026-10-05): with the user's installed
+document-contracts 0.0.33, create/edit pages now use a multiline sectionDescription
+instead of numeric summary. Catalogs display descriptions and requests omit
+summary while preserving its response values. All 24 focused ChromeHeadless tests
+and the production build pass. The existing section-list stylesheet warning
+remains 139 bytes over the 4.00 kB warning threshold. No dependency installation
+was needed. Live persistence/defaults for existing records remain unverified; see
+the [description handoff](../specs/006-section-description/handoff.md).
+
+Current section editing: catalog cards expose a labelled edit icon on hover or
+keyboard focus, and always on no-hover devices. `edit-section/:sectionId` loads
+fresh section metadata and saves through the published GET/PATCH endpoints in
+document-contracts 0.0.32. The same form/picker handles create and edit, retaining
+the user's full gallery view. See the
+[editing handoff](../specs/005-edit-sections/handoff.md).
+
+Verified locally: 22 focused ChromeHeadless router/component/HTTP and API
+environment tests pass. Production compilation passes to a separate temporary
+output path, leaving the watched bundle intact. Section-list styles exceed the
+4.00 kB warning threshold by 139 bytes (4.14 kB); no build failure or budget
+increase. Hosted editing and real persistence remain unverified.
+
+Current authoring UI: section creation is now a dedicated `create-section` route,
+not a modal. The form includes sectionDescription text and menu/header image paths.
+The shell adapter and folder lookup below are unchanged. Expanded document-service
+creation support must be delivered before releasing this frontend; see the
+[section creation page handoff](../specs/004-section-creation-page/handoff.md).
+
+Local verification on 2026-10-05: 15 ChromeHeadless router/component/HTTP and API
+environment tests pass using the two relevant `--include` selectors. The production
+build passes with output in `/tmp/document-editor-section-page-0242db42`, leaving the
+watched bundle untouched; that temporary output was removed after verification.
+Tests simulate the host mount and mock HTTP; live persistence of the expanded
+request and hosted route acceptance remain pending.
+
+Deploy or serve the changed mfe-shell-admin before using the shared picker: the host supplies provideAssetManager({ apiUrl: '/api/uploader' }) in its root app.config. A local document remote cannot apply a provider from its standalone app.config to the hosted shell. Both host and remote require the same singleton @tmdjr/ngx-asset-manager 21.1.0. Restart the remote watcher after federation configuration changes, then reload the browser.
+
+Only the document API uses the local service-document on port 3007. Asset requests intentionally use the authenticated hosted /api/uploader gateway; service-document has no uploader endpoint. The existing documents folder is resolved to its ID before showing the image-only gallery/upload control. Do not pass the folder name as folderId or uploadFolderId. Legacy WorkshopEditorService.uploadImage still targets the separate unresolved endpoint; it was not refactored by this setup.
+
+Verified: remote ChromeHeadless 11 passing tests; shell ChromeHeadless 3 passing tests; both production builds to separate /tmp output paths. Mock tests cover token mapping, folder IDs, credentials, image upload restriction, missing-folder/403 recovery and section creation. Live folder lookup and picker rendering are verified in deployed shell d314574 with the localhost:4201 remote: Destination: documents, image gallery, and no console errors. The earlier missing ASSET_DATA_SOURCE error did not reproduce. Reload the admin shell after a host deployment and restart the remote watcher after federation configuration changes. Real production uploads were not attempted; no production mutation was performed.

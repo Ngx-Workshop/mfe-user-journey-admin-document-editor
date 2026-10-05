@@ -33,10 +33,29 @@ describe('document API environment routing', () => {
         .flush([]);
       navigation.navigateToDocument('page-id').subscribe();
       http.expectOne(`${baseUrl}/workshop/page-id`).flush({});
-      editor.createSection({ sectionTitle: 'Test' }).subscribe();
-      http
-        .expectOne(`${baseUrl}/navigation/section/create-section`)
-        .flush({});
+      editor.createSection({
+        sectionTitle: 'Test',
+        sectionDescription: 'Test workshops',
+        menuSvgPath: '',
+        headerSvgPath: '',
+      }).subscribe();
+      const sectionCreate = http.expectOne(`${baseUrl}/navigation/section/create-section`);
+      expect(sectionCreate.request.body).toEqual({
+        sectionTitle: 'Test',
+        sectionDescription: 'Test workshops',
+        menuSvgPath: '',
+        headerSvgPath: '',
+      });
+      sectionCreate.flush({});
+      editor.getSection('legacy section').subscribe();
+      const sectionRead = http.expectOne(`${baseUrl}/navigation/section/legacy%20section`);
+      expect(sectionRead.request.method).toBe('GET');
+      sectionRead.flush({});
+      editor.updateSection('legacy section', { sectionDescription: '', headerSvgPath: '' }).subscribe();
+      const sectionUpdate = http.expectOne(`${baseUrl}/navigation/section/legacy%20section`);
+      expect(sectionUpdate.request.method).toBe('PATCH');
+      expect(sectionUpdate.request.body).toEqual({ sectionDescription: '', headerSvgPath: '' });
+      sectionUpdate.flush({});
       editor.savePageHTML('[]', 'page-id').subscribe();
       const save = http.expectOne(
         `${baseUrl}/workshop/update-workshop-html`

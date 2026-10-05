@@ -10,15 +10,15 @@ import { NavigationService } from '../services/navigation.service';
   imports: [RouterModule, AsyncPipe, NgxParticleHeader],
   template: `
     @if (viewModel$ | async; as vm) {
-      <ngx-particle-header>
-        @if (vm.headerSvgPath) {
-          <img [src]="vm.headerSvgPath" alt="" />
-        }
-        <h1>
-          {{ vm.sectionTitle }}:
-          {{ vm.currentWorkshopTitle ?? 'Workshops' }}
-        </h1>
-      </ngx-particle-header>
+    <ngx-particle-header>
+      @if (vm.headerSvgPath) {
+      <img [src]="vm.headerSvgPath" alt="" />
+      }
+      <h1>
+        {{ vm.sectionTitle }}:
+        {{ vm.currentWorkshopTitle ?? 'Workshops' }}
+      </h1>
+    </ngx-particle-header>
     }
     <router-outlet />
   `,
@@ -29,6 +29,7 @@ import { NavigationService } from '../services/navigation.service';
           font-size: 1.85rem;
           font-weight: 100;
           margin: 1.7rem 0;
+          padding: 0 1rem;
         }
         img {
           width: 64px;
