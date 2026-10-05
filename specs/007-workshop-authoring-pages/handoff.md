@@ -7,6 +7,9 @@ Updated: 2026-10-05
 The inline picker/Use for thumbnail interaction below is historical.
 [008 Image picker dialog](../008-image-picker-dialog/handoff.md) supersedes it:
 an image-field action opens the shared dialog and afterClosed populates thumbnail.
+The sidebar edit/delete placement is also historical:
+[010 Workshop card actions](../010-workshop-card-actions/handoff.md) moves them
+to the catalog cards while preserving their route/confirmation behavior.
 
 ## Delivered behavior
 

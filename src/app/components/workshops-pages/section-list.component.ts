@@ -1,13 +1,16 @@
 import { AsyncPipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { SectionDto } from '@tmdjr/document-contracts';
 import { NavigationService } from '../../services/navigation.service';
 import {
   IsDeviconPipe,
   MenuDeviconComponent,
 } from '../devicon.component';
+import { DeleteSectionDialogData, DeleteSectionModalComponent } from './modals/delete-section-modal.component';
 
 @Component({
   selector: 'ngx-setion-list',
@@ -69,15 +72,25 @@ import {
               {{ section.sectionDescription }}
             </p>
           </a>
-          <a
-            class="section-edit"
-            matIconButton
-            [routerLink]="['edit-section', section._id]"
-            [attr.aria-label]="'Edit ' + section.sectionTitle"
-            [title]="'Edit ' + section.sectionTitle"
-          >
-            <mat-icon>edit</mat-icon>
-          </a>
+          <div class="section-card-actions">
+            <a
+              matIconButton
+              [routerLink]="['edit-section', section._id]"
+              [attr.aria-label]="'Edit ' + section.sectionTitle"
+              [title]="'Edit ' + section.sectionTitle"
+            >
+              <mat-icon>edit</mat-icon>
+            </a>
+            <button
+              matIconButton
+              type="button"
+              [attr.aria-label]="'Delete ' + section.sectionTitle"
+              [title]="'Delete ' + section.sectionTitle"
+              (click)="deleteSection(section)"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
         </article>
         } @empty {
         <p>
@@ -94,23 +107,26 @@ import {
         position: relative;
       }
 
-      .section-edit {
+      .section-card-actions {
         position: absolute;
         top: 8px;
         right: 8px;
-        background-color: var(--mat-sys-secondary-container);
+        display: flex;
+        color: var(--mat-sys-primary);
+        background: var(--mat-sys-surface-container);
+        border-radius: var(--mat-sys-corner-full);
         opacity: 0;
         pointer-events: none;
         transition: opacity 0.15s;
       }
 
-      .section-card:is(:hover, :focus-within) .section-edit {
+      .section-card:is(:hover, :focus-within) .section-card-actions {
         opacity: 1;
         pointer-events: auto;
       }
 
       @media (hover: none) {
-        .section-edit {
+        .section-card-actions {
           opacity: 1;
           pointer-events: auto;
         }
@@ -122,8 +138,7 @@ import {
 
         color: var(--mat-sys-on-primary-container);
 
-        .home-row-column,
-        .section-edit {
+        .home-row-column {
           color: var(--mat-sys-on-primary-container);
         }
 
@@ -330,6 +345,8 @@ import {
 export class SectionListComponent {
   readonly sections$ = inject(NavigationService).getSections();
 
+  private readonly dialogs = inject(MatDialog);
+
   sectionDescription(id: string): string {
     const descriptions: Record<string, string> = {
       angular:
@@ -350,6 +367,16 @@ export class SectionListComponent {
   navigateToSection(section: string): void {
     this.router.navigate([`../${section}`], {
       relativeTo: this.route,
+    });
+  }
+
+  deleteSection(section: SectionDto): void {
+    this.dialogs.open<DeleteSectionModalComponent, DeleteSectionDialogData, boolean>(DeleteSectionModalComponent, {
+      width: '400px',
+      maxWidth: 'calc(100vw - 32px)',
+      ariaModal: true,
+      backdropClass: 'blur-backdrop',
+      data: { section },
     });
   }
 }

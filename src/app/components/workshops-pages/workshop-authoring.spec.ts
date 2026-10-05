@@ -123,23 +123,42 @@ describe('Workshop authoring pages', () => {
     await harness.fixture.whenStable();
   }
 
-  it('routes the catalog create and labelled sibling edit links to dedicated pages', async () => {
+  it('reveals labelled card actions on keyboard focus and routes edit independently of the workshop link', async () => {
     const navigationPromise = harness.navigateByUrl(catalogUrl);
     await flushCatalog();
     await navigationPromise;
     const create = Array.from(harness.routeNativeElement?.querySelectorAll('a') ?? [])
       .find((link) => link.textContent?.includes('Create New Workshop')) as HTMLAnchorElement;
     const edit = harness.routeNativeElement?.querySelector('.edit-icon') as HTMLAnchorElement;
-    const editorLink = harness.routeNativeElement?.querySelector('.category-link') as HTMLAnchorElement;
+    const card = harness.routeNativeElement?.querySelector('.ngx-mat-card') as HTMLElement;
+    const editorLink = card.querySelector('.workshop-link') as HTMLAnchorElement;
+    const actions = card.querySelector('.workshop-card-actions') as HTMLElement;
+    const remove = card.querySelector('.delete-icon') as HTMLButtonElement;
+    const sidebar = harness.routeNativeElement?.querySelector('ngx-workshop-list-control') as HTMLElement;
     expect(create.getAttribute('href')).toBe(createUrl);
     expect(edit.getAttribute('href')).toBe(editUrl);
     expect(edit.getAttribute('aria-label')).toBe('Edit Types');
+    expect(remove.getAttribute('aria-label')).toBe('Delete Types');
+    expect(remove.type).toBe('button');
+    expect(actions.parentElement).toBe(card);
+    expect(editorLink.parentElement).toBe(card);
     expect(editorLink.contains(edit)).toBeFalse();
+    expect(editorLink.contains(remove)).toBeFalse();
+    expect(card.getAttribute('href')).toBeNull();
     expect(editorLink.getAttribute('href')).toBe(`/document-editor/${section._id}/types/page-1`);
+    expect(sidebar.querySelector('.edit-icon, .delete-icon')).toBeNull();
+    expect(sidebar.querySelector('.category-link')?.getAttribute('href')).toBe(editorLink.getAttribute('href'));
+    expect(sidebar.querySelector('.cdk-drag')).not.toBeNull();
+    actions.style.transition = 'none';
+    expect(getComputedStyle(actions).opacity).toBe(matchMedia('(hover: none)').matches ? '1' : '0');
+    expect(getComputedStyle(actions).pointerEvents).toBe(matchMedia('(hover: none)').matches ? 'auto' : 'none');
     editorLink.focus();
     await harness.fixture.whenStable();
-    edit.style.transition = 'none';
-    expect(getComputedStyle(edit).opacity).not.toBe('0');
+    expect(getComputedStyle(actions).opacity).toBe('1');
+    expect(getComputedStyle(actions).pointerEvents).toBe('auto');
+    edit.focus();
+    await harness.fixture.whenStable();
+    expect(getComputedStyle(actions).opacity).toBe('1');
     edit.click();
     await harness.fixture.whenStable();
     http.expectOne(listEndpoint).flush([workshop]);
@@ -147,6 +166,91 @@ describe('Workshop authoring pages', () => {
     expect(router.url).toBe(editUrl);
     expect(harness.routeNativeElement?.querySelector('h1')?.textContent).toBe('Edit Workshop');
     http.expectNone((r) => r.url.includes('/workshop/page-1'));
+  });
+
+  it('opens delete for the selected card without opening a page and cancels without mutation', async () => {
+    const other = { ...workshop, _id: 'other-id', name: 'Other', workshopDocumentGroupId: 'other' };
+    const navigating = harness.navigateByUrl(catalogUrl);
+    await flushCatalog([workshop, other]);
+    await navigating;
+    const cards = harness.routeNativeElement?.querySelectorAll('.ngx-mat-card');
+    expect(cards?.length).toBe(2);
+    const remove = cards?.[1].querySelector('.delete-icon') as HTMLButtonElement;
+    expect(remove.getAttribute('aria-label')).toBe('Delete Other');
+    remove.focus();
+    remove.click();
+    await harness.fixture.whenStable();
+    expect(router.url).toBe(catalogUrl);
+    expect(TestBed.inject(MatDialog).openDialogs.length).toBe(1);
+    expect(document.querySelector('mat-dialog-container h2')?.textContent).toBe('Delete Other?');
+    const name = document.querySelector('mat-dialog-container input[formControlName="name"]') as HTMLInputElement;
+    const confirm = Array.from(document.querySelectorAll('mat-dialog-actions button'))
+      .find((button) => button.textContent?.trim() === 'Delete') as HTMLButtonElement;
+    expect(confirm.disabled).toBeTrue();
+    name.value = workshop.name;
+    name.dispatchEvent(new Event('input'));
+    await harness.fixture.whenStable();
+    expect(confirm.disabled).toBeTrue();
+    name.value = other.name;
+    name.dispatchEvent(new Event('input'));
+    await harness.fixture.whenStable();
+    expect(confirm.disabled).toBeFalse();
+    const cancel = Array.from(document.querySelectorAll('mat-dialog-actions button'))
+      .find((button) => button.textContent?.trim() === 'Cancel') as HTMLButtonElement;
+    cancel.click();
+    await harness.fixture.whenStable();
+    expect(TestBed.inject(MatDialog).openDialogs.length).toBe(0);
+    expect(document.activeElement).toBe(remove);
+    expect(router.url).toBe(catalogUrl);
+    expect(harness.routeNativeElement?.querySelectorAll('.ngx-mat-card').length).toBe(2);
+    http.expectNone('/api/documents/navigation/workshop/delete-workshop-and-workshop-documents');
+    http.expectNone((r) => r.url.startsWith('/api/documents/workshop/'));
+  });
+
+  it('keeps name-confirmed deletion and refreshes the catalog from the card action', async () => {
+    const navigating = harness.navigateByUrl(catalogUrl);
+    await flushCatalog();
+    await navigating;
+    (harness.routeNativeElement?.querySelector('.delete-icon') as HTMLButtonElement).click();
+    await harness.fixture.whenStable();
+    const name = document.querySelector('mat-dialog-container input[formControlName="name"]') as HTMLInputElement;
+    name.value = workshop.name;
+    name.dispatchEvent(new Event('input'));
+    await harness.fixture.whenStable();
+    const confirm = Array.from(document.querySelectorAll('mat-dialog-actions button'))
+      .find((button) => button.textContent?.trim() === 'Delete') as HTMLButtonElement;
+    confirm.click();
+    const request = http.expectOne('/api/documents/navigation/workshop/delete-workshop-and-workshop-documents');
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual({ _id: workshop._id });
+    request.flush({ acknowledged: true, deletedCount: 1 });
+    http.expectOne(listEndpoint).flush([]);
+    await harness.fixture.whenStable();
+    expect(TestBed.inject(MatDialog).openDialogs.length).toBe(0);
+    expect(router.url).toBe(catalogUrl);
+    expect(harness.routeNativeElement?.querySelectorAll('.ngx-mat-card').length).toBe(0);
+    expect(harness.routeNativeElement?.textContent).toContain('No workshops yet.');
+    http.expectNone((r) => r.url.startsWith('/api/documents/workshop/'));
+  });
+
+  it('keeps card actions in place while long workshop content scrolls', async () => {
+    const navigating = harness.navigateByUrl(catalogUrl);
+    await flushCatalog([{ ...workshop, summary: 'Long workshop summary. '.repeat(100) }]);
+    await navigating;
+    const card = harness.routeNativeElement?.querySelector('.ngx-mat-card') as HTMLElement;
+    card.style.animation = 'none';
+    card.style.opacity = '1';
+    card.style.clipPath = 'none';
+    const link = card.querySelector('.workshop-link') as HTMLAnchorElement;
+    const actions = card.querySelector('.workshop-card-actions') as HTMLElement;
+    actions.style.transition = 'none';
+    link.focus();
+    await harness.fixture.whenStable();
+    const top = actions.getBoundingClientRect().top;
+    link.scrollTop = 100;
+    expect(link.scrollTop).toBeGreaterThan(0);
+    expect(actions.getBoundingClientRect().top).toBe(top);
+    expect(getComputedStyle(actions).opacity).toBe('1');
   });
 
   it('loads a fresh workshop on direct edit, preserves IDs and submits only mutable fields', async () => {

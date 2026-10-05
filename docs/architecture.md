@@ -24,7 +24,7 @@ reuses the same configuration.
 | Host entry       | src/app/app.ts, src/app/app.routes.ts, webpack.config.js | Empty root App and host-mounted route tree                              |
 | Resolution       | src/app/resolvers/                                       | Sections, workshop slug selection and page lookup                       |
 | Navigation       | src/app/services/navigation.service.ts                   | HTTP reads, BehaviorSubject state, per-section replay cache             |
-| Mutations        | src/app/services/workshops.service.ts                    | Workshop/page CRUD, ordering, save and image upload calls               |
+| Mutations        | src/app/services/workshops.service.ts                    | Section/workshop/page CRUD, ordering, save and image upload calls       |
 | Catalog/editor   | src/app/components/workshops-pages/                      | Persisted section catalog, workshop cards and editor/paginator          |
 | Workshop authoring | src/app/components/workshops-pages/create-workshop.component.ts | Routed create/edit metadata and documents-folder thumbnail picker |
 | Image selection | src/app/components/document-image-picker/ | Shared image-field action and typed asset-picker dialog |
@@ -54,7 +54,14 @@ Section links use persisted IDs; catalog artwork comes from each section's
 `headerSvgPath`, with a generic folder icon when no path is configured.
 NavigationService exposes the fetched section catalog and merges confirmed
 creations/updates by ID, also refreshing the selected section when applicable.
-Catalog cards have a sibling edit icon revealed on hover/focus or shown on touch.
+Catalog cards have sibling edit/delete actions revealed on hover/focus or shown on touch.
+SectionListComponent opens a section-specific typed-name confirmation dialog.
+WorkshopEditorService sends the bodyless DELETE; the server rejects nonempty
+sections with 409 rather than cascading. Only confirmed single-record deletion
+removes the keyed section and its workshop cache through NavigationService.
+Selected state belonging to that section is cleared; unrelated state is preserved.
+Pending requests block duplicate submissions and dialog dismissal; failures retain
+confirmation text and offer retry/cancel. See [011 handoff](../specs/011-delete-sections/handoff.md).
 CreateSectionComponent uses a routed typed Material form for create/edit, fresh
 section reads, a multiline sectionDescription input, and pending/error signals.
 Catalog cards display sectionDescription; the legacy numeric summary is preserved
@@ -74,7 +81,7 @@ loads fresh workshops for the route's section and uses a typed Material form for
 create/edit name, summary and thumbnail. Confirmed mutations merge by Mongo ID,
 invalidate the affected section cache and return to the refreshed catalog.
 Pending saves block departure and duplicate submissions; failures expose retry
-without discarding edits. Catalog create and sidebar edit links replace the old
+without discarding edits. Catalog create and workshop-card edit links replace the old
 workshop dialogs. Thumbnail URLs outside Cloudinary image delivery are preserved,
 and absent thumbnails use a generic image icon.
 Dialogs still delete workshops and create/edit/delete pages; the editor supports
@@ -139,3 +146,17 @@ The picker continues returning image URLs only. DTO shapes stay unchanged:
 menuSvgPath/headerSvgPath/thumbnail now carry either convention locally.
 Other consumers must recognize Devicon strings before such records are shared.
 See [009 handoff](../specs/009-devicon-artwork/handoff.md).
+
+## Workshop card actions - 2026-10-05
+
+Workshop cards have top-right edit/delete Material actions revealed on hover or
+focus within the card, and always visible on no-hover devices. The card's content
+is a semantic workshop slug/page link; the Mongo-ID edit link and delete button
+are siblings rather than nested links. Clicking them cannot trigger the editor
+route. Card content scrolls independently so actions stay anchored for long text.
+
+WorkshopListComponent opens the existing typed-name DeleteWorkshopModalComponent
+with the selected WorkshopDto; its confirmation/mutation/refresh behavior is
+unchanged. Sidebar controls now contain only workshop navigation and drag ordering.
+No endpoint, DTO, authorization, route or federation changes.
+See [010 handoff](../specs/010-workshop-card-actions/handoff.md).

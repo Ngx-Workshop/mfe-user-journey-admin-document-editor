@@ -110,6 +110,20 @@ export class NavigationService {
     }
   }
 
+  removeSection(id: string): void {
+    const sections = { ...this.sections$.value.sections };
+    delete sections[id];
+    this.sections$.next({ sections });
+    delete this.sectionWorkshopsCache[id];
+    if (this.currentSection$.value?._id === id) {
+      this.currentSection$.next(undefined);
+      this.workshops$.next([]);
+      this.currentWorkshop$.next(undefined);
+    } else if (this.currentWorkshop$.value?.sectionId === id) {
+      this.currentWorkshop$.next(undefined);
+    }
+  }
+
   navigateToSection(sectionId: string, force = false) {
     return of(sectionId).pipe(
       tap((id) => {

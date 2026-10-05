@@ -56,6 +56,11 @@ describe('document API environment routing', () => {
       expect(sectionUpdate.request.method).toBe('PATCH');
       expect(sectionUpdate.request.body).toEqual({ sectionDescription: '', headerSvgPath: '' });
       sectionUpdate.flush({});
+      editor.deleteSection('legacy section/key').subscribe();
+      const sectionDelete = http.expectOne(`${baseUrl}/navigation/section/legacy%20section%2Fkey`);
+      expect(sectionDelete.request.method).toBe('DELETE');
+      expect(sectionDelete.request.body).toBeNull();
+      sectionDelete.flush({ acknowledged: true, deletedCount: 1 });
       editor.savePageHTML('[]', 'page-id').subscribe();
       const save = http.expectOne(
         `${baseUrl}/workshop/update-workshop-html`

@@ -113,20 +113,22 @@ describe('Section authoring', () => {
     navigation.addSection({ ...section, headerSvgPath: imageUrl });
     await harness.fixture.whenStable();
     const card = harness.routeNativeElement?.querySelector('.section-card') as HTMLElement;
-    const edit = card.querySelector('.section-edit') as HTMLAnchorElement;
+    const actions = card.querySelector('.section-card-actions') as HTMLElement;
+    const edit = actions.querySelector('a') as HTMLAnchorElement;
     const workshopLink = card.querySelector('.home-row-column') as HTMLAnchorElement;
-    expect(edit.parentElement).toBe(card);
+    expect(edit.parentElement).toBe(actions);
+    expect(actions.parentElement).toBe(card);
     expect(workshopLink.contains(edit)).toBeFalse();
     expect(edit.getAttribute('aria-label')).toBe('Edit TypeScript');
     expect(edit.getAttribute('href')).toBe(`/document-editor/edit-section/${section._id}`);
     expect(edit.querySelector('mat-icon')?.textContent).toBe('edit');
-    edit.style.transition = 'none';
-    expect(getComputedStyle(edit).opacity).toBe(
+    actions.style.transition = 'none';
+    expect(getComputedStyle(actions).opacity).toBe(
       matchMedia('(hover: none)').matches ? '1' : '0'
     );
     workshopLink.focus();
     await harness.fixture.whenStable();
-    expect(getComputedStyle(edit).opacity).toBe('1');
+    expect(getComputedStyle(actions).opacity).toBe('1');
     edit.click();
     await harness.fixture.whenStable();
     const request = http.expectOne(sectionEndpoint);

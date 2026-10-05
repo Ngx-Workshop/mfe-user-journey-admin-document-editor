@@ -153,7 +153,7 @@ Verified: remote ChromeHeadless 11 passing tests; shell ChromeHeadless 3 passing
 
 ## Workshop authoring pages - 2026-10-05
 
-Create New Workshop now opens `:section/create-workshop`; the sidebar's labelled
+Create New Workshop now opens `:section/create-workshop`; the workshop card's labelled
 edit link opens `:section/edit-workshop/:workshopId` using the workshop Mongo ID.
 Both pages use fresh section workshop reads and the full documents-folder image
 picker. Use the image field's Choose thumbnail image action, or enter a URL.
@@ -249,3 +249,58 @@ after validation; watched dist untouched. Existing section-list style warning is
 unchanged (139 bytes over 4.00 kB).
 Live glyph/font, persistence/authorization, image delivery and other-consumer
 compatibility remain pending. See [009 handoff](../specs/009-devicon-artwork/handoff.md).
+
+## Workshop card actions - 2026-10-05
+
+Edit/delete actions moved from the sidebar to the top-right of each workshop card.
+They appear on hover/keyboard focus and remain visible on no-hover devices.
+Card content is a separate editor link; edit opens the existing dedicated page
+and delete opens the unchanged typed-name confirmation dialog. Sidebar workshop
+links and drag ordering remain. Long text scrolls without moving the actions.
+
+PASS: 26 focused ChromeHeadless tests:
+`npm test -- --watch=false --browsers=ChromeHeadless
+--include='src/app/components/workshops-pages/workshop-authoring.spec.ts'`.
+Includes real focus/reveal CSS, independent card/edit hrefs, sidebar action absence,
+selected-card confirmation/cancel, exact deletion body and catalog refresh, scroll
+position regression, existing authoring/artwork/picker checks. HTTP is mocked.
+Pointer-hover and physical touch acceptance were not run.
+
+PASS: production build to `/tmp/document-editor-card-actions-6d08b5df`; temporary
+output removed and watched dist untouched. Existing section-list style warning
+remains 139 bytes over 4.00 kB; synthetic image URL 404s are test fixtures.
+No dependency changes or deployment. Live auth/persistence/host checks remain
+pending; see [010 handoff](../specs/010-workshop-card-actions/handoff.md).
+
+## Section deletion - 2026-10-05
+
+The section-card delete action now opens its own exact-name confirmation dialog,
+not the workshop dialog. It sends an encoded bodyless DELETE, blocks pending
+dismissal/duplicate submissions, explains nonempty-section rejection and changes
+catalog/cache/selection only after acknowledged single-record deletion.
+
+PASS: 48 focused ChromeHeadless tests (20 section deletion, 26 workshop authoring,
+2 API environment tests):
+
+```bash
+npm test -- --watch=false --browsers=ChromeHeadless \
+  --include='src/app/components/workshops-pages/section-deletion.spec.ts' \
+  --include='src/app/components/workshops-pages/workshop-authoring.spec.ts' \
+  --include='src/app/services/document-api-environment.spec.ts'
+```
+
+The initial expanded run additionally included section-creation.spec.ts:
+66 passed, 6 failed. Those existing section-preview checks expect earlier
+icon-specific classes and unchanged synthetic image src values; current form
+markup uses generic icon-preview classes and an image-error fallback. The user
+action-group selector regression was updated and passes. Unrelated form markup,
+fallback behavior and the six preview assertions were not changed for deletion.
+
+PASS: production build with
+`npm run build -- --output-path /tmp/document-editor-section-delete-6d08b5df`.
+The current section-list stylesheet is 4.22 kB, 218 bytes over its existing
+4.00 kB warning budget; build succeeds without raising the budget. Temporary
+output removed; watched dist untouched. Synthetic fixture image 404s and the npm
+scripts-prepend-node-path warning remain. No dependency changes or deployment.
+Live empty/nonempty deletion, auth, gateway and persistence checks were not run;
+see [011 handoff](../specs/011-delete-sections/handoff.md).

@@ -109,6 +109,12 @@ export class WorkshopEditorService {
     );
   }
 
+  deleteSection(id: string) {
+    return this.httpClient.delete<DeleteResultDto>(
+      `${this.baseUrl}/navigation/section/${encodeURIComponent(id)}`
+    );
+  }
+
   createWorkshop(workshop: UpdateWorkshopDto) {
     return this.apiCall<WorkshopDto>(
       '/navigation/workshop/create-workshop',

@@ -12,6 +12,7 @@ Section rows reflect the published 0.0.33 contracts on
 | POST /navigation/section/create-section | CreateSectionDto: sectionTitle and optional sectionDescription | SectionDto, HTTP 201 | Admin |
 | GET /navigation/section/{id} | Section key in URL (Mongo or legacy string) | SectionDto, HTTP 200 | Service-owned; verify live |
 | PATCH /navigation/section/{id} | UpdateSectionDto: optional sectionTitle, sectionDescription, summary, menuSvgPath, headerSvgPath; UI omits summary | SectionDto, HTTP 200; 400/404 documented | Service-owned; verify admin enforcement live |
+| DELETE /navigation/section/{id} | Encoded section key in URL; no body | DeleteResultDto, HTTP 200; 400/404/409 documented; 409 means section contains workshops | Service-owned; verify admin enforcement live |
 | GET /navigation/sections | none | `{ sections: Record<string, SectionDto> }` | Public |
 | GET /navigation/workshops | `section` query | WorkshopDto[] ordered by sortId | Public |
 | POST /navigation/workshop/create-workshop | CreateWorkshopDto | WorkshopDto with initial page reference | Admin |
@@ -75,6 +76,15 @@ and auth forwarding; the admin shell owns route mounting and identity providers.
 For contract changes: agree on runtime shapes, fix producer metadata, generate and
 build contracts, review compatibility, publish only in an authorized release, then
 update the consumer and verify the full journey. Section creation adds one admin endpoint; deploy it before enabling the editor flow.
+
+Section deletion consumes the existing published 0.0.33 DELETE contract, not a new
+DTO. Confirm producer support before rolling out the delete action. It deletes only
+empty sections; the service must reject nonempty sections with 409 without deleting
+workshops/pages or changing relationships. The consumer accepts only boolean
+`acknowledged: true` with `deletedCount: 1`, then removes the confirmed section from
+local catalog/cache/selection state. service-document and gateway owners must
+verify live authorization, routing and persistence; installed declarations and
+mocked HTTP are not proof of deployment. See [011 handoff](../specs/011-delete-sections/handoff.md).
 
 ## Local authentication mode
 

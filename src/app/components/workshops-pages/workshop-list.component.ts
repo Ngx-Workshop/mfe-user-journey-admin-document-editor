@@ -7,14 +7,17 @@ import {
   PipeTransform,
   signal,
 } from '@angular/core';
-import { MatButton } from '@angular/material/button';
+import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
 import { map, tap } from 'rxjs';
+import { WorkshopDto } from '@tmdjr/document-contracts';
 import { NavigationService } from '../../services/navigation.service';
 import { IsDeviconPipe, MenuDeviconComponent } from '../devicon.component';
 import { WorkshopListControlsComponent } from '../workshops-sidepanel/workshop-list-controls/workshop-list-control.component';
+import { DeleteWorkshopModalComponent } from '../workshops-sidepanel/workshop-list-controls/modals/delete-category-modal/delete-workshop-modal.component';
 
 @Pipe({ name: 'optimizeCloudinaryUrl' })
 export class OptimizeCloudinaryUrlPipe implements PipeTransform {
@@ -36,7 +39,7 @@ export class OptimizeCloudinaryUrlPipe implements PipeTransform {
     MatIcon,
     NgOptimizedImage,
     OptimizeCloudinaryUrlPipe,
-    MatButton,
+    MatButtonModule,
     WorkshopListControlsComponent,
     IsDeviconPipe,
     MenuDeviconComponent,
@@ -60,16 +63,19 @@ export class OptimizeCloudinaryUrlPipe implements PipeTransform {
       >
         @for ( workshop of ws; track workshop.workshopDocumentGroupId;
         let i = $index ) {
-        <div
+        <article
           class="ngx-mat-card mat-elevation-z6"
           [style.--animation-order]="i"
-          [routerLink]="
-            '../' +
-            workshop.workshopDocumentGroupId +
-            '/' +
-            workshop.workshopDocuments[0]._id
-          "
         >
+          <a
+            class="workshop-link"
+            [routerLink]="
+              '../' +
+              workshop.workshopDocumentGroupId +
+              '/' +
+              workshop.workshopDocuments[0]._id
+            "
+          >
           <div class="img-wrapper">
             @if (workshop.thumbnail) {
             @if (workshop.thumbnail | isDevicon) {
@@ -94,7 +100,25 @@ export class OptimizeCloudinaryUrlPipe implements PipeTransform {
           </div>
           <h2>{{ workshop.name }}</h2>
           <p>{{ workshop.summary }}</p>
-        </div>
+          </a>
+          <div class="workshop-card-actions">
+            <a
+              matIconButton
+              class="edit-icon"
+              [routerLink]="['../edit-workshop', workshop._id]"
+              [attr.aria-label]="'Edit ' + workshop.name"
+              [title]="'Edit ' + workshop.name"
+            ><mat-icon>edit</mat-icon></a>
+            <button
+              matIconButton
+              type="button"
+              class="delete-icon"
+              [attr.aria-label]="'Delete ' + workshop.name"
+              [title]="'Delete ' + workshop.name"
+              (click)="deleteWorkshop(workshop)"
+            ><mat-icon>delete</mat-icon></button>
+          </div>
+        </article>
         } @empty {
         <p>
           No workshops yet. Use Create New Workshop to add the first
@@ -138,10 +162,10 @@ export class OptimizeCloudinaryUrlPipe implements PipeTransform {
       }
 
       .ngx-mat-card {
+        position: relative;
         width: 325px;
         height: 375px;
-        overflow: auto;
-        cursor: pointer;
+        overflow: hidden;
         border-radius: 16px;
         color: var(--mat-sys-on-secondary-container);
         background-color: var(--mat-sys-secondary-container);
@@ -154,6 +178,38 @@ export class OptimizeCloudinaryUrlPipe implements PipeTransform {
         .animate & {
           animation: circleReveal 0.6s ease-in-out forwards;
           animation-delay: calc(var(--animation-order, 0) * 150ms);
+        }
+
+        .workshop-link {
+          display: block;
+          height: 100%;
+          overflow: auto;
+          color: inherit;
+          text-decoration: none;
+        }
+
+        .workshop-card-actions {
+          position: absolute;
+          top: 8px;
+          right: 8px;
+          display: flex;
+          border-radius: var(--mat-sys-corner-full);
+          background: var(--mat-sys-secondary-container);
+          opacity: 0;
+          pointer-events: none;
+          transition: opacity 0.15s;
+        }
+
+        &:is(:hover, :focus-within) .workshop-card-actions {
+          opacity: 1;
+          pointer-events: auto;
+        }
+
+        @media (hover: none) {
+          .workshop-card-actions {
+            opacity: 1;
+            pointer-events: auto;
+          }
         }
 
         .img-wrapper {
@@ -239,6 +295,7 @@ export class OptimizeCloudinaryUrlPipe implements PipeTransform {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WorkshopListComponent {
+  private readonly dialogs = inject(MatDialog);
   animationTriggered = signal(false);
 
   workshops = inject(NavigationService)
@@ -254,4 +311,11 @@ export class WorkshopListComponent {
       })
     );
 
+  deleteWorkshop(workshop: WorkshopDto): void {
+    this.dialogs.open(DeleteWorkshopModalComponent, {
+      width: '400px',
+      backdropClass: 'blur-backdrop',
+      data: { workshop },
+    });
+  }
 }

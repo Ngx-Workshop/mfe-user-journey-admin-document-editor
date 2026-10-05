@@ -23,22 +23,6 @@
       >
         {{ workshop.name | truncate : 18 : '...' }}
       </a>
-      <div class="flex-spacer"></div>
-      <a
-        matIconButton
-        class="edit-icon"
-        [routerLink]="['../edit-workshop', workshop._id]"
-        [attr.aria-label]="'Edit ' + workshop.name"
-        ><mat-icon>edit</mat-icon></a
-      >
-      <button
-        matIconButton
-        type="button"
-        class="delete-icon"
-        [attr.aria-label]="'Delete ' + workshop.name"
-        (click)="deleteWorkshop($event, workshop)"
-        ><mat-icon>delete</mat-icon></button
-      >
     </div>
   </div>
   }

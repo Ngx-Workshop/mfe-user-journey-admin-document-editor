@@ -11,8 +11,6 @@ import {
   OnDestroy,
   OnInit,
 } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import {
@@ -23,7 +21,6 @@ import { RouterModule } from '@angular/router';
 import { from, of, Subject, switchMap, take, takeUntil } from 'rxjs';
 import { NavigationService } from '../../../services/navigation.service';
 import { WorkshopEditorService } from '../../../services/workshops.service';
-import { DeleteWorkshopModalComponent } from './modals/delete-category-modal/delete-workshop-modal.component';
 
 import { Pipe, PipeTransform } from '@angular/core';
 import { WorkshopDto } from '@tmdjr/document-contracts';
@@ -73,7 +70,6 @@ export class TruncatePipe implements PipeTransform {
     RouterModule,
     MatListModule,
     MatIconModule,
-    MatButtonModule,
     DragDropModule,
     TruncatePipe,
   ],
@@ -81,7 +77,6 @@ export class TruncatePipe implements PipeTransform {
 export class WorkshopListControlsComponent
   implements OnInit, OnDestroy
 {
-  matDialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
   workshopEditorService = inject(WorkshopEditorService);
 
@@ -108,16 +103,6 @@ export class WorkshopListControlsComponent
 
   ngOnDestroy(): void {
     this.destory.next(true);
-  }
-
-  deleteWorkshop(event: Event, workshop: WorkshopDto): void {
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    this.matDialog.open(DeleteWorkshopModalComponent, {
-      width: '400px',
-      backdropClass: 'blur-backdrop',
-      data: { workshop },
-    });
   }
 
   onDrop(
