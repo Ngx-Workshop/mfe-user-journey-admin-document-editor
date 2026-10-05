@@ -88,13 +88,13 @@ normal. See development.md for commands and origin restrictions.
 
 The new picker uses the shell's uploader adapter rather than the legacy image-upload call: GET /api/uploader/folders returns FolderDto[], GET /api/uploader?archived=false&folderId=<MongoId> returns AssetDto[], POST /api/uploader/upload sends multipart file and folderId and returns AssetDto. The gateway translates /api/uploader to service-native /uploader. Requests retain shell HTTP interceptors and credentials. Published uploader types are consumed through @tmdjr/ngx-asset-manager 21.1.0 (peer contracts 0.0.13).
 
-The folder name documents is looked up on the consumer side; only the returned folder ID is sent to the uploader. The creation page permits image/* and retains selected/uploaded assets. Users can apply a usable asset URL to either menuSvgPath or headerSvgPath; no asset ID is sent to the document service.
+The folder name documents is looked up on the consumer side; only the returned folder ID is sent to the uploader. The picker permits image/*; a usable selected/uploaded URL is returned to the originating menuSvgPath or headerSvgPath field when the dialog closes. No asset ID is sent to the document service.
 
 ## Workshop authoring pages - 2026-10-05
 
 Workshop create/edit use the same shell asset adapter, documents-folder Mongo ID,
-image-only full gallery and upload acceptance. Selection/upload does not save
-workshop metadata until the user explicitly applies its URL and submits the form.
+image-only full gallery and upload acceptance. Selection/upload closes the picker
+and returns its URL to thumbnail; workshop metadata is not saved until form submission.
 No asset ID or file data is sent to service-document.
 
 Fresh edit values come from GET `/navigation/workshops?section=<sectionId>`,
@@ -111,6 +111,17 @@ New route `:section/edit-workshop/:workshopId` uses the Mongo ID; existing edito
 `:section/:workshopId/:documentId` continues using the workshop slug. Confirmed
 responses refresh keyed navigation state and invalidate only the affected section
 workshop cache. Section/page identifiers and serialized editor blocks are unchanged.
+
+## Image picker dialog - 2026-10-05
+
+Image-field actions now defer folder/gallery reads until a shared dialog opens.
+It returns `string | undefined` through MatDialogRef/afterClosed, never an asset DTO.
+Only a usable selected/uploaded image closes with a URL. Cancel/Escape/backdrop
+return no value and leave metadata unchanged. Errors remain in the dialog; no root
+folder fallback. Picker closure itself makes no document-service request.
+The shell adapter, endpoints, credentials, folder ID and image-only upload contract
+are unchanged. No producer change or release ordering is required. Closing during
+an upload does not promise server-side rollback or asset deletion.
 
 ## Section creation request extension - 2026-10-05
 
@@ -141,3 +152,21 @@ response state preserves it without coercion. No fallback from summary is used.
 Backend owns existing-record description defaults/migration; verify reads and
 create/edit/reload against the deployed producer. See
 [006 handoff](../specs/006-section-description/handoff.md).
+
+## Artwork value convention - 2026-10-05
+
+The local authoring/catalog/header UI now interprets menuSvgPath, headerSvgPath and
+thumbnail as either an image URL/path or a Devicon CSS-class string such as
+`devicon-angular-plain colored`. Fields and request/response shapes remain strings;
+no separate type discriminator, asset ID, schema, endpoint or package change.
+Submit retains the ordinary trim behavior, with Devicon classes otherwise unchanged.
+Picker results remain image URLs, not icons.
+
+The user chose the shell's existing Devicon styling. mfe-shell-admin must provide
+the matching font/CSS. service-document owns actual persistence/validation of these
+strings; acceptance for icon-valued section creation remains part of the existing
+creation-artwork integration check. Any other consumer currently binding these
+fields directly to image src must add class-string branching and Devicon styles
+before receiving icon-valued records; otherwise it will request the class string
+as an image URL. Deliver compatible readers first, then enable/use icon-valued
+records. No external consumer change or backend deployment was performed here.

@@ -4,6 +4,10 @@ Status: Implemented; live integration pending
 [Spec](spec.md) | [Plan](plan.md) | [Tasks](tasks.md)
 Updated: 2026-10-05
 
+The inline picker/Use for thumbnail interaction below is historical.
+[008 Image picker dialog](../008-image-picker-dialog/handoff.md) supersedes it:
+an image-field action opens the shared dialog and afterClosed populates thumbnail.
+
 ## Delivered behavior
 
 Dedicated `:section/create-workshop` and

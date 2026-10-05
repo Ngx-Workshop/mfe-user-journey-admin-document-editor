@@ -6,11 +6,11 @@ import {
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { MatDialog } from '@angular/material/dialog';
 import { provideRouter, Router } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { SectionDto, WorkshopDto } from '@tmdjr/document-contracts';
-import { Asset, AssetManagerComponent, provideAssetManager } from '@tmdjr/ngx-asset-manager';
-import { By } from '@angular/platform-browser';
+import { Asset, provideAssetManager } from '@tmdjr/ngx-asset-manager';
 import { firstValueFrom } from 'rxjs';
 import { Routes } from '../../app.routes';
 import { NavigationService } from '../../services/navigation.service';
@@ -88,7 +88,10 @@ describe('Workshop authoring pages', () => {
     harness = await RouterTestingHarness.create('/document-editor');
   });
 
-  afterEach(() => http.verify());
+  afterEach(() => {
+    TestBed.inject(MatDialog).closeAll();
+    http.verify();
+  });
 
   async function resolveFolder(): Promise<void> {
     http.expectOne('/api/uploader/folders').flush([folder]);
@@ -102,13 +105,14 @@ describe('Workshop authoring pages', () => {
     await harness.fixture.whenStable();
   }
 
-  async function openPage(editing = false, loadFolder = true): Promise<CreateWorkshopComponent> {
+  async function openPage(editing = false): Promise<CreateWorkshopComponent> {
     const component = await harness.navigateByUrl(
       editing ? editUrl : createUrl,
       CreateWorkshopComponent
     );
     http.expectOne(listEndpoint).flush([workshop]);
-    if (loadFolder) await resolveFolder();
+    await harness.fixture.whenStable();
+    http.expectNone('/api/uploader/folders');
     return component;
   }
 
@@ -139,7 +143,7 @@ describe('Workshop authoring pages', () => {
     edit.click();
     await harness.fixture.whenStable();
     http.expectOne(listEndpoint).flush([workshop]);
-    await resolveFolder();
+    await harness.fixture.whenStable();
     expect(router.url).toBe(editUrl);
     expect(harness.routeNativeElement?.querySelector('h1')?.textContent).toBe('Edit Workshop');
     http.expectNone((r) => r.url.includes('/workshop/page-1'));
@@ -214,7 +218,7 @@ describe('Workshop authoring pages', () => {
   it('creates the first workshop without a thumbnail and renders the catalog fallback', async () => {
     const component = await harness.navigateByUrl(createUrl, CreateWorkshopComponent);
     http.expectOne(listEndpoint).flush([]);
-    await resolveFolder();
+    await harness.fixture.whenStable();
     component.form.setValue({ name: 'First', summary: 'First workshop', thumbnail: '' });
     component.save();
     const request = http.expectOne(createEndpoint);
@@ -250,7 +254,7 @@ describe('Workshop authoring pages', () => {
     component.save();
     http.expectNone(editEndpoint);
     http.expectOne(listEndpoint).flush({}, { status: 500, statusText: 'Failure' });
-    await resolveFolder();
+    await harness.fixture.whenStable();
     expect(component.loadingWorkshop()).toBeFalse();
     expect(component.workshopLoaded()).toBeFalse();
     expect(component.error()).toContain('Could not load');
@@ -265,7 +269,7 @@ describe('Workshop authoring pages', () => {
   it('reports a missing workshop in its section instead of editing stale state', async () => {
     const component = await harness.navigateByUrl(editUrl, CreateWorkshopComponent);
     http.expectOne(listEndpoint).flush([]);
-    await resolveFolder();
+    await harness.fixture.whenStable();
     expect(component.error()).toContain('no longer exists in this section');
     expect(component.workshopLoaded()).toBeFalse();
     component.save();
@@ -274,7 +278,7 @@ describe('Workshop authoring pages', () => {
 
   it('reports a missing section without issuing an invalid workshop request', async () => {
     const component = await harness.navigateByUrl('/document-editor/missing/create-workshop', CreateWorkshopComponent);
-    await resolveFolder();
+    await harness.fixture.whenStable();
     expect(component.error()).toContain('section no longer exists');
     expect(component.workshopLoaded()).toBeFalse();
     http.expectNone((r) => r.url === '/api/documents/navigation/workshops');
@@ -315,87 +319,119 @@ describe('Workshop authoring pages', () => {
     expect(navigate).toHaveBeenCalledTimes(2);
   });
 
-  it('shows folder failure with retry and never falls back to the root gallery', async () => {
-    const component = await openPage(false, false);
-    http.expectOne('/api/uploader/folders').flush([]);
-    await harness.fixture.whenStable();
-    expect(component.assetFolderError()).toContain('documents asset folder');
-    expect(harness.routeNativeElement?.querySelector('ngx-asset-manager')).toBeNull();
-    http.expectNone((r) => r.url === '/api/uploader');
-    component.loadAssetFolder();
-    await resolveFolder();
-    expect(harness.routeNativeElement?.querySelector('ngx-asset-manager')).not.toBeNull();
-  });
+  for (const editing of [false, true]) {
+    it(`populates the thumbnail from the modal close result (${editing ? 'edit' : 'create'})`, async () => {
+      const component = await openPage(editing);
+      const button = harness.routeNativeElement?.querySelector('button[aria-label="Choose thumbnail image"]') as HTMLButtonElement;
+      expect(button.type).toBe('button');
+      expect(harness.routeNativeElement?.querySelector('ngx-asset-manager')).toBeNull();
+      const previous = component.form.controls.thumbnail.value;
+      button.focus();
+      button.click();
+      await resolveFolder();
+      expect(component.form.controls.thumbnail.value).toBe(previous);
+      (document.querySelector('button[aria-label="Select photo.png"]') as HTMLButtonElement).click();
+      await harness.fixture.whenStable();
+      expect(TestBed.inject(MatDialog).openDialogs.length).toBe(0);
+      expect(component.form.controls.thumbnail.value).toBe('/photo.png');
+      expect(component.form.controls.thumbnail.dirty).toBeTrue();
+      expect(document.activeElement).toBe(button);
+      expect(harness.routeNativeElement?.querySelector('.image-preview')?.getAttribute('src')).toBe('/photo.png');
+      expect(harness.routeNativeElement?.textContent).not.toContain('Use for thumbnail');
+      component.form.patchValue({ name: 'Workshop', summary: 'Summary' });
+      component.save();
+      const save = http.expectOne(editing ? editEndpoint : createEndpoint);
+      expect(save.request.body.thumbnail).toBe('/photo.png');
+      expect(save.request.body.thumbnail).not.toBe(asset._id);
+      save.flush({}, { status: 500, statusText: 'Failure' });
+      http.expectNone('/api/documents/uploader/image-upload');
+    });
+  }
 
-  it('keeps manual URL authoring available after denied asset-folder access', async () => {
-    const component = await openPage(true, false);
-    http.expectOne('/api/uploader/folders').flush({}, { status: 403, statusText: 'Forbidden' });
-    await harness.fixture.whenStable();
-    expect(component.assetFolderError()).toContain('permission');
+  it('preserves manual thumbnail entry when the picker is cancelled', async () => {
+    const component = await openPage(true);
     component.form.controls.thumbnail.setValue('/manual.png');
-    component.save();
-    const request = http.expectOne(editEndpoint);
-    expect(request.request.body.thumbnail).toBe('/manual.png');
-    request.flush({}, { status: 500, statusText: 'Failure' });
+    (harness.routeNativeElement?.querySelector('button[aria-label="Choose thumbnail image"]') as HTMLButtonElement).click();
+    await resolveFolder();
+    (document.querySelector('mat-dialog-actions button') as HTMLButtonElement).click();
+    await harness.fixture.whenStable();
+    expect(component.form.controls.thumbnail.value).toBe('/manual.png');
+    expect(component.form.controls.thumbnail.dirty).toBeFalse();
   });
 
-  it('explicitly applies gallery selection and reports unusable URLs without clearing metadata', async () => {
-    const component = await openPage(true);
-    const picker = harness.fixture.debugElement.query(By.directive(AssetManagerComponent)).componentInstance as AssetManagerComponent;
-    picker.assetSelected.emit(asset);
-    expect(component.form.controls.thumbnail.value).toBe(workshop.thumbnail);
-    component.useSelectedAsset();
-    expect(component.form.controls.thumbnail.value).toBe('/photo.png');
-    expect(component.form.controls.thumbnail.dirty).toBeTrue();
-    component.selectAsset({ ...asset, storageUrl: undefined });
-    component.useSelectedAsset();
-    expect(component.assetSelectionError()).toContain('no usable URL');
-    expect(component.form.controls.thumbnail.value).toBe('/photo.png');
+  it('disables the picker while loading, saving and after confirmed save', async () => {
+    const component = await harness.navigateByUrl(editUrl, CreateWorkshopComponent);
+    const button = harness.routeNativeElement?.querySelector('button[aria-label="Choose thumbnail image"]') as HTMLButtonElement;
+    expect(button.disabled).toBeTrue();
+    http.expectOne(listEndpoint).flush([workshop]);
+    await harness.fixture.whenStable();
+    expect(button.disabled).toBeFalse();
+    spyOn(router, 'navigate').and.resolveTo(false);
     component.save();
-    http.expectOne(editEndpoint).flush({}, { status: 500, statusText: 'Failure' });
+    await harness.fixture.whenStable();
+    expect(button.disabled).toBeTrue();
+    http.expectOne(editEndpoint).flush(workshop);
+    await harness.fixture.whenStable();
+    expect(button.disabled).toBeTrue();
+    button.click();
+    http.expectNone('/api/uploader/folders');
   });
 
-  it('uploads images to the documents folder and applies the returned URL, never the asset ID', async () => {
+  it('closes the picker when a reused edit route loads another workshop', async () => {
     const component = await openPage(true);
-    const picker = harness.routeNativeElement?.querySelector('input[type="file"]') as HTMLInputElement;
-    expect(picker.accept).toBe('image/*');
-    const setFile = (file: File) => {
-      const transfer = new DataTransfer();
-      transfer.items.add(file);
-      picker.files = transfer.files;
-      picker.dispatchEvent(new Event('change', { bubbles: true }));
-    };
-    setFile(new File(['pdf'], 'notes.pdf', { type: 'application/pdf' }));
+    (harness.routeNativeElement?.querySelector('button[aria-label="Choose thumbnail image"]') as HTMLButtonElement).click();
+    await resolveFolder();
+    const other = { ...workshop, _id: 'other', thumbnail: '/other.png' };
+    await harness.navigateByUrl(`/document-editor/${section._id}/edit-workshop/${other._id}`, CreateWorkshopComponent);
     await harness.fixture.whenStable();
-    const upload = Array.from(harness.routeNativeElement?.querySelectorAll('ngx-asset-upload button') ?? [])
-      .find((button) => button.textContent?.includes('Upload file')) as HTMLButtonElement;
-    expect(upload.disabled).toBeTrue();
-    http.expectNone('/api/uploader/upload');
-    setFile(new File(['image'], 'photo.png', { type: 'image/png' }));
+    expect(TestBed.inject(MatDialog).openDialogs.length).toBe(0);
+    http.expectOne(listEndpoint).flush([other]);
     await harness.fixture.whenStable();
-    upload.click();
-    await harness.fixture.whenStable();
-    const request = http.expectOne('/api/uploader/upload');
-    expect(request.request.method).toBe('POST');
-    expect(request.request.withCredentials).toBeTrue();
-    expect((request.request.body as FormData).get('folderId')).toBe(folder._id);
-    request.flush(asset);
-    await harness.fixture.whenStable();
-    http.expectOne('/api/uploader/folders').flush([folder]);
-    http.expectOne((r) => r.url === '/api/uploader').flush([asset]);
-    await harness.fixture.whenStable();
-    expect(component.assetSelected()?.name).toBe('photo.png');
-    expect(component.form.controls.thumbnail.value).toBe(workshop.thumbnail);
-    const apply = Array.from(harness.routeNativeElement?.querySelectorAll('button') ?? [])
-      .find((button) => button.textContent?.includes('Use for thumbnail')) as HTMLButtonElement;
-    apply.click();
-    component.save();
-    const save = http.expectOne(editEndpoint);
-    expect(save.request.body.thumbnail).toBe(asset.storageUrl);
-    expect(save.request.body.thumbnail).not.toBe(asset._id);
-    save.flush({}, { status: 500, statusText: 'Failure' });
-    http.expectNone('/api/documents/uploader/image-upload');
+    expect(component.form.controls.thumbnail.value).toBe('/other.png');
+    expect(component.form.controls.thumbnail.dirty).toBeFalse();
   });
+
+  for (const editing of [false, true]) {
+    it(`switches the thumbnail between an image and Devicon, then saves the icon value (${editing ? 'edit' : 'create'})`, async () => {
+      const component = await openPage(editing);
+      const thumbnail = harness.routeNativeElement?.querySelector('[formControlName="thumbnail"]') as HTMLInputElement;
+      thumbnail.value = ' devicon-angular-plain colored ';
+      thumbnail.dispatchEvent(new Event('input'));
+      harness.detectChanges();
+      expect(harness.routeNativeElement?.querySelector('.image-preview')).toBeNull();
+      expect(harness.routeNativeElement?.querySelector('.icon-preview i')?.classList.contains('devicon-angular-plain')).toBeTrue();
+      expect(harness.routeNativeElement?.querySelector('.icon-preview')?.getAttribute('aria-label')).toBe('Workshop thumbnail preview');
+      component.form.controls.thumbnail.setValue('/photo.png');
+      harness.detectChanges();
+      expect(harness.routeNativeElement?.querySelector('.image-preview')?.getAttribute('src')).toBe('/photo.png');
+      expect(harness.routeNativeElement?.querySelector('.icon-preview')).toBeNull();
+      component.form.controls.thumbnail.setValue('');
+      harness.detectChanges();
+      expect(harness.routeNativeElement?.querySelector('.image-preview')).toBeNull();
+      expect(harness.routeNativeElement?.querySelector('.icon-preview')).toBeNull();
+      component.form.patchValue({ name: 'Icon workshop', summary: 'Summary', thumbnail: ' devicon-react-original colored ' });
+      component.save();
+      const save = http.expectOne(editing ? editEndpoint : createEndpoint);
+      expect(save.request.body.thumbnail).toBe('devicon-react-original colored');
+      const saved = {
+        ...workshop,
+        _id: editing ? workshop._id : 'icon-workshop',
+        name: 'Icon workshop',
+        thumbnail: 'devicon-react-original colored',
+      };
+      save.flush(saved);
+      await flushCatalog([saved]);
+      expect(harness.routeNativeElement?.querySelector('.img-wrapper img')).toBeNull();
+      expect(harness.routeNativeElement?.querySelector('.devicon-thumbnail i')?.classList.contains('devicon-react-original')).toBeTrue();
+      const reloaded = await harness.navigateByUrl(
+        `/document-editor/${section._id}/edit-workshop/${saved._id}`, CreateWorkshopComponent
+      );
+      http.expectOne(listEndpoint).flush([saved]);
+      await harness.fixture.whenStable();
+      expect(reloaded.form.controls.thumbnail.value).toBe('devicon-react-original colored');
+      expect(harness.routeNativeElement?.querySelector('.icon-preview i')?.classList.contains('devicon-react-original')).toBeTrue();
+    });
+  }
 });
 
 describe('Workshop thumbnail delivery', () => {

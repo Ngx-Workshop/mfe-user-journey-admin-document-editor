@@ -27,6 +27,8 @@ reuses the same configuration.
 | Mutations        | src/app/services/workshops.service.ts                    | Workshop/page CRUD, ordering, save and image upload calls               |
 | Catalog/editor   | src/app/components/workshops-pages/                      | Persisted section catalog, workshop cards and editor/paginator          |
 | Workshop authoring | src/app/components/workshops-pages/create-workshop.component.ts | Routed create/edit metadata and documents-folder thumbnail picker |
+| Image selection | src/app/components/document-image-picker/ | Shared image-field action and typed asset-picker dialog |
+| Artwork classification | src/app/components/devicon.component.ts | Shared Devicon class detection/rendering; font/CSS supplied by admin shell |
 | Context header   | src/app/components/workshops.component.ts                | Section header and nested router outlet                                 |
 | Controls/dialogs | src/app/components/workshops-sidepanel/                  | Drag ordering, metadata forms, typed-name delete confirmation           |
 | Validation       | src/app/form-validators/match-string.validator.ts        | Name confirmation validator                                             |
@@ -94,9 +96,46 @@ See [readiness](document-readiness.md) for observed gaps and proposed verificati
 
 The section and workshop authoring pages consume @tmdjr/ngx-asset-manager 21.1.0. The admin shell owns ASSET_DATA_SOURCE via provideAssetManager({ apiUrl: '/api/uploader' }); the remote's app.config and Routes do not register the adapter or replace host HTTP. Both federation entries share the package as a strict 21.1.0 singleton to preserve token identity.
 
-DocumentAssetsService resolves the existing documents folder by name through the shell data source, and the page supplies its Mongo ID to both gallery and upload. Missing/failed folder reads show retry without falling back to root. The picker shows and uploads images only. Users explicitly apply its image URL to the menu or header path. The frontend sends sectionTitle, sectionDescription, menuSvgPath and headerSvgPath. Published 0.0.33 declares descriptions for creation and updates; CreateSectionDto still does not declare image paths, so creation artwork acceptance needs separate confirmation. The uploader gateway is hosted even when documents use localhost:3007. See [003 handoff](../specs/003-shared-asset-picker/handoff.md) for historical picker verification, [004 handoff](../specs/004-section-creation-page/handoff.md) for creation, [005 handoff](../specs/005-edit-sections/handoff.md) for editing, and [006 handoff](../specs/006-section-description/handoff.md) for current description behavior and contracts.
+DocumentAssetsService resolves the existing documents folder by name through the shell data source, and the shared image dialog supplies its Mongo ID to both gallery and upload. Missing/failed folder reads show retry without falling back to root. The picker shows and uploads images only. The frontend sends sectionTitle, sectionDescription, menuSvgPath and headerSvgPath. Published 0.0.33 declares descriptions for creation and updates; CreateSectionDto still does not declare image paths, so creation artwork acceptance needs separate confirmation. The uploader gateway is hosted even when documents use localhost:3007. See [003 handoff](../specs/003-shared-asset-picker/handoff.md) for historical picker verification, [004 handoff](../specs/004-section-creation-page/handoff.md) for creation, [005 handoff](../specs/005-edit-sections/handoff.md) for editing, and [006 handoff](../specs/006-section-description/handoff.md) for current description behavior and contracts.
 
-Workshop pages use the same full image gallery and upload scope. Applying a selected
-or uploaded image sets thumbnail to its usable URL; manual URL entry remains
+Workshop pages use the same full image gallery and upload scope. Choosing a selected
+or uploaded image returns its usable URL to thumbnail; manual URL entry remains
 available. The legacy document image-upload endpoint is no longer used by workshop
 authoring. See [007 handoff](../specs/007-workshop-authoring-pages/handoff.md).
+
+## Image picker dialog - 2026-10-05
+
+Section menu/header and workshop thumbnail fields now have labelled Material suffix
+buttons opening DocumentImagePickerDialogComponent, not inline galleries.
+DocumentImagePickerButtonComponent owns the dialog lifecycle and emits a typed URL
+only from afterClosed. Gallery selection or a usable uploaded image closes with its
+URL; the originating form control updates and becomes dirty. Cancel, Escape and
+backdrop return no value, preserving manual text. Folder lookup happens only on
+open. The dialog retains full image-only gallery/upload mode and fixes browsing to
+the documents folder. Missing folders and unusable URLs expose retry/reselection
+inside the dialog.
+
+The suffix action prevents duplicate dialogs, closes on disable/destruction and
+uses Material focus restoration. Loading/pending/saved forms disable the action.
+The former Use for menu/header/thumbnail buttons and page-owned asset state are
+removed. Existing section header and workshop thumbnail previews remain.
+See [008 handoff](../specs/008-image-picker-dialog/handoff.md).
+
+## Devicon or image artwork - 2026-10-05
+
+Section menu/header and workshop thumbnail fields accept image URLs/paths or Devicon
+class strings, for example `devicon-angular-plain colored`. IsDeviconPipe recognizes
+trimmed CSS-class strings starting with devicon-; similarly named image files such
+as devicon-angular.svg remain images. Authoring previews, section/workshop catalog
+cards and the context header branch exclusively between MenuDeviconComponent and
+the existing image rendering. Menu/header previews use their own field values;
+blank previews remain absent and catalog defaults are preserved.
+
+MenuDeviconComponent retains its Material-icon fallback for other callers and
+uses --devicon-size for catalog/header sizing. Preview icons are labelled;
+catalog/header icons are decorative. The user confirmed that the admin shell
+provides existing Devicon font/CSS; the remote does not add a font package or CDN.
+The picker continues returning image URLs only. DTO shapes stay unchanged:
+menuSvgPath/headerSvgPath/thumbnail now carry either convention locally.
+Other consumers must recognize Devicon strings before such records are shared.
+See [009 handoff](../specs/009-devicon-artwork/handoff.md).

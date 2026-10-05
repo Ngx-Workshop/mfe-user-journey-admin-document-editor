@@ -4,16 +4,25 @@ import { RouterModule } from '@angular/router';
 import { NgxParticleHeader } from '@tmdjr/ngx-shared-headers';
 import { combineLatest, map } from 'rxjs';
 import { NavigationService } from '../services/navigation.service';
+import { IsDeviconPipe, MenuDeviconComponent } from './devicon.component';
 
 @Component({
   selector: 'ngx-workshops',
-  imports: [RouterModule, AsyncPipe, NgxParticleHeader],
+  imports: [RouterModule, AsyncPipe, NgxParticleHeader, IsDeviconPipe, MenuDeviconComponent],
   template: `
     @if (viewModel$ | async; as vm) {
     <ngx-particle-header>
       @if (vm.headerSvgPath) {
+      @if (vm.headerSvgPath | isDevicon) {
+      <ngx-menu-devicon
+        class="section-header-icon"
+        [icon]="vm.headerSvgPath"
+        [large]="true"
+        aria-hidden="true"
+      />
+      } @else {
       <img [src]="vm.headerSvgPath" alt="" />
-      }
+      } }
       <h1>
         {{ vm.sectionTitle }}:
         {{ vm.currentWorkshopTitle ?? 'Workshops' }}
@@ -38,6 +47,15 @@ import { NavigationService } from '../services/navigation.service';
           @media (max-width: 959px) {
             width: 35px;
             margin: 0;
+          }
+          .section-header-icon {
+            --devicon-size: 64px;
+            z-index: 2;
+            margin-left: 1.5rem;
+            @media (max-width: 959px) {
+              --devicon-size: 35px;
+              margin: 0;
+            }
           }
         }
       }

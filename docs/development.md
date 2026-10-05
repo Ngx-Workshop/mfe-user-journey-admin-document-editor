@@ -156,7 +156,9 @@ Verified: remote ChromeHeadless 11 passing tests; shell ChromeHeadless 3 passing
 Create New Workshop now opens `:section/create-workshop`; the sidebar's labelled
 edit link opens `:section/edit-workshop/:workshopId` using the workshop Mongo ID.
 Both pages use fresh section workshop reads and the full documents-folder image
-picker. Apply the selected/uploaded image with Use for thumbnail, or enter a URL.
+picker. Use the image field's Choose thumbnail image action, or enter a URL.
+The picker now opens in a modal as described below; selection closes it and returns
+the URL to the field.
 Creating without an image remains allowed; editing keeps the existing required
 thumbnail validation. Success refreshes the section catalog; pending saves block
 departure and duplicate submission. Read/save/folder failures are recoverable.
@@ -179,3 +181,71 @@ paths cause harmless test-server image 404 warnings. No dependencies were change
 The editor test-discovery tool found no tests, so the actual configured Angular
 Karma runner above was used. Live backend persistence/auth, hosted navigation and
 real uploader writes were not run. See [007 handoff](../specs/007-workshop-authoring-pages/handoff.md).
+
+## Image picker dialog - 2026-10-05
+
+All section menu/header and workshop thumbnail fields on create/edit pages use
+labelled image-field buttons to open a shared full asset-manager modal. No uploader
+reads occur until opening. Selecting a usable gallery image or uploading an image
+closes the modal; afterClosed returns the URL to only the originating field and
+marks it dirty. Cancel/Escape/backdrop preserve manual values. The inline gallery
+and Use for actions are removed. Existing previews, payloads and host providers
+are unchanged; picker errors/retry remain inside the modal.
+
+PASS: 57 focused ChromeHeadless tests:
+
+```bash
+npm test -- --watch=false --browsers=ChromeHeadless \
+  --include='src/app/components/document-image-picker/document-image-picker.spec.ts' \
+  --include='src/app/components/workshops-pages/section-creation.spec.ts' \
+  --include='src/app/components/workshops-pages/workshop-authoring.spec.ts' \
+  --include='src/app/services/document-api-environment.spec.ts'
+```
+
+Checks use real Material dialogs/picker components with mocked HTTP, including
+close-result timing, cancel/Escape/backdrop, focus return, folder scope, uploads,
+failure recovery, disabled/destroy cleanup and reused edit-route changes. Existing
+CRUD/environment regressions pass. Synthetic image paths still cause harmless
+test-server 404 warnings.
+
+PASS: production build to `/tmp/document-editor-image-dialog-6d08b5df`, removed
+after verification; watched dist unchanged. The existing section-list style warning
+remains 139 bytes over 4.00 kB. No dependency or federation changes.
+Live host, real uploader writes/image delivery and physical narrow-screen/keyboard
+acceptance remain unverified. See [008 handoff](../specs/008-image-picker-dialog/handoff.md).
+
+## Devicon or image artwork - 2026-10-05
+
+Section menu/header and workshop thumbnail fields can contain a URL/path or a
+Devicon class string, e.g. `devicon-angular-plain colored`. Each preview renders
+only the appropriate image or icon. Saved section/workshop catalog artwork and
+the section header use the same detection. Menu/header preview bindings are
+independent; modal image selection still replaces only its originating field.
+
+The admin shell supplies the existing Devicon font/CSS, as confirmed by the user.
+No font/dependency/CDN was added. This checkout's standalone page/tests do not
+provide Devicon glyph styles; DOM tests verify class routing, not font appearance.
+A hosted-browser check redirected to auth sign-in, so glyph rendering could not
+be verified. Existing auth-page federation component-ID warnings were observed,
+not changed as part of this feature.
+
+PASS: 66 focused ChromeHeadless component/router/HTTP tests:
+
+```bash
+npm test -- --watch=false --browsers=ChromeHeadless \
+  --include='src/app/components/devicon.component.spec.ts' \
+  --include='src/app/components/document-image-picker/document-image-picker.spec.ts' \
+  --include='src/app/components/workshops-pages/section-creation.spec.ts' \
+  --include='src/app/components/workshops-pages/workshop-authoring.spec.ts' \
+  --include='src/app/services/document-api-environment.spec.ts'
+```
+
+Includes class/path classification, Material fallback, exclusive icon/image
+previews on create/edit, section field independence, trimmed POST/PATCH values,
+saved catalogs/context header and mocked reload, plus all dialog/CRUD regressions.
+Synthetic image URL 404 warnings remain harmless test fixtures.
+PASS: production build using `/tmp/document-editor-devicon-6d08b5df`, removed
+after validation; watched dist untouched. Existing section-list style warning is
+unchanged (139 bytes over 4.00 kB).
+Live glyph/font, persistence/authorization, image delivery and other-consumer
+compatibility remain pending. See [009 handoff](../specs/009-devicon-artwork/handoff.md).

@@ -13,6 +13,7 @@ import { MatIcon } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
 import { map, tap } from 'rxjs';
 import { NavigationService } from '../../services/navigation.service';
+import { IsDeviconPipe, MenuDeviconComponent } from '../devicon.component';
 import { WorkshopListControlsComponent } from '../workshops-sidepanel/workshop-list-controls/workshop-list-control.component';
 
 @Pipe({ name: 'optimizeCloudinaryUrl' })
@@ -37,6 +38,8 @@ export class OptimizeCloudinaryUrlPipe implements PipeTransform {
     OptimizeCloudinaryUrlPipe,
     MatButton,
     WorkshopListControlsComponent,
+    IsDeviconPipe,
+    MenuDeviconComponent,
   ],
   template: `
     <div class="action-bar">
@@ -69,13 +72,23 @@ export class OptimizeCloudinaryUrlPipe implements PipeTransform {
         >
           <div class="img-wrapper">
             @if (workshop.thumbnail) {
+            @if (workshop.thumbnail | isDevicon) {
+            <div class="devicon-thumbnail">
+              <ngx-menu-devicon
+                [icon]="workshop.thumbnail"
+                [large]="true"
+                aria-hidden="true"
+                style="--devicon-size: 96px"
+              />
+            </div>
+            } @else {
             <img
               [ngSrc]="workshop.thumbnail | optimizeCloudinaryUrl"
               [alt]="workshop.name"
               priority
               fill
             />
-            } @else {
+            } } @else {
             <mat-icon aria-hidden="true">image</mat-icon>
             }
           </div>
@@ -147,6 +160,11 @@ export class OptimizeCloudinaryUrlPipe implements PipeTransform {
           position: relative;
           width: 100%;
           height: 50%;
+          .devicon-thumbnail {
+            height: 100%;
+            display: grid;
+            place-items: center;
+          }
           img {
             object-fit: contain;
           }

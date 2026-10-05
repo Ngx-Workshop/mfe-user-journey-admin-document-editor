@@ -6,6 +6,7 @@ import {
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { MatDialog } from '@angular/material/dialog';
 import { provideRouter, Router } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { SectionDto } from '@tmdjr/document-contracts';
@@ -71,7 +72,10 @@ describe('Section authoring', () => {
     harness = await RouterTestingHarness.create('/document-editor');
   });
 
-  afterEach(() => http.verify());
+  afterEach(() => {
+    TestBed.inject(MatDialog).closeAll();
+    http.verify();
+  });
 
   async function resolveFolder(): Promise<void> {
     http.expectOne('/api/uploader/folders').flush([folder]);
@@ -80,16 +84,16 @@ describe('Section authoring', () => {
     const assets = http.expectOne((request) => request.url === '/api/uploader');
     expect(assets.request.params.get('folderId')).toBe(folder._id);
     expect(assets.request.params.has('root')).toBeFalse();
-    assets.flush([]);
+    assets.flush([{ ...uploadedAsset, storageUrl: '/selected.png' }]);
     await harness.fixture.whenStable();
   }
 
-  async function openPage(loadFolder = true): Promise<CreateSectionComponent> {
+  async function openPage(): Promise<CreateSectionComponent> {
     const component = await harness.navigateByUrl(
       '/document-editor/create-section',
       CreateSectionComponent
     );
-    if (loadFolder) await resolveFolder();
+    http.expectNone('/api/uploader/folders');
     return component;
   }
 
@@ -101,7 +105,7 @@ describe('Section authoring', () => {
     const request = http.expectOne(sectionEndpoint);
     expect(request.request.method).toBe('GET');
     request.flush(section);
-    await resolveFolder();
+    await harness.fixture.whenStable();
     return component;
   }
 
@@ -128,7 +132,7 @@ describe('Section authoring', () => {
     const request = http.expectOne(sectionEndpoint);
     expect(request.request.method).toBe('GET');
     request.flush(section);
-    await resolveFolder();
+    await harness.fixture.whenStable();
     expect(router.url).toBe(`/document-editor/edit-section/${section._id}`);
     expect(harness.routeNativeElement?.querySelector('h1')?.textContent).toBe('Edit Section');
     http.expectNone((r) => r.url === '/api/documents/navigation/workshops');
@@ -218,7 +222,7 @@ describe('Section authoring', () => {
       CreateSectionComponent
     );
     http.expectOne(sectionEndpoint).flush({ ...section, sectionDescription: '' });
-    await resolveFolder();
+    await harness.fixture.whenStable();
     expect(editing.form.controls.sectionDescription.value).toBe('');
   });
 
@@ -250,7 +254,7 @@ describe('Section authoring', () => {
     http.expectNone(endpoint);
     http.expectOne('/api/documents/navigation/section/missing')
       .flush({}, { status: 404, statusText: 'Not Found' });
-    await resolveFolder();
+    await harness.fixture.whenStable();
     expect(component.error()).toContain('no longer exists');
     expect(component.sectionLoaded()).toBeFalse();
     expect((harness.routeNativeElement?.querySelector(
@@ -320,7 +324,7 @@ describe('Section authoring', () => {
     expect(link.getAttribute('href')).toBe('/document-editor/create-section');
     link.click();
     await harness.fixture.whenStable();
-    await resolveFolder();
+    await harness.fixture.whenStable();
     expect(router.url).toBe('/document-editor/create-section');
     expect(harness.routeNativeElement?.querySelector('h1')?.textContent).toBe('Create Section');
     expect(document.querySelector('mat-dialog-container')).toBeNull();
@@ -464,87 +468,152 @@ describe('Section authoring', () => {
     http.expectNone(endpoint);
   });
 
-  it('does not fall back to root when the documents folder is missing and supports retry', async () => {
-    const component = await openPage(false);
-    http.expectOne('/api/uploader/folders').flush([]);
-    await harness.fixture.whenStable();
-    expect(component.assetFolderError()).toContain('documents asset folder');
-    expect(harness.routeNativeElement?.querySelector('ngx-asset-manager')).toBeNull();
-    http.expectNone((request) => request.url === '/api/uploader');
-    component.loadAssetFolder();
-    await resolveFolder();
-    expect(harness.routeNativeElement?.querySelector('ngx-asset-manager')).not.toBeNull();
-  });
+  for (const editing of [false, true]) {
+    it(`returns dialog selection only to its originating section field (${editing ? 'edit' : 'create'})`, async () => {
+      const component = editing ? await openEditPage() : await openPage();
+      expect(harness.routeNativeElement?.querySelector('ngx-asset-manager')).toBeNull();
+      for (const [field, label] of [
+        ['menuSvgPath', 'Choose menu image'],
+        ['headerSvgPath', 'Choose header image'],
+      ] as const) {
+        const other = field === 'menuSvgPath' ? 'headerSvgPath' : 'menuSvgPath';
+        const previous = component.form.controls[other].value;
+        const button = harness.routeNativeElement?.querySelector(`button[aria-label="${label}"]`) as HTMLButtonElement;
+        expect(button.type).toBe('button');
+        button.focus();
+        button.click();
+        await resolveFolder();
+        expect(component.form.controls[field].dirty).toBeFalse();
+        (document.querySelector('button[aria-label="Select photo.png"]') as HTMLButtonElement).click();
+        await harness.fixture.whenStable();
+        expect(TestBed.inject(MatDialog).openDialogs.length).toBe(0);
+        expect(component.form.controls[field].value).toBe('/selected.png');
+        expect(component.form.controls[field].dirty).toBeTrue();
+        expect(component.form.controls[other].value).toBe(previous);
+        expect(document.activeElement).toBe(button);
+      }
+      expect(harness.routeNativeElement?.textContent).not.toContain('Use for');
+      expect(harness.routeNativeElement?.querySelector('.image-preview')?.getAttribute('src')).toBe('/selected.png');
+    });
+  }
 
-  it('allows manual metadata creation after denied folder access', async () => {
-    const component = await openPage(false);
-    component.form.controls.sectionTitle.setValue('TypeScript');
+  it('preserves manual image values when the modal is cancelled after denied folder access', async () => {
+    const component = await openPage();
+    component.form.controls.headerSvgPath.setValue('/manual.svg');
+    (harness.routeNativeElement?.querySelector('button[aria-label="Choose header image"]') as HTMLButtonElement).click();
     http.expectOne('/api/uploader/folders').flush({}, { status: 403, statusText: 'Forbidden' });
     await harness.fixture.whenStable();
-    expect(component.assetFolderError()).toContain('permission');
-    expect(component.form.controls.sectionTitle.value).toBe('TypeScript');
+    expect(document.querySelector('mat-dialog-container [role="alert"]')?.textContent).toContain('permission');
+    (document.querySelector('mat-dialog-actions button') as HTMLButtonElement).click();
+    await harness.fixture.whenStable();
+    expect(component.form.controls.headerSvgPath.value).toBe('/manual.svg');
+    expect(component.form.controls.headerSvgPath.dirty).toBeFalse();
+    component.form.controls.sectionTitle.setValue('TypeScript');
     component.create();
     const request = http.expectOne(endpoint);
-    expect(request.request.body).toEqual({
-      sectionTitle: 'TypeScript', sectionDescription: '', menuSvgPath: '', headerSvgPath: '',
-    });
+    expect(request.request.body.headerSvgPath).toBe('/manual.svg');
     request.flush({ ...section, headerSvgPath: imageUrl });
     await harness.fixture.whenStable();
-    expect(router.url).toBe('/document-editor');
   });
 
-  it('reports missing asset URLs instead of silently clearing an image path', async () => {
-    const component = await openPage();
-    component.assetSelected.set(uploadedAsset);
-    component.form.controls.headerSvgPath.setValue('/existing.svg');
-    component.useSelectedAsset('headerSvgPath');
-    expect(component.assetSelectionError()).toContain('no usable URL');
-    expect(component.form.controls.headerSvgPath.value).toBe('/existing.svg');
-  });
-
-  it('applies the selected image URL independently to either artwork field', async () => {
-    const component = await openPage();
-    component.assetSelected.set({
-      ...uploadedAsset,
-      storageUrl: 'https://example.test/photo.png',
-    });
-    component.useSelectedAsset('menuSvgPath');
-    expect(component.form.controls.menuSvgPath.value).toBe('https://example.test/photo.png');
-    expect(component.form.controls.headerSvgPath.value).toBe('');
-    component.useSelectedAsset('headerSvgPath');
-    expect(component.form.controls.headerSvgPath.value).toBe('https://example.test/photo.png');
-    expect(component.assetSelectionError()).toBe('');
-  });
-
-  it('uploads only images to the resolved folder and retains picker selection', async () => {
-    const component = await openPage();
-    const picker = harness.routeNativeElement?.querySelector('input[type="file"]') as HTMLInputElement;
-    expect(picker.accept).toBe('image/*');
-    const setFile = (file: File) => {
-      const transfer = new DataTransfer();
-      transfer.items.add(file);
-      picker.files = transfer.files;
-      picker.dispatchEvent(new Event('change', { bubbles: true }));
-    };
-    setFile(new File(['pdf'], 'notes.pdf', { type: 'application/pdf' }));
-    await harness.fixture.whenStable();
-    const button = Array.from(harness.routeNativeElement?.querySelectorAll('ngx-asset-upload button') ?? [])
-      .find((item) => item.textContent?.includes('Upload file')) as HTMLButtonElement;
+  it('disables section image actions while loading, saving and after confirmed save', async () => {
+    const component = await harness.navigateByUrl(
+      `/document-editor/edit-section/${section._id}`, CreateSectionComponent
+    );
+    const button = harness.routeNativeElement?.querySelector('button[aria-label="Choose menu image"]') as HTMLButtonElement;
     expect(button.disabled).toBeTrue();
-    http.expectNone('/api/uploader/upload');
-    setFile(new File(['image'], 'photo.png', { type: 'image/png' }));
+    http.expectOne(sectionEndpoint).flush(section);
     await harness.fixture.whenStable();
+    expect(button.disabled).toBeFalse();
+    spyOn(router, 'navigate').and.resolveTo(false);
+    component.create();
+    await harness.fixture.whenStable();
+    expect(button.disabled).toBeTrue();
+    http.expectOne(sectionEndpoint).flush(section);
+    await harness.fixture.whenStable();
+    expect(button.disabled).toBeTrue();
     button.click();
-    await harness.fixture.whenStable();
-    const request = http.expectOne('/api/uploader/upload');
-    expect(request.request.withCredentials).toBeTrue();
-    expect((request.request.body as FormData).get('folderId')).toBe(folder._id);
-    request.flush(uploadedAsset);
-    await harness.fixture.whenStable();
-    http.expectOne('/api/uploader/folders').flush([folder]);
-    http.expectOne((r) => r.url === '/api/uploader').flush([]);
-    await harness.fixture.whenStable();
-    expect(component.assetSelected()?.name).toBe('photo.png');
-    expect(harness.routeNativeElement?.textContent).toContain('Selected image: photo.png');
+    http.expectNone('/api/uploader/folders');
   });
+
+  it('closes the picker when a reused edit route loads another section', async () => {
+    const component = await openEditPage();
+    (harness.routeNativeElement?.querySelector('button[aria-label="Choose header image"]') as HTMLButtonElement).click();
+    await resolveFolder();
+    await harness.navigateByUrl('/document-editor/edit-section/angular', CreateSectionComponent);
+    await harness.fixture.whenStable();
+    expect(TestBed.inject(MatDialog).openDialogs.length).toBe(0);
+    http.expectOne('/api/documents/navigation/section/angular').flush({
+      ...section, _id: 'angular', sectionTitle: 'Angular', headerSvgPath: '/angular.svg',
+    });
+    await harness.fixture.whenStable();
+    expect(component.form.controls.headerSvgPath.value).toBe('/angular.svg');
+    expect(component.form.controls.headerSvgPath.dirty).toBeFalse();
+  });
+
+  for (const editing of [false, true]) {
+    it(`previews menu and header independently as icons or images (${editing ? 'edit' : 'create'})`, async () => {
+      const component = editing ? await openEditPage() : await openPage();
+      component.form.patchValue({
+        menuSvgPath: 'devicon-angular-plain colored',
+        headerSvgPath: '/header.svg',
+      });
+      harness.detectChanges();
+      const menuIcon = harness.routeNativeElement?.querySelector('.menu-icon-preview i') as HTMLElement;
+      expect(menuIcon.classList.contains('devicon-angular-plain')).toBeTrue();
+      expect(harness.routeNativeElement?.querySelector('.menu-image-preview')).toBeNull();
+      expect(harness.routeNativeElement?.querySelector('.header-image-preview')?.getAttribute('src')).toBe('/header.svg');
+      expect(harness.routeNativeElement?.querySelector('.header-icon-preview')).toBeNull();
+      component.form.patchValue({
+        menuSvgPath: '/menu.svg',
+        headerSvgPath: 'devicon-react-original colored',
+      });
+      harness.detectChanges();
+      expect(harness.routeNativeElement?.querySelector('.menu-image-preview')?.getAttribute('src')).toBe('/menu.svg');
+      expect(harness.routeNativeElement?.querySelector('.menu-icon-preview')).toBeNull();
+      expect(harness.routeNativeElement?.querySelector('.header-image-preview')).toBeNull();
+      expect(harness.routeNativeElement?.querySelector('.header-icon-preview i')?.classList.contains('devicon-react-original')).toBeTrue();
+      component.form.controls.headerSvgPath.setValue('');
+      harness.detectChanges();
+      expect(harness.routeNativeElement?.querySelector('.header-icon-preview')).toBeNull();
+      expect(harness.routeNativeElement?.querySelector('.header-image-preview')).toBeNull();
+      expect(harness.routeNativeElement?.querySelector('.menu-image-preview')).not.toBeNull();
+      component.form.patchValue({ menuSvgPath: 'devicon-angular-plain', headerSvgPath: '' });
+      harness.detectChanges();
+      expect(harness.routeNativeElement?.querySelector('.menu-icon-preview')).not.toBeNull();
+    });
+  }
+
+  for (const editing of [false, true]) {
+    it(`saves Devicon strings unchanged apart from trimming and renders the saved catalog/header (${editing ? 'edit' : 'create'})`, async () => {
+      const component = editing ? await openEditPage() : await openPage();
+      component.form.controls.sectionTitle.setValue(section.sectionTitle);
+      const headerInput = harness.routeNativeElement?.querySelector('[formControlName="headerSvgPath"]') as HTMLInputElement;
+      headerInput.value = ' devicon-angular-plain colored ';
+      headerInput.dispatchEvent(new Event('input'));
+      component.form.controls.menuSvgPath.setValue(' devicon-react-original ');
+      harness.detectChanges();
+      expect(harness.routeNativeElement?.querySelector('.header-icon-preview i')?.classList.contains('devicon-angular-plain')).toBeTrue();
+      expect(harness.routeNativeElement?.querySelector('.header-image-preview')).toBeNull();
+      component.create();
+      const save = http.expectOne(editing ? sectionEndpoint : endpoint);
+      expect(save.request.body.menuSvgPath).toBe('devicon-react-original');
+      expect(save.request.body.headerSvgPath).toBe('devicon-angular-plain colored');
+      const saved = { ...section, menuSvgPath: 'devicon-react-original', headerSvgPath: 'devicon-angular-plain colored' };
+      save.flush(saved);
+      await harness.fixture.whenStable();
+      const card = harness.routeNativeElement?.querySelector('.home-row-column') as HTMLElement;
+      expect(card.querySelector('img')).toBeNull();
+      expect(card.querySelector('ngx-menu-devicon i')?.classList.contains('devicon-angular-plain')).toBeTrue();
+      navigation.navigateToSection(section._id).subscribe();
+      http.expectOne((r) => r.url === '/api/documents/navigation/workshops').flush([]);
+      await harness.navigateByUrl(`/document-editor/${section._id}/workshop-list`);
+      expect(harness.routeNativeElement?.querySelector('.section-header-icon i')?.classList.contains('devicon-angular-plain')).toBeTrue();
+      expect(harness.routeNativeElement?.querySelector('ngx-particle-header img')).toBeNull();
+      navigation.addSection({ ...saved, headerSvgPath: imageUrl });
+      await harness.fixture.whenStable();
+      expect(harness.routeNativeElement?.querySelector('.section-header-icon')).toBeNull();
+      expect(harness.routeNativeElement?.querySelector('ngx-particle-header img')?.getAttribute('src')).toBe(imageUrl);
+    });
+  }
 });

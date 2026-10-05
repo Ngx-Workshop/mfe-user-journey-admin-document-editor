@@ -4,10 +4,21 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { NavigationService } from '../../services/navigation.service';
+import {
+  IsDeviconPipe,
+  MenuDeviconComponent,
+} from '../devicon.component';
 
 @Component({
   selector: 'ngx-setion-list',
-  imports: [AsyncPipe, RouterLink, MatIconModule, MatButtonModule],
+  imports: [
+    AsyncPipe,
+    RouterLink,
+    MatIconModule,
+    MatButtonModule,
+    IsDeviconPipe,
+    MenuDeviconComponent,
+  ],
   template: `
     <header class="header-background">
       <div class="header-section">
@@ -16,10 +27,7 @@ import { NavigationService } from '../../services/navigation.service';
           <h2>Build Workshops for Angular, RxJS, and NestJs</h2>
         </div>
         <div class="header-start">
-          <a
-            matButton="elevated"
-            routerLink="create-section"
-          >
+          <a matButton="elevated" routerLink="create-section">
             <mat-icon>add</mat-icon>Create Section
           </a>
         </div>
@@ -29,38 +37,47 @@ import { NavigationService } from '../../services/navigation.service';
       <div class="home-row home-promo-section">
         @for (section of sections$ | async; track section._id) {
         <article class="section-card">
-        <a
-          class="home-row-column"
-          [routerLink]="[section._id, 'workshop-list']"
-        >
-          @if (section.headerSvgPath) {
-          <img
-            class="section-image-icon"
-            [src]="section.headerSvgPath"
-            alt=""
-            aria-hidden="true"
-          />
-          } @else {
-          <mat-icon
-            aria-hidden="true"
-            class="section-image-icon-default"
-            >image</mat-icon
+          <a
+            class="home-row-column"
+            [routerLink]="[section._id, 'workshop-list']"
           >
-          }
-          <h2>{{ section.sectionTitle }}</h2>
-          <p>
-            {{ section.sectionDescription }}
-          </p>
-        </a>
-        <a
-          class="section-edit"
-          matIconButton
-          [routerLink]="['edit-section', section._id]"
-          [attr.aria-label]="'Edit ' + section.sectionTitle"
-          [title]="'Edit ' + section.sectionTitle"
-        >
-          <mat-icon>edit</mat-icon>
-        </a>
+            @if (section.headerSvgPath) { @if (section.headerSvgPath |
+            isDevicon) {
+            <ngx-menu-devicon
+              class="section-image-icon"
+              [icon]="section.headerSvgPath"
+              [large]="true"
+              aria-hidden="true"
+              style="--devicon-size: 64px"
+            />
+            } @else {
+            <img
+              class="section-image-icon"
+              [src]="section.headerSvgPath"
+              alt=""
+              aria-hidden="true"
+            />
+            } } @else {
+            <mat-icon
+              aria-hidden="true"
+              class="section-image-icon-default"
+              >image</mat-icon
+            >
+            }
+            <h2>{{ section.sectionTitle }}</h2>
+            <p>
+              {{ section.sectionDescription }}
+            </p>
+          </a>
+          <a
+            class="section-edit"
+            matIconButton
+            [routerLink]="['edit-section', section._id]"
+            [attr.aria-label]="'Edit ' + section.sectionTitle"
+            [title]="'Edit ' + section.sectionTitle"
+          >
+            <mat-icon>edit</mat-icon>
+          </a>
         </article>
         } @empty {
         <p>

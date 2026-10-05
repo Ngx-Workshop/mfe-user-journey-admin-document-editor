@@ -20,13 +20,6 @@ import {
   Router,
   RouterModule,
 } from '@angular/router';
-import {
-  Asset,
-  assetErrorMessage,
-  AssetFolder,
-  AssetManagerComponent,
-  assetPreviewUrl,
-} from '@tmdjr/ngx-asset-manager';
 import { NgxParticleHeader } from '@tmdjr/ngx-shared-headers';
 import {
   catchError,
@@ -37,24 +30,27 @@ import {
   Subject,
   switchMap,
 } from 'rxjs';
-import {
-  DocumentAssetsService,
-  DocumentsAssetFolderNotFoundError,
-} from '../../services/document-assets.service';
 import { NavigationService } from '../../services/navigation.service';
 import { WorkshopEditorService } from '../../services/workshops.service';
+import {
+  IsDeviconPipe,
+  MenuDeviconComponent,
+} from '../devicon.component';
+import { DocumentImagePickerButtonComponent } from '../document-image-picker/document-image-picker-button.component';
 
 @Component({
   selector: 'ngx-create-section',
   imports: [
     RouterModule,
-    AssetManagerComponent,
+    DocumentImagePickerButtonComponent,
     ReactiveFormsModule,
     MatButtonModule,
     MatFormFieldModule,
     MatInputModule,
     NgxParticleHeader,
     MatIconModule,
+    MenuDeviconComponent,
+    IsDeviconPipe,
   ],
   template: `
     <ngx-particle-header>
@@ -104,70 +100,77 @@ import { WorkshopEditorService } from '../../services/workshops.service';
           <mat-hint>Describe the workshops in this section.</mat-hint>
         </mat-form-field>
 
+        @if (form.controls.menuSvgPath.value) { @if
+        (form.controls.menuSvgPath.value | isDevicon) {
+        <ngx-menu-devicon
+          class="icon-preview"
+          role="img"
+          aria-label="Section menu image preview"
+          [icon]="form.controls.menuSvgPath.value"
+          [large]="true"
+        />
+        } @else {
+        <img
+          class="image-preview menu-image-preview"
+          [src]="form.controls.menuSvgPath.value"
+          alt="Sections Menu Image Preview"
+          onerror="this.onerror=null; this.src='https://ngx-workshop-assets.sfo3.digitaloceanspaces.com/uploads/88322ab2-0f74-4539-b500-5a08430e4750.png';"
+        />
+
+        } }
+
         <mat-form-field appearance="outline">
-          <mat-label>Menu image path</mat-label>
+          <mat-label>Menu image or Devicon</mat-label>
           <input matInput formControlName="menuSvgPath" />
+          <ngx-document-image-picker-button
+            matSuffix
+            label="Choose menu image"
+            [disabled]="
+              saving() || created() || (editing() && !sectionLoaded())
+            "
+            (imageSelected)="setImage('menuSvgPath', $event)"
+          />
           <mat-hint
-            >Image URL or path; leave blank for the default
+            >Image URL/path or Devicon classes, e.g.
+            devicon-angular-plain colored. Leave blank for default
             artwork.</mat-hint
           >
         </mat-form-field>
 
-        <mat-form-field appearance="outline">
-          <mat-label>Header image path</mat-label>
-          <input matInput formControlName="headerSvgPath" />
-          <mat-hint>Used in the section catalog and header.</mat-hint>
-        </mat-form-field>
-
-        @if (form.controls.headerSvgPath.value) {
-        <img
-          class="image-preview"
-          [src]="form.controls.headerSvgPath.value"
-          alt="Sections thumbnail preview"
+        @if (form.controls.headerSvgPath.value) { @if
+        (form.controls.headerSvgPath.value | isDevicon) {
+        <ngx-menu-devicon
+          class="icon-preview"
+          role="img"
+          aria-label="Section header image preview"
+          [icon]="form.controls.headerSvgPath.value"
+          [large]="true"
         />
-        }
+        } @else {
+        <img
+          class="image-preview header-image-preview"
+          [src]="form.controls.headerSvgPath.value"
+          alt="Sections header image preview"
+          onerror="this.onerror=null; this.src='https://ngx-workshop-assets.sfo3.digitaloceanspaces.com/uploads/88322ab2-0f74-4539-b500-5a08430e4750.png';"
+        />
 
-        <div class="asset-manager-wrapper">
-          @if (loadingAssetFolder()) {
-          <p role="status">Loading document images…</p>
-          } @else if (assetFolder(); as folder) {
-          <ngx-asset-manager
-            title="Document images"
-            view="full"
-            mode="both"
-            [folderId]="folder._id"
-            [assetTypes]="['image']"
-            [uploadFolderId]="folder._id"
-            [uploadFolderLabel]="folder.name"
-            accept="image/*"
-            (assetSelected)="assetSelected.set($event)"
-            (uploaded)="assetSelected.set($event)"
+        } }
+        <mat-form-field appearance="outline">
+          <mat-label>Header image or Devicon</mat-label>
+          <input matInput formControlName="headerSvgPath" />
+          <ngx-document-image-picker-button
+            matSuffix
+            label="Choose header image"
+            [disabled]="
+              saving() || created() || (editing() && !sectionLoaded())
+            "
+            (imageSelected)="setImage('headerSvgPath', $event)"
           />
-          @if (assetSelected(); as asset) {
-          <p role="status">Selected image: {{ asset.name }}</p>
-          <button
-            matButton
-            type="button"
-            (click)="useSelectedAsset('menuSvgPath')"
+          <mat-hint
+            >Image URL/path or Devicon classes. Used in the section
+            catalog and header.</mat-hint
           >
-            Use for menu
-          </button>
-          <button
-            matButton
-            type="button"
-            (click)="useSelectedAsset('headerSvgPath')"
-          >
-            Use for header
-          </button>
-          @if (assetSelectionError()) {
-          <p role="alert">{{ assetSelectionError() }}</p>
-          } } } @else if (assetFolderError()) {
-          <p role="alert">{{ assetFolderError() }}</p>
-          <button matButton type="button" (click)="loadAssetFolder()">
-            Retry loading images
-          </button>
-          }
-        </div>
+        </mat-form-field>
       </fieldset>
       @if (error()) {
       <p role="alert">{{ error() }}</p>
@@ -236,9 +239,6 @@ import { WorkshopEditorService } from '../../services/workshops.service';
       [role='alert'] {
         color: var(--mat-sys-error);
       }
-      .asset-manager-wrapper {
-        margin-top: 1rem;
-      }
       .form-actions {
         display: flex;
         justify-content: flex-end;
@@ -263,6 +263,13 @@ import { WorkshopEditorService } from '../../services/workshops.service';
           margin: 0 12px;
         }
       }
+      .image-preview,
+      .icon-preview {
+        display: block;
+        max-width: 100%;
+        max-height: 240px;
+        margin: 1rem 0;
+      }
     `,
   ],
 })
@@ -272,7 +279,6 @@ export class CreateSectionComponent {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly assets = inject(DocumentAssetsService);
   private readonly sectionReload = new Subject<void>();
   private readonly sectionId = signal<string | null>(null);
   readonly editing = computed(() => this.sectionId() !== null);
@@ -281,11 +287,6 @@ export class CreateSectionComponent {
   readonly saving = signal(false);
   readonly created = signal(false);
   readonly error = signal('');
-  readonly assetSelected = signal<Asset | null>(null);
-  readonly assetSelectionError = signal('');
-  readonly assetFolder = signal<AssetFolder | null>(null);
-  readonly loadingAssetFolder = signal(false);
-  readonly assetFolderError = signal('');
   readonly form = inject(FormBuilder).nonNullable.group({
     sectionTitle: [
       '',
@@ -312,8 +313,6 @@ export class CreateSectionComponent {
           this.sectionLoaded.set(false);
           this.created.set(false);
           this.error.set('');
-          this.assetSelected.set(null);
-          this.assetSelectionError.set('');
           this.form.reset({
             sectionTitle: '',
             sectionDescription: '',
@@ -348,34 +347,12 @@ export class CreateSectionComponent {
         });
         this.sectionLoaded.set(true);
       });
-    this.loadAssetFolder();
   }
 
   retrySection(): void {
     if (!this.loadingSection() && !this.saving() && !this.created()) {
       this.sectionReload.next();
     }
-  }
-
-  loadAssetFolder(): void {
-    if (this.loadingAssetFolder()) return;
-    this.loadingAssetFolder.set(true);
-    this.assetFolderError.set('');
-    this.assets
-      .findDocumentsFolder()
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        finalize(() => this.loadingAssetFolder.set(false))
-      )
-      .subscribe({
-        next: (folder) => this.assetFolder.set(folder),
-        error: (error: unknown) =>
-          this.assetFolderError.set(
-            error instanceof DocumentsAssetFolderNotFoundError
-              ? error.message
-              : assetErrorMessage(error)
-          ),
-      });
   }
 
   create(): void {
@@ -434,22 +411,16 @@ export class CreateSectionComponent {
       });
   }
 
-  useSelectedAsset(field: 'menuSvgPath' | 'headerSvgPath'): void {
+  setImage(
+    field: 'menuSvgPath' | 'headerSvgPath',
+    url: string
+  ): void {
     if (
       this.saving() ||
       this.created() ||
       (this.editing() && !this.sectionLoaded())
     )
       return;
-    const asset = this.assetSelected();
-    const url = asset && assetPreviewUrl(asset);
-    if (!url) {
-      this.assetSelectionError.set(
-        'This image has no usable URL. Enter an image path manually or select another image.'
-      );
-      return;
-    }
-    this.assetSelectionError.set('');
     this.form.controls[field].setValue(url);
     this.form.controls[field].markAsDirty();
   }
