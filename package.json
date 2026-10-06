@@ -37,6 +37,7 @@
     "@tmdjr/ngx-shared-headers": "21.0.5",
     "@tmdjr/service-uploader-contracts": "0.0.13",
     "@tmdjr/service-nestjs-assessment-test-contracts": "0.0.18",
+    "@tmdjr/coding-labs-contracts": "0.0.6",
     "@types/jasmine": "~5.1.0",
     "jasmine-core": "~5.7.0",
     "karma": "~6.4.0",
