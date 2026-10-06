@@ -1,5 +1,11 @@
 import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
-import { Component, DestroyRef, inject, input, signal } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  inject,
+  input,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -12,9 +18,15 @@ import { reorder } from '../../../view-models/ordering';
 
 @Component({
   selector: 'ngx-workshop-list-control',
-  imports: [RouterLink, RouterLinkActive, MatButtonModule, MatIconModule, DragDropModule],
+  imports: [
+    RouterLink,
+    RouterLinkActive,
+    MatButtonModule,
+    MatIconModule,
+    DragDropModule,
+  ],
   template: `
-    <h3 class="workshop-order__heading">Workshop Lists</h3>
+    <h3 class="workshop-order__heading">Workshop List's Order</h3>
     <div
       cdkDropList
       class="workshop-order__list"
@@ -22,21 +34,26 @@ import { reorder } from '../../../view-models/ordering';
       (cdkDropListDropped)="onDrop($event)"
     >
       @for (item of workshops(); track item._id; let i = $index) {
-        <div cdkDrag class="workshop-order__item">
-          <div class="workshop-order__row">
-            <mat-icon cdkDragHandle aria-hidden="true">drag_indicator</mat-icon>
-            <a
-              class="workshop-order__link"
-              [routerLink]="[
-                '../',
-                item.workshopDocumentGroupId,
-                item.workshopDocuments[0]?._id || '',
-              ]"
-              routerLinkActive="workshop-order__link--selected"
-              >{{ item.name }}</a
-            >
-          </div>
-          <div class="workshop-order__actions">
+      <button matButton="filled" cdkDrag class="workshop-order__item">
+        <div class="workshop-order__row">
+          <mat-icon
+            cdkDragHandle
+            aria-hidden="true"
+            class="workshop-order__drag-handle"
+            >drag_indicator</mat-icon
+          >
+          <a
+            class="workshop-order__link"
+            [routerLink]="[
+              '../',
+              item.workshopDocumentGroupId,
+              item.workshopDocuments[0]?._id || ''
+            ]"
+            routerLinkActive="workshop-order__link--selected"
+            >{{ item.name }}</a
+          >
+        </div>
+        <!-- <div class="workshop-order__actions">
             <button
               matIconButton
               type="button"
@@ -55,8 +72,8 @@ import { reorder } from '../../../view-models/ordering';
             >
               <mat-icon>arrow_downward</mat-icon>
             </button>
-          </div>
-        </div>
+          </div> -->
+      </button>
       }
     </div>
   `,
@@ -65,6 +82,7 @@ import { reorder } from '../../../view-models/ordering';
       :host {
         display: flex;
         flex-direction: column;
+        margin-top: 1rem;
       }
       .workshop-order__heading {
         font-size: 1.3rem;
@@ -78,15 +96,21 @@ import { reorder } from '../../../view-models/ordering';
         display: flex;
         gap: 0.5rem;
         flex-direction: column;
-        padding: 1rem;
+        padding: 0.4rem 1rem;
       }
       .workshop-order__item {
-        border-radius: var(--mat-sys-corner-medium);
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        font-size: 1rem;
+        padding: 1.4rem 0.6rem;
+        border-radius: var(--mat-sys-corner-full);
         color: var(--mat-sys-on-secondary-container);
+        background: var(--mat-sys-secondary-container);
       }
       .workshop-order__item:hover,
       .workshop-order__item:focus-within {
-        background: var(--mat-sys-secondary-container);
+        background: var(--mat-sys-primary-container);
       }
       .workshop-order__row {
         display: flex;
@@ -107,6 +131,9 @@ import { reorder } from '../../../view-models/ordering';
         display: flex;
         justify-content: flex-end;
       }
+      .workshop-order__drag-handle {
+        cursor: grab;
+      }
     `,
   ],
 })
@@ -122,7 +149,13 @@ export class WorkshopListControlsComponent {
   }
 
   move(from: number, to: number): void {
-    if (this.pending() || from === to || to < 0 || to >= this.workshops().length) return;
+    if (
+      this.pending() ||
+      from === to ||
+      to < 0 ||
+      to >= this.workshops().length
+    )
+      return;
     this.pending.set(true);
     const ordered = reorder(this.workshops(), from, to);
     this.editor
@@ -133,7 +166,10 @@ export class WorkshopListControlsComponent {
       )
       .subscribe({
         next: () => this.notify('Workshops order updated'),
-        error: () => this.notify('Could not update the order. Please try again.'),
+        error: () =>
+          this.notify(
+            'Could not update the order. Please try again.'
+          ),
       });
   }
 

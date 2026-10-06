@@ -88,7 +88,7 @@ export { OptimizeCloudinaryUrlPipe } from './optimize-cloudinary-url.pipe';
       }
       .workshop-catalog__content {
         display: grid;
-        grid-template-columns: minmax(0, 1fr) 320px;
+        grid-template-columns: minmax(0, 1fr) 460px;
         gap: 24px;
         width: 100%;
         align-items: start;

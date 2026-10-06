@@ -5,15 +5,24 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import {
+  MatPaginatorModule,
+  PageEvent,
+} from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { WorkshopPageDto, WorkshopPageIdentifierDto } from '@tmdjr/document-contracts';
+import {
+  WorkshopPageDto,
+  WorkshopPageIdentifierDto,
+} from '@tmdjr/document-contracts';
 import { NgxEditorJsBlock } from '@tmdjr/ngx-editor-js2';
 import { combineLatest, map, shareReplay } from 'rxjs';
 import { EditorStateService } from '../../../services/editor-state.service';
 import { NavigationService } from '../../../services/navigation.service';
-import { documentContent, documentViewModel } from '../../../view-models/document-view-model';
+import {
+  documentContent,
+  documentViewModel,
+} from '../../../view-models/document-view-model';
 import { CreatePageModalComponent } from '../../workshops-sidepanel/page-list-controls/modals/create-page-modal/create-page-modal.component';
 import { PageListComponent } from '../../workshops-sidepanel/page-list-controls/page-list.component';
 import { DocumentEditorComponent } from './document-editor.component';
@@ -32,56 +41,62 @@ import { DocumentEditorComponent } from './document-editor.component';
   ],
   template: `
     @if (viewModel$ | async; as vm) {
-      <div class="workshop-detail__toolbar">
-        <a routerLink="../../" matButton="filled"
-          ><mat-icon>arrow_back</mat-icon>Back to Workshops</a
-        >
-        <div class="workshop-detail__spacer"></div>
-        <mat-chip class="workshop-detail__published">Published</mat-chip>
-        @if (vm.documents.length > 1) {
-          <mat-paginator
-            class="workshop-detail__paginator"
-            [length]="vm.documents.length"
-            [showFirstLastButtons]="true"
-            [hidePageSize]="true"
-            [pageSize]="1"
-            [pageIndex]="vm.pageIndex"
-            (page)="pageEventChange($event, vm.documents)"
-            aria-label="Select page"
-          />
-        }
-        <button matButton="filled" (click)="createPage()">
-          <mat-icon>note_add</mat-icon>Create New Page
-        </button>
-      </div>
-      @if (saves.pending()) {
-        <p role="status">Saving page changes…</p>
+    <div class="workshop-detail__toolbar">
+      <a routerLink="../../" matButton="filled"
+        ><mat-icon>arrow_back</mat-icon>Back to Workshops</a
+      >
+      <div class="workshop-detail__spacer"></div>
+      <mat-chip class="workshop-detail__published"
+        >Published</mat-chip
+      >
+      @if (vm.documents.length > 1) {
+      <mat-paginator
+        class="workshop-detail__paginator"
+        [length]="vm.documents.length"
+        [showFirstLastButtons]="true"
+        [hidePageSize]="true"
+        [pageSize]="1"
+        [pageIndex]="vm.pageIndex"
+        (page)="pageEventChange($event, vm.documents)"
+        aria-label="Select page"
+      />
       }
-      @if (saves.hasFailed(vm.document._id)) {
-        <p class="workshop-detail__error" role="alert">
-          Could not save this page. Your latest changes are available to retry.
-        </p>
-        <button matButton (click)="saves.retry(vm.document._id)">Retry saving page</button>
+      <button matButton="filled" (click)="createPage()">
+        <mat-icon>note_add</mat-icon>Create New Page
+      </button>
+    </div>
+    @if (saves.pending()) {
+    <p role="status">Saving page changes…</p>
+    } @if (saves.hasFailed(vm.document._id)) {
+    <p class="workshop-detail__error" role="alert">
+      Could not save this page. Your latest changes are available to
+      retry.
+    </p>
+    <button matButton (click)="saves.retry(vm.document._id)">
+      Retry saving page
+    </button>
+    }
+    <div class="workshop-detail__content">
+      @if (vm.error) {
+      <p class="workshop-detail__error" role="alert">
+        {{ vm.error }}
+      </p>
+      } @else {
+      <ngx-document-editor
+        [blocks]="vm.blocks"
+        (blocksChanged)="handleSavingBlocks($event, vm.document)"
+      />
       }
-      <div class="workshop-detail__content">
-        @if (vm.error) {
-          <p class="workshop-detail__error" role="alert">{{ vm.error }}</p>
-        } @else {
-          <ngx-document-editor
-            [blocks]="vm.blocks"
-            (blocksChanged)="handleSavingBlocks($event, vm.document)"
-          />
-        }
-        <ngx-page-list
-          class="workshop-detail__sidebar"
-          [workshopDocumentGroupId]="vm.workshopDocumentGroupId"
-          [workshopDocumentId]="vm.document._id"
-          [documents]="vm.documents"
-          [workshopId]="vm.workshopId"
-        />
-      </div>
+      <ngx-page-list
+        class="workshop-detail__sidebar"
+        [workshopDocumentGroupId]="vm.workshopDocumentGroupId"
+        [workshopDocumentId]="vm.document._id"
+        [documents]="vm.documents"
+        [workshopId]="vm.workshopId"
+      />
+    </div>
     } @else {
-      <p role="status">Loading page…</p>
+    <p role="status">Loading page…</p>
     }
   `,
   styles: [
@@ -105,7 +120,7 @@ import { DocumentEditorComponent } from './document-editor.component';
       }
       .workshop-detail__content {
         display: grid;
-        grid-template-columns: minmax(0, 1fr) 320px;
+        grid-template-columns: minmax(0, 1fr) 460px;
         gap: 24px;
         align-items: start;
       }
@@ -162,36 +177,61 @@ export class WorkshopDetailComponent {
   private readonly route = inject(ActivatedRoute);
   readonly viewModel$ = combineLatest([
     this.route.data.pipe(
-      map((data) => documentContent(data['documentResolver'] as WorkshopPageDto))
+      map((data) =>
+        documentContent(data['documentResolver'] as WorkshopPageDto)
+      )
     ),
     inject(NavigationService).getCurrentWorkshop(),
   ]).pipe(
-    map(([content, workshop]) => documentViewModel(content.document, workshop, content)),
+    map(([content, workshop]) =>
+      documentViewModel(content.document, workshop, content)
+    ),
     shareReplay({ bufferSize: 1, refCount: true })
   );
 
   constructor() {
-    this.saves.notices$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((notice) => {
-      if (this.route.snapshot.params['documentId'] !== notice.id) return;
-      this.snackBar.open(notice.success ? 'Save Successful' : 'Error saving page', undefined, {
-        duration: notice.success ? 300 : 3000,
-        horizontalPosition: 'right',
-        verticalPosition: 'bottom',
-        panelClass: notice.success ? 'snackbar-success' : 'snackbar-failure',
+    this.saves.notices$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((notice) => {
+        if (this.route.snapshot.params['documentId'] !== notice.id)
+          return;
+        this.snackBar.open(
+          notice.success ? 'Save Successful' : 'Error saving page',
+          undefined,
+          {
+            duration: notice.success ? 300 : 3000,
+            horizontalPosition: 'right',
+            verticalPosition: 'bottom',
+            panelClass: notice.success
+              ? 'snackbar-success'
+              : 'snackbar-failure',
+          }
+        );
       });
-    });
   }
 
   createPage(): void {
-    this.dialogs.open(CreatePageModalComponent, { width: '400px', backdropClass: 'blur-backdrop' });
+    this.dialogs.open(CreatePageModalComponent, {
+      width: '400px',
+      backdropClass: 'blur-backdrop',
+    });
   }
 
-  pageEventChange({ pageIndex }: PageEvent, documents: WorkshopPageIdentifierDto[]): void {
+  pageEventChange(
+    { pageIndex }: PageEvent,
+    documents: WorkshopPageIdentifierDto[]
+  ): void {
     const document = documents[pageIndex];
-    if (document) void this.router.navigate(['../', document._id], { relativeTo: this.route });
+    if (document)
+      void this.router.navigate(['../', document._id], {
+        relativeTo: this.route,
+      });
   }
 
-  handleSavingBlocks(blocks: NgxEditorJsBlock[], document: WorkshopPageIdentifierDto): void {
+  handleSavingBlocks(
+    blocks: NgxEditorJsBlock[],
+    document: WorkshopPageIdentifierDto
+  ): void {
     this.saves.save(document._id, blocks);
   }
 }
