@@ -12,9 +12,10 @@ import {
   UpdateWorkshopDto,
   WorkshopDto,
   WorkshopPageDto,
-  WorkshopPageIdentifierDto,
+  AddWorkshopReferenceDto,
 } from '@tmdjr/document-contracts';
 import { map } from 'rxjs/operators';
+import { WorkshopJourneyItem } from '../models/workshop-journey';
 import { environment } from '../../environments/environment';
 
 export interface Result<T> {
@@ -113,6 +114,10 @@ export class DocumentApiService {
     return this.apiCall<WorkshopDto>('/navigation/page/create-page', page);
   }
 
+  addReference(reference: AddWorkshopReferenceDto) {
+    return this.apiCall<WorkshopDto>('/navigation/page/add-reference', reference);
+  }
+
   deletePage(page: DeletePageParamsDto) {
     return this.apiCall<DeleteResultDto>('/navigation/page/delete-page-and-update-workshop', page);
   }
@@ -121,7 +126,7 @@ export class DocumentApiService {
     return this.apiCall<WorkshopDto>('/navigation/page/edit-page-name-update-workshop', page);
   }
 
-  sortDocuments(pages: WorkshopPageIdentifierDto[], workshopId: string) {
+  sortDocuments(pages: WorkshopJourneyItem[], workshopId: string) {
     const params = new HttpParams().set('workshopId', workshopId);
     return this.apiCall<WorkshopDto>('/navigation/page/sort-pages', pages, 'post', params);
   }

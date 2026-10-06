@@ -4,9 +4,10 @@ import {
   provideHttpClientTesting,
 } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { environment } from '../../../src/environments/environment';
+import { DocumentApiService } from '../../../src/app/services/document-api.service';
 import { NavigationService } from '../../../src/app/services/navigation.service';
 import { WorkshopEditorService } from '../../../src/app/services/workshops.service';
+import { environment } from '../../../src/environments/environment';
 
 describe('document API environment routing', () => {
   const original = environment.documentsApiBaseUrl;
@@ -31,15 +32,21 @@ describe('document API environment routing', () => {
       http
         .expectOne(`${baseUrl}/navigation/workshops?section=test`)
         .flush([]);
-      navigation.navigateToDocument('page-id').subscribe();
+      TestBed.inject(DocumentApiService)
+        .getDocument('page-id')
+        .subscribe();
       http.expectOne(`${baseUrl}/workshop/page-id`).flush({});
-      editor.createSection({
-        sectionTitle: 'Test',
-        sectionDescription: 'Test workshops',
-        menuSvgPath: '',
-        headerSvgPath: '',
-      }).subscribe();
-      const sectionCreate = http.expectOne(`${baseUrl}/navigation/section/create-section`);
+      editor
+        .createSection({
+          sectionTitle: 'Test',
+          sectionDescription: 'Test workshops',
+          menuSvgPath: '',
+          headerSvgPath: '',
+        })
+        .subscribe();
+      const sectionCreate = http.expectOne(
+        `${baseUrl}/navigation/section/create-section`
+      );
       expect(sectionCreate.request.body).toEqual({
         sectionTitle: 'Test',
         sectionDescription: 'Test workshops',
@@ -48,16 +55,30 @@ describe('document API environment routing', () => {
       });
       sectionCreate.flush({});
       editor.getSection('legacy section').subscribe();
-      const sectionRead = http.expectOne(`${baseUrl}/navigation/section/legacy%20section`);
+      const sectionRead = http.expectOne(
+        `${baseUrl}/navigation/section/legacy%20section`
+      );
       expect(sectionRead.request.method).toBe('GET');
       sectionRead.flush({});
-      editor.updateSection('legacy section', { sectionDescription: '', headerSvgPath: '' }).subscribe();
-      const sectionUpdate = http.expectOne(`${baseUrl}/navigation/section/legacy%20section`);
+      editor
+        .updateSection('legacy section', {
+          sectionDescription: '',
+          headerSvgPath: '',
+        })
+        .subscribe();
+      const sectionUpdate = http.expectOne(
+        `${baseUrl}/navigation/section/legacy%20section`
+      );
       expect(sectionUpdate.request.method).toBe('PATCH');
-      expect(sectionUpdate.request.body).toEqual({ sectionDescription: '', headerSvgPath: '' });
+      expect(sectionUpdate.request.body).toEqual({
+        sectionDescription: '',
+        headerSvgPath: '',
+      });
       sectionUpdate.flush({});
       editor.deleteSection('legacy section/key').subscribe();
-      const sectionDelete = http.expectOne(`${baseUrl}/navigation/section/legacy%20section%2Fkey`);
+      const sectionDelete = http.expectOne(
+        `${baseUrl}/navigation/section/legacy%20section%2Fkey`
+      );
       expect(sectionDelete.request.method).toBe('DELETE');
       expect(sectionDelete.request.body).toBeNull();
       sectionDelete.flush({ acknowledged: true, deletedCount: 1 });

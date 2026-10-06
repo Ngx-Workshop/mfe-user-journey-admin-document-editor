@@ -1,12 +1,24 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  output,
+} from '@angular/core';
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { RouterModule } from '@angular/router';
 import { NgxParticleHeader } from '@tmdjr/ngx-shared-headers';
-import { IsDeviconPipe, MenuDeviconComponent } from '../../devicon.component';
+import {
+  IsDeviconPipe,
+  MenuDeviconComponent,
+} from '../../devicon.component';
 import { DocumentImagePickerButtonComponent } from '../../document-image-picker/document-image-picker-button.component';
 
 type WorkshopForm = {
@@ -32,15 +44,21 @@ type WorkshopForm = {
   ],
   template: `
     <ngx-particle-header>
-      <h1 class="workshop-form__title">{{ editing() ? 'Edit Workshop' : 'Create Workshop' }}</h1>
+      <h1 class="workshop-form__title">
+        {{ editing() ? 'Edit Workshop' : 'Create Workshop' }}
+      </h1>
     </ngx-particle-header>
     <div class="workshop-form__action-bar">
-      <button matButton="filled" (click)="returnToWorkshops.emit()" [disabled]="saving()">
+      <button
+        matButton="filled"
+        (click)="returnToWorkshops.emit()"
+        [disabled]="saving()"
+      >
         <mat-icon>arrow_back</mat-icon> Back to Workshops
       </button>
     </div>
     @if (loadingWorkshop()) {
-      <p role="status">Loading workshop details…</p>
+    <p role="status">Loading workshop details…</p>
     }
     <form
       class="workshop-form__body"
@@ -48,35 +66,50 @@ type WorkshopForm = {
       (ngSubmit)="save.emit()"
       [attr.aria-busy]="saving()"
     >
-      <fieldset class="workshop-form__fields" [disabled]="saving() || saved() || !workshopLoaded()">
-        <mat-form-field class="workshop-form__field" appearance="outline">
+      <fieldset
+        class="workshop-form__fields"
+        [disabled]="saving() || saved() || !workshopLoaded()"
+      >
+        <mat-form-field
+          class="workshop-form__field"
+          appearance="outline"
+        >
           <mat-label>Workshop name</mat-label>
           <input matInput formControlName="name" />
           <mat-error>Enter a workshop name.</mat-error>
         </mat-form-field>
-        <mat-form-field class="workshop-form__field" appearance="outline">
+        <mat-form-field
+          class="workshop-form__field"
+          appearance="outline"
+        >
           <mat-label>Summary</mat-label>
-          <textarea matInput formControlName="summary" rows="4"></textarea>
+          <textarea
+            matInput
+            formControlName="summary"
+            rows="4"
+          ></textarea>
           <mat-error>Enter a workshop summary.</mat-error>
         </mat-form-field>
-        @if (form().controls.thumbnail.value) {
-          @if (form().controls.thumbnail.value | isDevicon) {
-            <ngx-menu-devicon
-              class="workshop-form__icon-preview"
-              role="img"
-              aria-label="Workshop thumbnail preview"
-              [icon]="form().controls.thumbnail.value"
-              [large]="true"
-            />
-          } @else {
-            <img
-              class="workshop-form__image-preview"
-              [src]="form().controls.thumbnail.value"
-              alt="Workshop thumbnail preview"
-            />
-          }
-        }
-        <mat-form-field class="workshop-form__field" appearance="outline">
+        @if (form().controls.thumbnail.value) { @if
+        (form().controls.thumbnail.value | isDevicon) {
+        <ngx-menu-devicon
+          class="workshop-form__icon-preview"
+          role="img"
+          aria-label="Workshop thumbnail preview"
+          [icon]="form().controls.thumbnail.value"
+          [large]="true"
+        />
+        } @else {
+        <img
+          class="workshop-form__image-preview"
+          [src]="form().controls.thumbnail.value"
+          alt="Workshop thumbnail preview"
+        />
+        } }
+        <mat-form-field
+          class="workshop-form__field"
+          appearance="outline"
+        >
           <mat-label>Thumbnail image or Devicon</mat-label>
           <input matInput formControlName="thumbnail" />
           <ngx-document-image-picker-button
@@ -86,31 +119,46 @@ type WorkshopForm = {
             (imageSelected)="imageSelected.emit($event)"
           />
           <mat-hint
-            >Enter an image URL or Devicon classes, e.g. devicon-angular-plain colored, or choose an
+            >Enter an image URL or Devicon classes, e.g.
+            devicon-angular-plain colored, or choose an
             image.</mat-hint
           >
-          <mat-error>Enter an image URL or Devicon classes.</mat-error>
+          <mat-error
+            >Enter an image URL or Devicon classes.</mat-error
+          >
         </mat-form-field>
       </fieldset>
       @if (error()) {
-        <p class="workshop-form__error" role="alert">{{ error() }}</p>
-        @if (!workshopLoaded() && !loadingWorkshop()) {
-          <button matButton type="button" (click)="retryWorkshop.emit()">
-            Retry loading workshop details
-          </button>
-        }
-      }
+      <p class="workshop-form__error" role="alert">{{ error() }}</p>
+      @if (!workshopLoaded() && !loadingWorkshop()) {
+      <button matButton type="button" (click)="retryWorkshop.emit()">
+        Retry loading workshop details
+      </button>
+      } }
       <div class="workshop-form__form-actions">
-        <button matButton type="button" (click)="returnToWorkshops.emit()" [disabled]="saving()">
+        <button
+          matButton
+          type="button"
+          (click)="returnToWorkshops.emit()"
+          [disabled]="saving()"
+        >
           {{ saved() ? 'Back to Workshops' : 'Cancel' }}
         </button>
         <button
           matButton="filled"
           type="submit"
-          [disabled]="form().invalid || saving() || saved() || !workshopLoaded()"
+          [disabled]="
+            form().invalid || saving() || saved() || !workshopLoaded()
+          "
         >
           {{
-            saving() ? (editing() ? 'Saving…' : 'Creating…') : editing() ? 'Save changes' : 'Create'
+            saving()
+              ? editing()
+                ? 'Saving…'
+                : 'Creating…'
+              : editing()
+              ? 'Save changes'
+              : 'Create'
           }}
         </button>
       </div>

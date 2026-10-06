@@ -1,12 +1,20 @@
 import { provideHttpClient } from '@angular/common/http';
-import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { NgxEditorJsBlock } from '@tmdjr/ngx-editor-js2';
 import { EditorStateService } from '../../../src/app/services/editor-state.service';
 
 const endpoint = '/api/documents/workshop/update-workshop-html';
 const blocks: NgxEditorJsBlock[] = [
-  { blockId: '1', sortIndex: 0, componentInstanceName: 'paragraph', dataClean: 'First' },
+  {
+    blockId: '1',
+    sortIndex: 0,
+    componentInstanceName: 'paragraph',
+    dataClean: 'First',
+  },
 ];
 
 describe('Editor save state', () => {
@@ -29,17 +37,24 @@ describe('Editor save state', () => {
     changed[0].dataClean = 'Later mutation';
     http.expectNone(endpoint);
     expect(state.pending()).toBe(2);
-    expect(first.request.body).toEqual({ _id: 'page-1', html: JSON.stringify(blocks) });
+    expect(first.request.body).toEqual({
+      _id: 'page-1',
+      html: JSON.stringify(blocks),
+    });
     first.flush({});
     const second = http.expectOne(endpoint);
-    expect(JSON.parse(second.request.body.html)[0].dataClean).toBe('Second');
+    expect(JSON.parse(second.request.body.html)[0].dataClean).toBe(
+      'Second'
+    );
     second.flush({});
     expect(state.pending()).toBe(0);
   });
 
   it('retains a failed latest edit for retry and continues accepting subsequent saves', () => {
     state.save('page-1', blocks);
-    http.expectOne(endpoint).flush({}, { status: 500, statusText: 'Failure' });
+    http
+      .expectOne(endpoint)
+      .flush({}, { status: 500, statusText: 'Failure' });
     expect(state.hasFailed('page-1')).toBeTrue();
     expect(state.pending()).toBe(0);
     state.retry('page-1');

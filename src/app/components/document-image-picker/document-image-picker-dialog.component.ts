@@ -1,7 +1,10 @@
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import {
+  MatDialogModule,
+  MatDialogRef,
+} from '@angular/material/dialog';
 import {
   Asset,
   assetErrorMessage,
@@ -22,31 +25,33 @@ import {
     <h2 mat-dialog-title>Choose a document image</h2>
     <mat-dialog-content class="image-picker__content">
       @if (loading()) {
-        <p role="status">Loading document images…</p>
+      <p role="status">Loading document images…</p>
       } @else if (folder(); as folder) {
-        <ngx-asset-manager
-          title="Document images"
-          view="full"
-          mode="both"
-          [folderId]="folder._id"
-          [browseFolders]="false"
-          [assetTypes]="['image']"
-          [uploadFolderId]="folder._id"
-          [uploadFolderLabel]="folder.name"
-          accept="image/*"
-          (assetSelected)="selectImage($event)"
-          (uploaded)="selectImage($event)"
-        />
-      }
-      @if (error()) {
-        <p class="image-picker__error" role="alert">{{ error() }}</p>
-        @if (!folder() && !loading()) {
-          <button matButton type="button" (click)="loadFolder()">Retry loading images</button>
-        }
-      }
+      <ngx-asset-manager
+        title="Document images"
+        view="full"
+        mode="both"
+        [folderId]="folder._id"
+        [browseFolders]="false"
+        [assetTypes]="['image']"
+        [uploadFolderId]="folder._id"
+        [uploadFolderLabel]="folder.name"
+        accept="image/*"
+        (assetSelected)="selectImage($event)"
+        (uploaded)="selectImage($event)"
+      />
+      } @if (error()) {
+      <p class="image-picker__error" role="alert">{{ error() }}</p>
+      @if (!folder() && !loading()) {
+      <button matButton type="button" (click)="loadFolder()">
+        Retry loading images
+      </button>
+      } }
     </mat-dialog-content>
     <mat-dialog-actions align="end">
-      <button matButton type="button" [mat-dialog-close]="undefined">Cancel</button>
+      <button matButton type="button" [mat-dialog-close]="undefined">
+        Cancel
+      </button>
     </mat-dialog-actions>
   `,
   styles: [
@@ -63,7 +68,9 @@ import {
 export class DocumentImagePickerDialogComponent {
   private readonly assets = inject(DocumentAssetsService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly dialogRef = inject(MatDialogRef<DocumentImagePickerDialogComponent, string>);
+  private readonly dialogRef = inject(
+    MatDialogRef<DocumentImagePickerDialogComponent, string>
+  );
   readonly folder = signal<AssetFolder | null>(null);
   readonly loading = signal(false);
   readonly error = signal('');

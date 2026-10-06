@@ -1,5 +1,13 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { NgxEditorJs2Component, NgxEditorJsBlock } from '@tmdjr/ngx-editor-js2';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  output,
+} from '@angular/core';
+import {
+  NgxEditorJs2Component,
+  NgxEditorJsBlock,
+} from '@tmdjr/ngx-editor-js2';
 
 @Component({
   selector: 'ngx-document-editor',

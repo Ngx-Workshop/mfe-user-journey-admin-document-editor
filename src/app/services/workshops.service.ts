@@ -7,9 +7,10 @@ import {
   SectionDto,
   UpdateSectionDto,
   UpdateWorkshopDto,
-  WorkshopPageIdentifierDto,
+  AddWorkshopReferenceDto,
 } from '@tmdjr/document-contracts';
 import { catchError, map, of, switchMap, take, tap } from 'rxjs';
+import { WorkshopJourneyItem } from '../models/workshop-journey';
 import { DocumentApiService } from './document-api.service';
 import { NavigationService } from './navigation.service';
 
@@ -104,6 +105,15 @@ export class WorkshopEditorService {
     );
   }
 
+  addReference(reference: AddWorkshopReferenceDto) {
+    return this.api.addReference(reference).pipe(
+      tap(({ success }) => {
+        if (!success) throw new Error('The server did not confirm page creation.');
+        this.navigation.addWorkshop(success);
+      })
+    );
+  }
+
   deletePage(page: DeletePageParamsDto) {
     return this.navigation.getCurrentWorkshop().pipe(
       take(1),
@@ -129,7 +139,7 @@ export class WorkshopEditorService {
     );
   }
 
-  sortDocuments(pages: WorkshopPageIdentifierDto[], workshopId: string) {
+  sortDocuments(pages: WorkshopJourneyItem[], workshopId: string) {
     return this.api.sortDocuments(pages, workshopId).pipe(
       tap(({ success }) => {
         if (!success) throw new Error('The server did not confirm page order.');

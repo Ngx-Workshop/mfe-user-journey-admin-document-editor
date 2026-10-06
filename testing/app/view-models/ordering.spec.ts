@@ -6,7 +6,11 @@ describe('Immutable ordering', () => {
       Object.freeze({ _id: 'a', sortId: 0 }),
       Object.freeze({ _id: 'b', sortId: 1 }),
     ]);
-    const ordered = reorder<{ _id: string; sortId: number }>(items, 0, 1);
+    const ordered = reorder<{ _id: string; sortId: number }>(
+      items,
+      0,
+      1
+    );
     expect(ordered).toEqual([
       { _id: 'b', sortId: 0 },
       { _id: 'a', sortId: 1 },

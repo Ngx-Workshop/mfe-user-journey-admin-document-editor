@@ -1,13 +1,21 @@
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import {
+  MAT_DIALOG_DATA,
+  MatDialogModule,
+  MatDialogRef,
+} from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { WorkshopPageIdentifierDto } from '@tmdjr/document-contracts';
 import { finalize, take } from 'rxjs';
 import { MatchStringValidator } from '../../../../../form-validators/match-string.validator';
+import { WorkshopJourneyItem } from '../../../../../models/workshop-journey';
 import { NavigationService } from '../../../../../services/navigation.service';
 import { WorkshopEditorService } from '../../../../../services/workshops.service';
 
@@ -22,8 +30,18 @@ import { WorkshopEditorService } from '../../../../../services/workshops.service
   ],
   template: `
     <h2 mat-dialog-title>Delete {{ name }}?</h2>
-    <form [formGroup]="form" (ngSubmit)="submit()" [attr.aria-busy]="pending()">
+    <form
+      [formGroup]="form"
+      (ngSubmit)="submit()"
+      [attr.aria-busy]="pending()"
+    >
       <mat-dialog-content>
+        @if (data.workshopDocument.kind !== 'PAGE') {
+        <p>
+          This removes the page from this workshop. The linked test or
+          lab is kept.
+        </p>
+        }
         <p>
           To confirm, type <strong>{{ name }}</strong> below.
         </p>
@@ -33,12 +51,23 @@ import { WorkshopEditorService } from '../../../../../services/workshops.service
           <mat-error>Enter the name exactly as shown.</mat-error>
         </mat-form-field>
         @if (error()) {
-          <p class="delete-page__error" role="alert">{{ error() }}</p>
+        <p class="delete-page__error" role="alert">{{ error() }}</p>
         }
       </mat-dialog-content>
       <mat-dialog-actions align="end">
-        <button matButton type="button" mat-dialog-close [disabled]="pending()">Cancel</button>
-        <button matButton="filled" type="submit" [disabled]="form.invalid || pending()">
+        <button
+          matButton
+          type="button"
+          mat-dialog-close
+          [disabled]="pending()"
+        >
+          Cancel
+        </button>
+        <button
+          matButton="filled"
+          type="submit"
+          [disabled]="form.invalid || pending()"
+        >
           {{ pending() ? 'Saving…' : 'Delete' }}
         </button>
       </mat-dialog-actions>
@@ -56,10 +85,14 @@ import { WorkshopEditorService } from '../../../../../services/workshops.service
   ],
 })
 export class DeletePageModalComponent {
-  readonly data = inject<{ workshopDocument: WorkshopPageIdentifierDto }>(MAT_DIALOG_DATA);
+  readonly data = inject<{ workshopDocument: WorkshopJourneyItem }>(
+    MAT_DIALOG_DATA
+  );
   readonly name = this.data.workshopDocument.name;
   private readonly editor = inject(WorkshopEditorService);
-  private readonly dialog = inject(MatDialogRef<DeletePageModalComponent>);
+  private readonly dialog = inject(
+    MatDialogRef<DeletePageModalComponent>
+  );
   private readonly destroyRef = inject(DestroyRef);
   readonly pending = signal(false);
   readonly error = signal('');
@@ -100,7 +133,10 @@ export class DeletePageModalComponent {
       )
       .subscribe({
         next: () => this.dialog.close(),
-        error: () => this.error.set('Could not delete the page. Please try again.'),
+        error: () =>
+          this.error.set(
+            'Could not delete the page. Please try again.'
+          ),
       });
   }
 }

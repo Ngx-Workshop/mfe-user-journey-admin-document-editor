@@ -6,7 +6,7 @@ Source baseline: 1e7a26d · Reviewed 2026-10-01.
 
 Angular 21.1.0 administrator authoring remote for workshop metadata and ordered
 pages. Uses Material/CDK 21.1.0, RxJS 7.8.2, TypeScript ~5.9.3, editor-js2 ^21.0.9
-and document-contracts 0.0.33. Federation/build-plus are version 20; compatibility
+and document-contracts 0.0.34. Federation/build-plus are version 20; compatibility
 with Angular 21 must be checked, not inferred from the package versions.
 
 The host owns navigation composition and auth context. The root App remains empty;
@@ -218,7 +218,7 @@ sidebar page editing is removed while navigation, ordering and deletion remain.
 CreatePageComponent loads fresh workshop references by section/slug, validates the
 edited page belongs to that workshop, and orchestrates the existing create/rename
 commands through WorkshopEditorService. PageFormComponent renders the typed name
-form and creation-only PAGE/EXAM radios. Renaming never changes content or type.
+form and creation-only type radios (extended by 014). Renaming never changes content or type.
 
 Pending saves disable fields, duplicate submissions and route departure. Failed
 reads/mutations expose recoverable errors; failed navigation after confirmed save
@@ -228,3 +228,61 @@ query/current edit ID, then the first ordered page or the catalog for empty work
 Missing workshop/page links cannot submit against stale singleton selection.
 Existing document routes, IDs, block data, endpoints and federation exports remain
 unchanged. See [013 handoff](../specs/013-page-authoring-pages/handoff.md).
+
+## Mixed page types — 2026-10-06
+
+Document contracts 0.0.34 drive WorkshopJourneyItem in models/workshop-journey.ts.
+PAGE, ASSESSMENT_TEST and CODING_LAB flow through sidebar/paginator, immutable sorting,
+delete dialog and command/API boundaries. CreatePageComponent uses a typed kind
+choice and conditional resourceId input. It maps PAGE to create-page and external
+kinds to add-reference. No foreign service adapters are needed for placeholders.
+Installed coding-labs 0.0.6 and assessment-test 0.0.18 contracts remain available for
+future resource selection/rendering.
+
+NavigationService resolves a placement from current workshop metadata. Only PAGE
+fetches document HTML. The detail view consumes a resolved-entry view model and
+renders ExternalPagePlaceholderComponent for either external kind; block saves are
+guarded to PAGE. Renaming external entries changes the workshop label only.
+Service-document defaults existing untyped references to PAGE, correcting local
+pages previously mislabelled CODING_LAB without resourceId. See 014 handoff.
+
+## Coding lab gallery — 2026-10-06
+
+For creation with CODING_LAB, PageFormComponent embeds CodingLabPickerComponent
+instead of a manual ID field. Stateless CodingLabsApiService reads the hosted
+/api/coding-labs/labs in both environments (document mutations still use local
+localhost:3007 in development). Contract metadata is HandsOnLabMongo from 0.0.6.
+Picker owns search/page/loading/error state; CodingLabGalleryComponent renders
+responsive, keyboard-accessible selection cards and status/difficulty/tags/duration.
+Archived labs are excluded; draft/published labs retain explicit status badges.
+
+The route view model stores selected metadata and resourceId, suggests the lab title
+for pristine/blank names and preserves custom names. Type changes clear selection;
+pending/saved state blocks changes. Search, load more and retry preserve selected
+summary. Only existing add-reference persists the placement; no lab mutations occur.
+Assessment test IDs remain manual; external execution remains Hello world.
+
+## Assessment test gallery — 2026-10-06
+
+AssessmentTestPickerComponent now replaces the manual assessment ID field, completing
+the resource selectors introduced in 015. AssessmentTestsApiService reads the hosted
+/api/assessment-test in both environments with published AssessmentTestDto types.
+The picker owns catalog/loading/error/retry and local name/subject/level search,
+subject filtering and 24-card reveal. AssessmentTestGalleryComponent presents
+keyboard-accessible metadata cards; questions and answers are never rendered.
+
+CreatePageComponent stores selection, fills resourceId and suggests the test name
+for pristine/blank labels. Custom labels survive reselection; type changes clear both
+catalog selections. Pending/saved guards apply to both selectors. Document service
+receives only the existing placement reference; external detail remains Hello world.
+
+## Assessment learner preview — 2026-10-06
+
+WorkshopDetailComponent selects AssessmentTestPreviewComponent for ASSESSMENT_TEST,
+passing resourceId and the workshop label. The view owns local answers/start/result
+state; stateless AssessmentTestsApiService reads the exact definition. Input lifecycle
+and switchMap cancel stale reads; signals update through takeUntilDestroyed with an
+explicit DestroyRef, avoiding the live host's rxjs-interop injection-context mismatch.
+Question groups use Material radio choices; complete valid answers gate local review.
+No document content editor or attempt mutation is invoked. Coding lab remains the
+existing placeholder. This replaces 014/016 assessment placeholder behavior only.

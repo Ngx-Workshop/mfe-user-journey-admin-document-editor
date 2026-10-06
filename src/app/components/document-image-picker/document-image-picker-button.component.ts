@@ -1,4 +1,11 @@
-import { Component, DestroyRef, effect, inject, input, output } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  effect,
+  inject,
+  input,
+  output,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
@@ -24,7 +31,10 @@ import { DocumentImagePickerDialogComponent } from './document-image-picker-dial
 export class DocumentImagePickerButtonComponent {
   private readonly dialogs = inject(MatDialog);
   private readonly destroyRef = inject(DestroyRef);
-  private dialogRef?: MatDialogRef<DocumentImagePickerDialogComponent, string>;
+  private dialogRef?: MatDialogRef<
+    DocumentImagePickerDialogComponent,
+    string
+  >;
   readonly label = input('Choose image');
   readonly disabled = input(false);
   readonly imageSelected = output<string>();
@@ -38,21 +48,26 @@ export class DocumentImagePickerButtonComponent {
 
   open(): void {
     if (this.disabled() || this.dialogRef) return;
-    const ref = this.dialogs.open<DocumentImagePickerDialogComponent, undefined, string>(
+    const ref = this.dialogs.open<
       DocumentImagePickerDialogComponent,
-      {
-        width: '1100px',
-        maxWidth: 'calc(100vw - 32px)',
-        maxHeight: 'calc(100dvh - 32px)',
-        autoFocus: 'first-tabbable',
-        ariaModal: true,
-        restoreFocus: true,
-      }
-    );
-    this.dialogRef = ref;
-    ref.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((url) => {
-      this.dialogRef = undefined;
-      if (url !== undefined && !this.disabled()) this.imageSelected.emit(url);
+      undefined,
+      string
+    >(DocumentImagePickerDialogComponent, {
+      width: '1100px',
+      maxWidth: 'calc(100vw - 32px)',
+      maxHeight: 'calc(100dvh - 32px)',
+      autoFocus: 'first-tabbable',
+      ariaModal: true,
+      restoreFocus: true,
     });
+    this.dialogRef = ref;
+    ref
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((url) => {
+        this.dialogRef = undefined;
+        if (url !== undefined && !this.disabled())
+          this.imageSelected.emit(url);
+      });
   }
 }

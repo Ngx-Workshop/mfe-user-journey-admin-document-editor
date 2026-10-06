@@ -14,12 +14,20 @@ import { SectionCardComponent } from './section-card.component';
 
 @Component({
   selector: 'ngx-setion-list',
-  imports: [AsyncPipe, RouterLink, MatIconModule, MatButtonModule, SectionCardComponent],
+  imports: [
+    AsyncPipe,
+    RouterLink,
+    MatIconModule,
+    MatButtonModule,
+    SectionCardComponent,
+  ],
   template: `
     <header class="section-catalog__header">
       <div class="section-catalog__headline">
         <h1 class="section-catalog__title">Document-Editor</h1>
-        <h2 class="section-catalog__subtitle">Build Workshops for Angular, RxJS, and NestJs</h2>
+        <h2 class="section-catalog__subtitle">
+          Build Workshops for Angular, RxJS, and NestJs
+        </h2>
         <a matButton="elevated" routerLink="create-section"
           ><mat-icon>add</mat-icon>Create Section</a
         >
@@ -27,9 +35,15 @@ import { SectionCardComponent } from './section-card.component';
     </header>
     <main class="section-catalog__content">
       @for (section of sections$ | async; track section._id) {
-        <ngx-section-card [section]="section" (deleteSection)="deleteSection($event)" />
+      <ngx-section-card
+        [section]="section"
+        (deleteSection)="deleteSection($event)"
+      />
       } @empty {
-        <p>No sections yet. Create a section to start organizing workshops.</p>
+      <p>
+        No sections yet. Create a section to start organizing
+        workshops.
+      </p>
       }
     </main>
   `,
@@ -102,15 +116,16 @@ export class SectionListComponent {
   private readonly dialogs = inject(MatDialog);
 
   deleteSection(section: SectionDto): void {
-    this.dialogs.open<DeleteSectionModalComponent, DeleteSectionDialogData, boolean>(
+    this.dialogs.open<
       DeleteSectionModalComponent,
-      {
-        width: '400px',
-        maxWidth: 'calc(100vw - 32px)',
-        ariaModal: true,
-        backdropClass: 'blur-backdrop',
-        data: { section },
-      }
-    );
+      DeleteSectionDialogData,
+      boolean
+    >(DeleteSectionModalComponent, {
+      width: '400px',
+      maxWidth: 'calc(100vw - 32px)',
+      ariaModal: true,
+      backdropClass: 'blur-backdrop',
+      data: { section },
+    });
   }
 }

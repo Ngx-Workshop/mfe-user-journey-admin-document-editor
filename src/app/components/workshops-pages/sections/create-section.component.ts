@@ -1,8 +1,22 @@
-import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { catchError, combineLatest, finalize, of, startWith, Subject, switchMap } from 'rxjs';
+import {
+  catchError,
+  combineLatest,
+  finalize,
+  of,
+  startWith,
+  Subject,
+  switchMap,
+} from 'rxjs';
 import { WorkshopEditorService } from '../../../services/workshops.service';
 import { SectionFormComponent } from './section-form.component';
 
@@ -37,14 +51,24 @@ export class CreateSectionComponent {
   readonly created = signal(false);
   readonly error = signal('');
   readonly form = inject(FormBuilder).nonNullable.group({
-    sectionTitle: ['', [Validators.required, Validators.pattern(/\S/), Validators.maxLength(120)]],
+    sectionTitle: [
+      '',
+      [
+        Validators.required,
+        Validators.pattern(/\S/),
+        Validators.maxLength(120),
+      ],
+    ],
     sectionDescription: [''],
     menuSvgPath: [''],
     headerSvgPath: [''],
   });
 
   constructor() {
-    combineLatest([this.route.paramMap, this.sectionReload.pipe(startWith(undefined))])
+    combineLatest([
+      this.route.paramMap,
+      this.sectionReload.pipe(startWith(undefined)),
+    ])
       .pipe(
         switchMap(([params]) => {
           const id = params.get('sectionId');
@@ -66,8 +90,8 @@ export class CreateSectionComponent {
                 error.status === 404
                   ? 'This section no longer exists.'
                   : error.status === 401 || error.status === 403
-                    ? 'You need administrator access to edit a section.'
-                    : 'Could not load the section. Please try again.'
+                  ? 'You need administrator access to edit a section.'
+                  : 'Could not load the section. Please try again.'
               );
               return of(null);
             }),
@@ -97,10 +121,14 @@ export class CreateSectionComponent {
   create(): void {
     if (this.saving() || this.created()) return;
     if (this.editing() && !this.sectionLoaded()) {
-      this.error.set(this.error() || 'Load the section before saving changes.');
+      this.error.set(
+        this.error() || 'Load the section before saving changes.'
+      );
       return;
     }
-    this.form.controls.sectionTitle.setValue(this.form.controls.sectionTitle.value.trim());
+    this.form.controls.sectionTitle.setValue(
+      this.form.controls.sectionTitle.value.trim()
+    );
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
@@ -109,13 +137,16 @@ export class CreateSectionComponent {
     this.error.set('');
     const values = {
       ...this.form.getRawValue(),
-      sectionDescription: this.form.controls.sectionDescription.value.trim(),
+      sectionDescription:
+        this.form.controls.sectionDescription.value.trim(),
       menuSvgPath: this.form.controls.menuSvgPath.value.trim(),
       headerSvgPath: this.form.controls.headerSvgPath.value.trim(),
     };
     const id = this.sectionId();
     const request =
-      id === null ? this.editor.createSection(values) : this.editor.updateSection(id, values);
+      id === null
+        ? this.editor.createSection(values)
+        : this.editor.updateSection(id, values);
     request
       .pipe(
         takeUntilDestroyed(this.destroyRef),
@@ -130,16 +161,28 @@ export class CreateSectionComponent {
         error: (error: { status?: number }) =>
           this.error.set(
             error.status === 401 || error.status === 403
-              ? `You need administrator access to ${this.editing() ? 'edit' : 'create'} a section.`
+              ? `You need administrator access to ${
+                  this.editing() ? 'edit' : 'create'
+                } a section.`
               : error.status === 404 && this.editing()
-                ? 'This section no longer exists. Your changes have not been saved.'
-                : `Could not ${this.editing() ? 'save' : 'create'} the section. Please try again.`
+              ? 'This section no longer exists. Your changes have not been saved.'
+              : `Could not ${
+                  this.editing() ? 'save' : 'create'
+                } the section. Please try again.`
           ),
       });
   }
 
-  setImage(field: 'menuSvgPath' | 'headerSvgPath', url: string): void {
-    if (this.saving() || this.created() || (this.editing() && !this.sectionLoaded())) return;
+  setImage(
+    field: 'menuSvgPath' | 'headerSvgPath',
+    url: string
+  ): void {
+    if (
+      this.saving() ||
+      this.created() ||
+      (this.editing() && !this.sectionLoaded())
+    )
+      return;
     this.form.controls[field].setValue(url);
     this.form.controls[field].markAsDirty();
   }
@@ -151,11 +194,13 @@ export class CreateSectionComponent {
           this.editing() ? 'saved' : 'created'
         }, but navigation failed. Use Back to Sections to try again.`
       : 'Could not return to sections. Please try again.';
-    void this.router.navigate(['.'], { relativeTo: this.route.parent }).then(
-      (navigated) => {
-        if (!navigated) this.error.set(message);
-      },
-      () => this.error.set(message)
-    );
+    void this.router
+      .navigate(['.'], { relativeTo: this.route.parent })
+      .then(
+        (navigated) => {
+          if (!navigated) this.error.set(message);
+        },
+        () => this.error.set(message)
+      );
   }
 }

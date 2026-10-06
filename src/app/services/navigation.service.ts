@@ -1,7 +1,8 @@
 import { inject, Injectable } from '@angular/core';
 import { SectionDto, SectionsMapDto, WorkshopDto } from '@tmdjr/document-contracts';
-import { BehaviorSubject, defer, Observable, of } from 'rxjs';
+import { throwError, take, BehaviorSubject, defer, Observable, of } from 'rxjs';
 import { map, shareReplay, switchMap, tap } from 'rxjs/operators';
+import { ResolvedWorkshopEntry } from '../models/workshop-journey';
 import { DocumentApiService } from './document-api.service';
 
 const staticPages: Map<string, Partial<WorkshopDto>> = new Map([
@@ -180,7 +181,12 @@ export class NavigationService {
   }
 
   navigateToDocument(workshopDocumentId: string) {
-    return this.api.getDocument(workshopDocumentId);
+    return this.getCurrentWorkshop().pipe(take(1), switchMap((workshop): Observable<ResolvedWorkshopEntry> => {
+      const entry = workshop?.workshopDocuments?.find(item => item._id === workshopDocumentId);
+      if (!entry) return throwError(() => new Error('This page no longer exists in this workshop.'));
+      if (entry.kind !== 'PAGE') return of({ kind: entry.kind, entry });
+      return this.api.getDocument(entry._id).pipe(map(document => ({ kind: 'PAGE' as const, document })));
+    }));
   }
 
   getCurrentSection() {

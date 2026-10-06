@@ -371,3 +371,65 @@ verification redirected to the authentication sign-in page; live create/rename,
 persistence, authorization, keyboard and narrow-screen checks remain unavailable.
 No live mutation or deployment was attempted. See
 [013 handoff](../specs/013-page-authoring-pages/handoff.md).
+
+## Mixed page types verification — 2026-10-06
+
+PASS: 128 ChromeHeadless tests, app/spec TypeScript checks and production build to
+/tmp/document-editor-mixed-pages-build. Six new routed cases cover both external
+kinds: validation, exact add-reference payloads, confirmed state/navigation, failed
+save recovery, kind switching, deep links, label rename and no document requests or
+block editor. Mixed ordering preserves external kind/resourceId.
+
+PASS: live hosted shell with local remote/service creates both external types in a
+temporary local workshop, shows Hello world, supports mixed paginator navigation
+and persisted assessment deep-link reload without console errors. Original Reactive
+Streams content still opens as a document. The fixture and its owned page are removed
+after verification. Screenshots saved in /tmp/document-editor-*-placeholder.png.
+
+Service correction: 126 Jest tests, focused lint and isolated MongoDB check pass.
+Real assessment/lab resource lookup/execution, picker UI, remote-resource existence,
+production gateway authorization and publication/deployment are outside this phase.
+
+## Coding lab gallery verification — 2026-10-06
+
+PASS: 132 ChromeHeadless tests, TypeScript app/spec checks, production build into
+/tmp/document-editor-gallery-build and whitespace check. Four new cases cover
+metadata rendering, authenticated request, archived filtering, selection/disabled
+state, search/paging/deduplication/retry/empty/permission behavior, form name suggestion,
+custom-name preservation, selected lab ID payload and type-change reset.
+
+PASS: live hosted shell/local remote loads the published Sum an array demo challenge
+from /api/coding-labs. Selecting its gallery card suggests the page name, highlights
+the card and enables Create; no console errors. Left the selected form open without
+submitting. No lab or workshop records modified for this feature's live check.
+Screenshot: /tmp/document-editor-coding-lab-gallery.png.
+
+Development intentionally uses the hosted lab catalog while document persistence
+runs locally. To use a local lab service later, change codingLabsApiBaseUrl in the
+development environment and ensure its authentication/CORS setup supports the host.
+
+## Assessment test gallery verification — 2026-10-06
+
+PASS: 137 ChromeHeadless tests, app/spec TypeScript checks, production build to
+/tmp/document-editor-assessment-gallery-build and whitespace checks. Five new cases
+cover metadata/credentials, local search/subject/reveal, selection/disabled guards,
+permission/error/retry/empty states and routed name/payload/type-reset/save recovery.
+
+PASS: live hosted shell/local remote loaded nine real assessment tests. Selecting
+My 1st RxJS Quiz suggested the name, highlighted its card and enabled Create; subject
+filtering and search retained selection. No console errors. Form left unsubmitted;
+no workshop or assessment records changed. Screenshot saved under
+/tmp/document-editor-assessment-test-gallery.png. Load More/error cases verified
+with HTTP doubles. Both environments use hosted /api/assessment-test; change
+assessmentTestsApiBaseUrl with normal auth/CORS setup to use a local service.
+See [016 handoff](../specs/016-assessment-test-gallery/handoff.md).
+
+## Assessment learner preview verification — 2026-10-06
+
+PASS: 142 ChromeHeadless tests, app/spec TypeScript, production build to
+/tmp/document-editor-assessment-preview-build and whitespace checks. Live hosted
+shell/local remote on the linked My 1st Angular Quiz page loaded ten questions and
+verified start, answer progress, finish/results, feedback and restart. No records or
+learner attempts changed. The initial host federation loading error was fixed using
+the app's explicit-DestroyRef subscription pattern and rechecked in the shell.
+See [017 handoff](../specs/017-assessment-learner-preview/handoff.md).

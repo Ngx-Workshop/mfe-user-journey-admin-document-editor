@@ -10,20 +10,22 @@ import {
 } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import {
-  WorkshopPageDto,
-  WorkshopPageIdentifierDto,
-} from '@tmdjr/document-contracts';
 import { NgxEditorJsBlock } from '@tmdjr/ngx-editor-js2';
 import { combineLatest, map, shareReplay } from 'rxjs';
+import {
+  ResolvedWorkshopEntry,
+  WorkshopJourneyItem,
+} from '../../../models/workshop-journey';
 import { EditorStateService } from '../../../services/editor-state.service';
 import { NavigationService } from '../../../services/navigation.service';
 import {
-  documentContent,
-  documentViewModel,
+  journeyViewModel,
+  resolvedEntryContent,
 } from '../../../view-models/document-view-model';
 import { PageListComponent } from '../../workshops-sidepanel/page-list-controls/page-list.component';
+import { AssessmentTestPreviewComponent } from './assessment-test-preview.component';
 import { DocumentEditorComponent } from './document-editor.component';
+import { ExternalPagePlaceholderComponent } from './external-page-placeholder.component';
 
 @Component({
   selector: 'ngx-workshop-detail',
@@ -31,6 +33,8 @@ import { DocumentEditorComponent } from './document-editor.component';
     AsyncPipe,
     MatPaginatorModule,
     DocumentEditorComponent,
+    ExternalPagePlaceholderComponent,
+    AssessmentTestPreviewComponent,
     PageListComponent,
     MatIconModule,
     MatButtonModule,
@@ -90,6 +94,13 @@ import { DocumentEditorComponent } from './document-editor.component';
       <p class="workshop-detail__error" role="alert">
         {{ vm.error }}
       </p>
+      } @else if (vm.document.kind === 'ASSESSMENT_TEST') {
+      <ngx-assessment-test-preview
+        [resourceId]="vm.document.resourceId"
+        [pageName]="vm.document.name"
+      />
+      } @else if (vm.kind !== 'PAGE') {
+      <ngx-external-page-placeholder [entry]="vm.document" />
       } @else {
       <ngx-document-editor
         [blocks]="vm.blocks"
@@ -186,14 +197,14 @@ export class WorkshopDetailComponent {
   readonly viewModel$ = combineLatest([
     this.route.data.pipe(
       map((data) =>
-        documentContent(data['documentResolver'] as WorkshopPageDto)
+        resolvedEntryContent(
+          data['documentResolver'] as ResolvedWorkshopEntry
+        )
       )
     ),
     inject(NavigationService).getCurrentWorkshop(),
   ]).pipe(
-    map(([content, workshop]) =>
-      documentViewModel(content.document, workshop, content)
-    ),
+    map(([content, workshop]) => journeyViewModel(content, workshop)),
     shareReplay({ bufferSize: 1, refCount: true })
   );
 
@@ -220,7 +231,7 @@ export class WorkshopDetailComponent {
 
   pageEventChange(
     { pageIndex }: PageEvent,
-    documents: WorkshopPageIdentifierDto[]
+    documents: WorkshopJourneyItem[]
   ): void {
     const document = documents[pageIndex];
     if (document)
@@ -231,8 +242,9 @@ export class WorkshopDetailComponent {
 
   handleSavingBlocks(
     blocks: NgxEditorJsBlock[],
-    document: WorkshopPageIdentifierDto
+    document: WorkshopJourneyItem
   ): void {
-    this.saves.save(document._id, blocks);
+    if (document.kind === 'PAGE')
+      this.saves.save(document._id, blocks);
   }
 }

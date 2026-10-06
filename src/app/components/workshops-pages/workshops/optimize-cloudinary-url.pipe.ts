@@ -3,7 +3,11 @@ import { Pipe, PipeTransform } from '@angular/core';
 @Pipe({ name: 'optimizeCloudinaryUrl' })
 export class OptimizeCloudinaryUrlPipe implements PipeTransform {
   transform(url: string): string {
-    if (!/^https?:\/\/res\.cloudinary\.com\/[^/]+\/image\/upload\//.test(url)) {
+    if (
+      !/^https?:\/\/res\.cloudinary\.com\/[^/]+\/image\/upload\//.test(
+        url
+      )
+    ) {
       return url;
     }
     const parts = url.split('/upload/');

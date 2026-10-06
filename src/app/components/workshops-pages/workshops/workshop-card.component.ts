@@ -1,10 +1,18 @@
 import { NgOptimizedImage } from '@angular/common';
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  output,
+} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
 import { WorkshopDto } from '@tmdjr/document-contracts';
-import { IsDeviconPipe, MenuDeviconComponent } from '../../devicon.component';
+import {
+  IsDeviconPipe,
+  MenuDeviconComponent,
+} from '../../devicon.component';
 import { OptimizeCloudinaryUrlPipe } from './optimize-cloudinary-url.pipe';
 
 @Component({
@@ -30,31 +38,30 @@ import { OptimizeCloudinaryUrlPipe } from './optimize-cloudinary-url.pipe';
         [routerLink]="[
           '../',
           workshop().workshopDocumentGroupId,
-          workshop().workshopDocuments[0]?._id || '',
+          workshop().workshopDocuments[0]?._id || ''
         ]"
       >
         <div class="workshop-card__artwork">
-          @if (workshop().thumbnail) {
-            @if (workshop().thumbnail | isDevicon) {
-              <div class="workshop-card__icon">
-                <ngx-menu-devicon
-                  [icon]="workshop().thumbnail"
-                  [large]="true"
-                  aria-hidden="true"
-                  style="--devicon-size: 96px"
-                />
-              </div>
-            } @else {
-              <img
-                class="workshop-card__image"
-                [ngSrc]="workshop().thumbnail | optimizeCloudinaryUrl"
-                [alt]="workshop().name"
-                priority
-                fill
-              />
-            }
+          @if (workshop().thumbnail) { @if (workshop().thumbnail |
+          isDevicon) {
+          <div class="workshop-card__icon">
+            <ngx-menu-devicon
+              [icon]="workshop().thumbnail"
+              [large]="true"
+              aria-hidden="true"
+              style="--devicon-size: 96px"
+            />
+          </div>
           } @else {
-            <mat-icon aria-hidden="true">image</mat-icon>
+          <img
+            class="workshop-card__image"
+            [ngSrc]="workshop().thumbnail | optimizeCloudinaryUrl"
+            [alt]="workshop().name"
+            priority
+            fill
+          />
+          } } @else {
+          <mat-icon aria-hidden="true">image</mat-icon>
           }
         </div>
         <h2 class="workshop-card__title">{{ workshop().name }}</h2>
@@ -122,7 +129,8 @@ import { OptimizeCloudinaryUrlPipe } from './optimize-cloudinary-url.pipe';
         pointer-events: none;
         transition: opacity 0.15s;
       }
-      .workshop-card:is(:hover, :focus-within) .workshop-card__actions {
+      .workshop-card:is(:hover, :focus-within)
+        .workshop-card__actions {
         opacity: 1;
         pointer-events: auto;
       }

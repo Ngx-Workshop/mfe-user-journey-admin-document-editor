@@ -1,39 +1,61 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  output,
+} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
 import { SectionDto } from '@tmdjr/document-contracts';
-import { IsDeviconPipe, MenuDeviconComponent } from '../../devicon.component';
+import {
+  IsDeviconPipe,
+  MenuDeviconComponent,
+} from '../../devicon.component';
 
 @Component({
   selector: 'ngx-section-card',
-  imports: [RouterLink, MatIconModule, MatButtonModule, IsDeviconPipe, MenuDeviconComponent],
+  imports: [
+    RouterLink,
+    MatIconModule,
+    MatButtonModule,
+    IsDeviconPipe,
+    MenuDeviconComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <article class="section-card">
-      <a class="section-card__link" [routerLink]="[section()._id, 'workshop-list']">
-        @if (section().headerSvgPath) {
-          @if (section().headerSvgPath | isDevicon) {
-            <ngx-menu-devicon
-              class="section-card__image"
-              [icon]="section().headerSvgPath"
-              [large]="true"
-              aria-hidden="true"
-              style="--devicon-size: 64px"
-            />
-          } @else {
-            <img
-              class="section-card__image"
-              [src]="section().headerSvgPath"
-              alt=""
-              aria-hidden="true"
-            />
-          }
+      <a
+        class="section-card__link"
+        [routerLink]="[section()._id, 'workshop-list']"
+      >
+        @if (section().headerSvgPath) { @if (section().headerSvgPath |
+        isDevicon) {
+        <ngx-menu-devicon
+          class="section-card__image"
+          [icon]="section().headerSvgPath"
+          [large]="true"
+          aria-hidden="true"
+          style="--devicon-size: 64px"
+        />
         } @else {
-          <mat-icon aria-hidden="true" class="section-card__placeholder">image</mat-icon>
+        <img
+          class="section-card__image"
+          [src]="section().headerSvgPath"
+          alt=""
+          aria-hidden="true"
+        />
+        } } @else {
+        <mat-icon aria-hidden="true" class="section-card__placeholder"
+          >image</mat-icon
+        >
         }
-        <h2 class="section-card__title">{{ section().sectionTitle }}</h2>
-        <p class="section-card__description">{{ section().sectionDescription }}</p>
+        <h2 class="section-card__title">
+          {{ section().sectionTitle }}
+        </h2>
+        <p class="section-card__description">
+          {{ section().sectionDescription }}
+        </p>
       </a>
       <div class="section-card__actions">
         <a

@@ -1,12 +1,24 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  output,
+} from '@angular/core';
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { RouterModule } from '@angular/router';
 import { NgxParticleHeader } from '@tmdjr/ngx-shared-headers';
-import { IsDeviconPipe, MenuDeviconComponent } from '../../devicon.component';
+import {
+  IsDeviconPipe,
+  MenuDeviconComponent,
+} from '../../devicon.component';
 import { DocumentImagePickerButtonComponent } from '../../document-image-picker/document-image-picker-button.component';
 
 type SectionForm = {
@@ -33,15 +45,20 @@ type SectionForm = {
   ],
   template: `
     <ngx-particle-header>
-      <h1 class="section-form__title">{{ editing() ? 'Edit Section' : 'Create Section' }}</h1>
+      <h1 class="section-form__title">
+        {{ editing() ? 'Edit Section' : 'Create Section' }}
+      </h1>
     </ngx-particle-header>
     <div class="section-form__action-bar">
-      <a [routerLink]="editing() ? '../../' : '../'" matButton="filled">
+      <a
+        [routerLink]="editing() ? '../../' : '../'"
+        matButton="filled"
+      >
         <mat-icon>arrow_back</mat-icon> Back to Sections</a
       >
     </div>
     @if (loadingSection()) {
-      <p role="status">Loading section…</p>
+    <p role="status">Loading section…</p>
     }
     <form
       class="section-form__body"
@@ -51,100 +68,153 @@ type SectionForm = {
     >
       <fieldset
         class="section-form__fields"
-        [disabled]="saving() || created() || (editing() && !sectionLoaded())"
+        [disabled]="
+          saving() || created() || (editing() && !sectionLoaded())
+        "
       >
-        <mat-form-field class="section-form__field" appearance="outline">
+        <mat-form-field
+          class="section-form__field"
+          appearance="outline"
+        >
           <mat-label>Section name</mat-label>
-          <input matInput formControlName="sectionTitle" maxlength="120" />
+          <input
+            matInput
+            formControlName="sectionTitle"
+            maxlength="120"
+          />
           <mat-hint>For example, TypeScript or Testing</mat-hint>
-          <mat-error>Enter a section name of 1–120 characters.</mat-error>
+          <mat-error
+            >Enter a section name of 1–120 characters.</mat-error
+          >
         </mat-form-field>
-        <mat-form-field class="section-form__field" appearance="outline">
+        <mat-form-field
+          class="section-form__field"
+          appearance="outline"
+        >
           <mat-label>Section description</mat-label>
-          <textarea matInput formControlName="sectionDescription" rows="4"></textarea>
+          <textarea
+            matInput
+            formControlName="sectionDescription"
+            rows="4"
+          ></textarea>
           <mat-hint>Describe the workshops in this section.</mat-hint>
         </mat-form-field>
-        @if (form().controls.menuSvgPath.value) {
-          @if (form().controls.menuSvgPath.value | isDevicon) {
-            <ngx-menu-devicon
-              class="section-form__icon-preview section-form__menu-icon-preview"
-              role="img"
-              aria-label="Section menu image preview"
-              [icon]="form().controls.menuSvgPath.value"
-              [large]="true"
-            />
-          } @else {
-            <img
-              class="section-form__image-preview section-form__menu-image-preview"
-              [src]="form().controls.menuSvgPath.value"
-              alt="Sections Menu Image Preview"
-            />
-          }
-        }
-        <mat-form-field class="section-form__field" appearance="outline">
+        @if (form().controls.menuSvgPath.value) { @if
+        (form().controls.menuSvgPath.value | isDevicon) {
+        <ngx-menu-devicon
+          class="section-form__icon-preview section-form__menu-icon-preview"
+          role="img"
+          aria-label="Section menu image preview"
+          [icon]="form().controls.menuSvgPath.value"
+          [large]="true"
+        />
+        } @else {
+        <img
+          class="section-form__image-preview section-form__menu-image-preview"
+          [src]="form().controls.menuSvgPath.value"
+          alt="Sections Menu Image Preview"
+        />
+        } }
+        <mat-form-field
+          class="section-form__field"
+          appearance="outline"
+        >
           <mat-label>Menu image or Devicon</mat-label>
           <input matInput formControlName="menuSvgPath" />
           <ngx-document-image-picker-button
             matSuffix
             label="Choose menu image"
-            [disabled]="saving() || created() || (editing() && !sectionLoaded())"
-            (imageSelected)="imageSelected.emit({ field: 'menuSvgPath', url: $event })"
+            [disabled]="
+              saving() || created() || (editing() && !sectionLoaded())
+            "
+            (imageSelected)="
+              imageSelected.emit({
+                field: 'menuSvgPath',
+                url: $event
+              })
+            "
           />
           <mat-hint
-            >Image URL/path or Devicon classes, e.g. devicon-angular-plain colored. Leave blank for
-            default artwork.</mat-hint
+            >Image URL/path or Devicon classes, e.g.
+            devicon-angular-plain colored. Leave blank for default
+            artwork.</mat-hint
           >
         </mat-form-field>
-        @if (form().controls.headerSvgPath.value) {
-          @if (form().controls.headerSvgPath.value | isDevicon) {
-            <ngx-menu-devicon
-              class="section-form__icon-preview section-form__header-icon-preview"
-              role="img"
-              aria-label="Section header image preview"
-              [icon]="form().controls.headerSvgPath.value"
-              [large]="true"
-            />
-          } @else {
-            <img
-              class="section-form__image-preview section-form__header-image-preview"
-              [src]="form().controls.headerSvgPath.value"
-              alt="Sections header image preview"
-            />
-          }
-        }
-        <mat-form-field class="section-form__field" appearance="outline">
+        @if (form().controls.headerSvgPath.value) { @if
+        (form().controls.headerSvgPath.value | isDevicon) {
+        <ngx-menu-devicon
+          class="section-form__icon-preview section-form__header-icon-preview"
+          role="img"
+          aria-label="Section header image preview"
+          [icon]="form().controls.headerSvgPath.value"
+          [large]="true"
+        />
+        } @else {
+        <img
+          class="section-form__image-preview section-form__header-image-preview"
+          [src]="form().controls.headerSvgPath.value"
+          alt="Sections header image preview"
+        />
+        } }
+        <mat-form-field
+          class="section-form__field"
+          appearance="outline"
+        >
           <mat-label>Header image or Devicon</mat-label>
           <input matInput formControlName="headerSvgPath" />
           <ngx-document-image-picker-button
             matSuffix
             label="Choose header image"
-            [disabled]="saving() || created() || (editing() && !sectionLoaded())"
-            (imageSelected)="imageSelected.emit({ field: 'headerSvgPath', url: $event })"
+            [disabled]="
+              saving() || created() || (editing() && !sectionLoaded())
+            "
+            (imageSelected)="
+              imageSelected.emit({
+                field: 'headerSvgPath',
+                url: $event
+              })
+            "
           />
           <mat-hint
-            >Image URL/path or Devicon classes. Used in the section catalog and header.</mat-hint
+            >Image URL/path or Devicon classes. Used in the section
+            catalog and header.</mat-hint
           >
         </mat-form-field>
       </fieldset>
       @if (error()) {
-        <p class="section-form__error" role="alert">{{ error() }}</p>
-        @if (editing() && !sectionLoaded() && !loadingSection()) {
-          <button matButton type="button" (click)="retrySection.emit()">
-            Retry loading section
-          </button>
-        }
-      }
+      <p class="section-form__error" role="alert">{{ error() }}</p>
+      @if (editing() && !sectionLoaded() && !loadingSection()) {
+      <button matButton type="button" (click)="retrySection.emit()">
+        Retry loading section
+      </button>
+      } }
       <div class="section-form__form-actions">
-        <button matButton type="button" (click)="returnToSections.emit()" [disabled]="saving()">
+        <button
+          matButton
+          type="button"
+          (click)="returnToSections.emit()"
+          [disabled]="saving()"
+        >
           {{ created() ? 'Back to Sections' : 'Cancel' }}
         </button>
         <button
           matButton="filled"
           type="submit"
-          [disabled]="form().invalid || saving() || created() || (editing() && !sectionLoaded())"
+          [disabled]="
+            form().invalid ||
+            saving() ||
+            created() ||
+            (editing() && !sectionLoaded())
+          "
         >
           {{
-            editing() ? (saving() ? 'Saving…' : 'Save changes') : saving() ? 'Creating…' : 'Create'
+            editing()
+              ? saving()
+                ? 'Saving…'
+                : 'Save changes'
+              : saving()
+              ? 'Creating…'
+              : 'Create'
           }}
         </button>
       </div>
@@ -223,5 +293,8 @@ export class SectionFormComponent {
   readonly create = output<void>();
   readonly retrySection = output<void>();
   readonly returnToSections = output<void>();
-  readonly imageSelected = output<{ field: 'menuSvgPath' | 'headerSvgPath'; url: string }>();
+  readonly imageSelected = output<{
+    field: 'menuSvgPath' | 'headerSvgPath';
+    url: string;
+  }>();
 }

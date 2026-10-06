@@ -1,5 +1,8 @@
 import { provideHttpClient } from '@angular/common/http';
-import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from '@angular/common/http/testing';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
@@ -13,7 +16,13 @@ describe('Document image picker dialog', () => {
   let http: HttpTestingController;
   let dialogs: MatDialog;
   let selected: string[];
-  const folder = { _id: 'documents-id', name: 'Documents', version: 0, createdAt: '', updatedAt: '' };
+  const folder = {
+    _id: 'documents-id',
+    name: 'Documents',
+    version: 0,
+    createdAt: '',
+    updatedAt: '',
+  };
   const asset: Asset = {
     _id: 'image-id',
     folderId: folder._id,
@@ -40,10 +49,14 @@ describe('Document image picker dialog', () => {
     }).compileComponents();
     http = TestBed.inject(HttpTestingController);
     dialogs = TestBed.inject(MatDialog);
-    fixture = TestBed.createComponent(DocumentImagePickerButtonComponent);
+    fixture = TestBed.createComponent(
+      DocumentImagePickerButtonComponent
+    );
     fixture.componentRef.setInput('label', 'Choose thumbnail image');
     selected = [];
-    fixture.componentInstance.imageSelected.subscribe((url) => selected.push(url));
+    fixture.componentInstance.imageSelected.subscribe((url) =>
+      selected.push(url)
+    );
     await fixture.whenStable();
   });
 
@@ -57,13 +70,18 @@ describe('Document image picker dialog', () => {
     return fixture.nativeElement.querySelector('button');
   }
 
-  function open(): MatDialogRef<DocumentImagePickerDialogComponent, string> {
+  function open(): MatDialogRef<
+    DocumentImagePickerDialogComponent,
+    string
+  > {
     trigger().focus();
     trigger().click();
     return dialogs.openDialogs[0];
   }
 
-  async function resolveFolder(assets: Asset[] = [asset]): Promise<void> {
+  async function resolveFolder(
+    assets: Asset[] = [asset]
+  ): Promise<void> {
     const request = http.expectOne('/api/uploader/folders');
     expect(request.request.withCredentials).toBeTrue();
     request.flush([folder]);
@@ -80,26 +98,48 @@ describe('Document image picker dialog', () => {
 
   it('defers requests until the labelled action opens one full, folder-scoped dialog', async () => {
     http.expectNone('/api/uploader/folders');
-    expect(trigger().getAttribute('aria-label')).toBe('Choose thumbnail image');
+    expect(trigger().getAttribute('aria-label')).toBe(
+      'Choose thumbnail image'
+    );
     expect(trigger().type).toBe('button');
     open();
     fixture.componentInstance.open();
     expect(dialogs.openDialogs.length).toBe(1);
     await resolveFolder();
-    expect(document.querySelector('mat-dialog-container ngx-asset-manager')).not.toBeNull();
-    expect(document.querySelector('mat-dialog-container h2')?.textContent).toBe('Choose a document image');
-    expect(document.querySelector('mat-dialog-container')?.getAttribute('role')).toBe('dialog');
-    expect(document.querySelector('mat-dialog-container')?.getAttribute('aria-modal')).toBe('true');
-    const pane = document.querySelector('.cdk-overlay-pane') as HTMLElement;
-    expect(pane.getBoundingClientRect().width).toBeLessThanOrEqual(window.innerWidth - 32);
+    expect(
+      document.querySelector('mat-dialog-container ngx-asset-manager')
+    ).not.toBeNull();
+    expect(
+      document.querySelector('mat-dialog-container h2')?.textContent
+    ).toBe('Choose a document image');
+    expect(
+      document
+        .querySelector('mat-dialog-container')
+        ?.getAttribute('role')
+    ).toBe('dialog');
+    expect(
+      document
+        .querySelector('mat-dialog-container')
+        ?.getAttribute('aria-modal')
+    ).toBe('true');
+    const pane = document.querySelector(
+      '.cdk-overlay-pane'
+    ) as HTMLElement;
+    expect(pane.getBoundingClientRect().width).toBeLessThanOrEqual(
+      window.innerWidth - 32
+    );
   });
 
   it('returns a usable gallery URL only after close and restores trigger focus', async () => {
     const ref = open();
     await resolveFolder();
     let beforeClose: string | undefined;
-    ref.beforeClosed().subscribe((url) => beforeClose = url);
-    (document.querySelector('button[aria-label="Select photo.png"]') as HTMLButtonElement).click();
+    ref.beforeClosed().subscribe((url) => (beforeClose = url));
+    (
+      document.querySelector(
+        'button[aria-label="Select photo.png"]'
+      ) as HTMLButtonElement
+    ).click();
     expect(beforeClose).toBe('/photo.png');
     expect(selected).toEqual([]);
     await fixture.whenStable();
@@ -113,13 +153,29 @@ describe('Document image picker dialog', () => {
       open();
       await resolveFolder();
       if (method === 'cancel') {
-        (document.querySelector('mat-dialog-actions button') as HTMLButtonElement).click();
+        (
+          document.querySelector(
+            'mat-dialog-actions button'
+          ) as HTMLButtonElement
+        ).click();
       } else if (method === 'escape') {
-        (document.querySelector('mat-dialog-container') as HTMLElement).dispatchEvent(
-          new KeyboardEvent('keydown', { key: 'Escape', keyCode: 27, bubbles: true })
+        (
+          document.querySelector(
+            'mat-dialog-container'
+          ) as HTMLElement
+        ).dispatchEvent(
+          new KeyboardEvent('keydown', {
+            key: 'Escape',
+            keyCode: 27,
+            bubbles: true,
+          })
         );
       } else {
-        (document.querySelector('.cdk-overlay-backdrop') as HTMLElement).click();
+        (
+          document.querySelector(
+            '.cdk-overlay-backdrop'
+          ) as HTMLElement
+        ).click();
       }
       await fixture.whenStable();
       expect(dialogs.openDialogs.length).toBe(0);
@@ -136,11 +192,16 @@ describe('Document image picker dialog', () => {
     const ref = open();
     http.expectOne('/api/uploader/folders').flush([]);
     await fixture.whenStable();
-    expect(ref.componentInstance.error()).toContain('documents asset folder');
+    expect(ref.componentInstance.error()).toContain(
+      'documents asset folder'
+    );
     expect(document.querySelector('ngx-asset-manager')).toBeNull();
     http.expectNone((r) => r.url === '/api/uploader');
-    const retry = Array.from(document.querySelectorAll('mat-dialog-content button'))
-      .find((button) => button.textContent?.includes('Retry loading images')) as HTMLButtonElement;
+    const retry = Array.from(
+      document.querySelectorAll('mat-dialog-content button')
+    ).find((button) =>
+      button.textContent?.includes('Retry loading images')
+    ) as HTMLButtonElement;
     retry.click();
     await resolveFolder();
     expect(ref.componentInstance.error()).toBe('');
@@ -148,7 +209,9 @@ describe('Document image picker dialog', () => {
 
   it('shows permission errors in the dialog and permits retry', async () => {
     const ref = open();
-    http.expectOne('/api/uploader/folders').flush({}, { status: 403, statusText: 'Forbidden' });
+    http
+      .expectOne('/api/uploader/folders')
+      .flush({}, { status: 403, statusText: 'Forbidden' });
     await fixture.whenStable();
     expect(ref.componentInstance.error()).toContain('permission');
     expect(ref.componentInstance.loading()).toBeFalse();
@@ -159,14 +222,28 @@ describe('Document image picker dialog', () => {
 
   it('keeps the modal open for unusable URLs and allows another image selection', async () => {
     const ref = open();
-    await resolveFolder([{ ...asset, storageUrl: undefined }, { ...asset, _id: 'valid', name: 'valid.png' }]);
-    (document.querySelector('button[aria-label="Select photo.png"]') as HTMLButtonElement).click();
+    await resolveFolder([
+      { ...asset, storageUrl: undefined },
+      { ...asset, _id: 'valid', name: 'valid.png' },
+    ]);
+    (
+      document.querySelector(
+        'button[aria-label="Select photo.png"]'
+      ) as HTMLButtonElement
+    ).click();
     await fixture.whenStable();
     expect(dialogs.openDialogs.length).toBe(1);
     expect(ref.componentInstance.error()).toContain('no usable URL');
-    expect(document.querySelector('mat-dialog-container [role="alert"]')?.textContent).toContain('no usable URL');
+    expect(
+      document.querySelector('mat-dialog-container [role="alert"]')
+        ?.textContent
+    ).toContain('no usable URL');
     expect(selected).toEqual([]);
-    (document.querySelector('button[aria-label="Select valid.png"]') as HTMLButtonElement).click();
+    (
+      document.querySelector(
+        'button[aria-label="Select valid.png"]'
+      ) as HTMLButtonElement
+    ).click();
     await fixture.whenStable();
     expect(selected).toEqual(['/photo.png']);
   });
@@ -174,7 +251,9 @@ describe('Document image picker dialog', () => {
   it('uploads only images to the documents folder and closes with the returned URL', async () => {
     open();
     await resolveFolder();
-    const input = document.querySelector('mat-dialog-container input[type="file"]') as HTMLInputElement;
+    const input = document.querySelector(
+      'mat-dialog-container input[type="file"]'
+    ) as HTMLInputElement;
     expect(input.accept).toBe('image/*');
     const setFile = (file: File) => {
       const transfer = new DataTransfer();
@@ -182,10 +261,15 @@ describe('Document image picker dialog', () => {
       input.files = transfer.files;
       input.dispatchEvent(new Event('change', { bubbles: true }));
     };
-    setFile(new File(['pdf'], 'notes.pdf', { type: 'application/pdf' }));
+    setFile(
+      new File(['pdf'], 'notes.pdf', { type: 'application/pdf' })
+    );
     await fixture.whenStable();
-    const upload = Array.from(document.querySelectorAll('ngx-asset-upload button'))
-      .find((button) => button.textContent?.includes('Upload file')) as HTMLButtonElement;
+    const upload = Array.from(
+      document.querySelectorAll('ngx-asset-upload button')
+    ).find((button) =>
+      button.textContent?.includes('Upload file')
+    ) as HTMLButtonElement;
     expect(upload.disabled).toBeTrue();
     http.expectNone('/api/uploader/upload');
     setFile(new File(['image'], 'photo.png', { type: 'image/png' }));
@@ -195,10 +279,15 @@ describe('Document image picker dialog', () => {
     const request = http.expectOne('/api/uploader/upload');
     expect(request.request.method).toBe('POST');
     expect(request.request.withCredentials).toBeTrue();
-    expect((request.request.body as FormData).get('folderId')).toBe(folder._id);
+    expect((request.request.body as FormData).get('folderId')).toBe(
+      folder._id
+    );
     request.flush(asset);
     await fixture.whenStable();
-    for (const refresh of http.match((r) => r.url === '/api/uploader' || r.url === '/api/uploader/folders')) {
+    for (const refresh of http.match(
+      (r) =>
+        r.url === '/api/uploader' || r.url === '/api/uploader/folders'
+    )) {
       expect(refresh.cancelled).toBeTrue();
     }
     expect(dialogs.openDialogs.length).toBe(0);

@@ -1,5 +1,8 @@
 import { provideHttpClient } from '@angular/common/http';
-import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from '@angular/common/http/testing';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
@@ -9,8 +12,8 @@ import { RouterTestingHarness } from '@angular/router/testing';
 import { SectionDto, WorkshopDto } from '@tmdjr/document-contracts';
 import { firstValueFrom } from 'rxjs';
 import { Routes } from '../../../../../src/app/app.routes';
-import { NavigationService } from '../../../../../src/app/services/navigation.service';
 import { DeleteSectionModalComponent } from '../../../../../src/app/components/workshops-pages/sections/delete-section-modal.component';
+import { NavigationService } from '../../../../../src/app/services/navigation.service';
 
 describe('Section deletion', () => {
   let harness: RouterTestingHarness;
@@ -27,7 +30,11 @@ describe('Section deletion', () => {
     headerSvgPath: '',
     categoriesLastUpdated: '',
   };
-  const other: SectionDto = { ...section, _id: 'other-section', sectionTitle: 'Other' };
+  const other: SectionDto = {
+    ...section,
+    _id: 'other-section',
+    sectionTitle: 'Other',
+  };
   const endpoint = `/api/documents/navigation/section/${section._id}`;
   const workshopsEndpoint = '/api/documents/navigation/workshops';
   const staleWorkshop: WorkshopDto = {
@@ -48,7 +55,9 @@ describe('Section deletion', () => {
         provideZonelessChangeDetection(),
         provideNoopAnimations(),
         // Root authentication and initial section resolution are shell-owned.
-        provideRouter([{ path: 'document-editor', children: Routes[0].children }]),
+        provideRouter([
+          { path: 'document-editor', children: Routes[0].children },
+        ]),
         provideHttpClient(),
         provideHttpClientTesting(),
       ],
@@ -68,7 +77,9 @@ describe('Section deletion', () => {
     http.verify();
   });
 
-  async function openDelete(target = section): Promise<MatDialogRef<DeleteSectionModalComponent, boolean>> {
+  async function openDelete(
+    target = section
+  ): Promise<MatDialogRef<DeleteSectionModalComponent, boolean>> {
     const button = harness.routeNativeElement?.querySelector(
       `button[aria-label="Delete ${target.sectionTitle}"]`
     ) as HTMLButtonElement;
@@ -78,15 +89,21 @@ describe('Section deletion', () => {
     return dialogs.openDialogs[0];
   }
 
-  async function enterName(name = section.sectionTitle): Promise<void> {
-    const input = document.querySelector('mat-dialog-container input') as HTMLInputElement;
+  async function enterName(
+    name = section.sectionTitle
+  ): Promise<void> {
+    const input = document.querySelector(
+      'mat-dialog-container input'
+    ) as HTMLInputElement;
     input.value = name;
     input.dispatchEvent(new Event('input'));
     await harness.fixture.whenStable();
   }
 
   function submit(): HTMLButtonElement {
-    return document.querySelector('mat-dialog-container button[type="submit"]') as HTMLButtonElement;
+    return document.querySelector(
+      'mat-dialog-container button[type="submit"]'
+    ) as HTMLButtonElement;
   }
 
   it('opens the section-specific dialog for the selected card without opening workshops', async () => {
@@ -94,14 +111,28 @@ describe('Section deletion', () => {
       `button[aria-label="Delete ${other.sectionTitle}"]`
     ) as HTMLButtonElement;
     const card = button.closest('.section-card') as HTMLElement;
-    expect(card.querySelector('.section-card__link')?.contains(button)).toBeFalse();
+    expect(
+      card.querySelector('.section-card__link')?.contains(button)
+    ).toBeFalse();
     const ref = await openDelete(other);
-    expect(ref.componentInstance).toBeInstanceOf(DeleteSectionModalComponent);
+    expect(ref.componentInstance).toBeInstanceOf(
+      DeleteSectionModalComponent
+    );
     expect(ref.componentInstance.section).toEqual(other);
-    expect(document.querySelector('mat-dialog-container h2')?.textContent).toBe('Delete Other?');
-    expect(document.querySelector('mat-dialog-container')?.textContent).toContain('Only empty sections');
-    expect(document.querySelector('mat-dialog-container')?.getAttribute('aria-modal')).toBe('true');
-    expect(document.activeElement).toBe(document.querySelector('mat-dialog-container input'));
+    expect(
+      document.querySelector('mat-dialog-container h2')?.textContent
+    ).toBe('Delete Other?');
+    expect(
+      document.querySelector('mat-dialog-container')?.textContent
+    ).toContain('Only empty sections');
+    expect(
+      document
+        .querySelector('mat-dialog-container')
+        ?.getAttribute('aria-modal')
+    ).toBe('true');
+    expect(document.activeElement).toBe(
+      document.querySelector('mat-dialog-container input')
+    );
     expect(router.url).toBe('/document-editor');
     http.expectNone(workshopsEndpoint);
     http.expectNone((r) => r.method === 'DELETE');
@@ -109,7 +140,12 @@ describe('Section deletion', () => {
 
   it('requires exact case-sensitive title entry and prevents programmatic invalid submission', async () => {
     const ref = await openDelete();
-    for (const name of ['', 'typescript', 'TypeScript ', other.sectionTitle]) {
+    for (const name of [
+      '',
+      'typescript',
+      'TypeScript ',
+      other.sectionTitle,
+    ]) {
       await enterName(name);
       expect(submit().disabled).toBeTrue();
       ref.componentInstance.deleteSection();
@@ -129,18 +165,37 @@ describe('Section deletion', () => {
       await openDelete();
       await enterName();
       if (method === 'cancel') {
-        (document.querySelector('mat-dialog-actions button[type="button"]') as HTMLButtonElement).click();
+        (
+          document.querySelector(
+            'mat-dialog-actions button[type="button"]'
+          ) as HTMLButtonElement
+        ).click();
       } else if (method === 'escape') {
-        (document.querySelector('mat-dialog-container') as HTMLElement).dispatchEvent(
-          new KeyboardEvent('keydown', { key: 'Escape', keyCode: 27, bubbles: true })
+        (
+          document.querySelector(
+            'mat-dialog-container'
+          ) as HTMLElement
+        ).dispatchEvent(
+          new KeyboardEvent('keydown', {
+            key: 'Escape',
+            keyCode: 27,
+            bubbles: true,
+          })
         );
       } else {
-        (document.querySelector('.cdk-overlay-backdrop') as HTMLElement).click();
+        (
+          document.querySelector(
+            '.cdk-overlay-backdrop'
+          ) as HTMLElement
+        ).click();
       }
       await harness.fixture.whenStable();
       expect(dialogs.openDialogs.length).toBe(0);
       expect(document.activeElement).toBe(origin);
-      expect(harness.routeNativeElement?.querySelectorAll('.section-card').length).toBe(2);
+      expect(
+        harness.routeNativeElement?.querySelectorAll('.section-card')
+          .length
+      ).toBe(2);
       http.expectNone((r) => r.method === 'DELETE');
     });
   }
@@ -160,27 +215,57 @@ describe('Section deletion', () => {
     expect(ref.componentInstance.saving()).toBeTrue();
     expect(ref.disableClose).toBeTrue();
     expect(submit().disabled).toBeTrue();
-    expect(document.querySelector('mat-dialog-container input')?.matches(':disabled')).toBeTrue();
-    expect((document.querySelector('mat-dialog-actions button[type="button"]') as HTMLButtonElement).disabled).toBeTrue();
-    (document.querySelector('mat-dialog-container') as HTMLElement).dispatchEvent(
-      new KeyboardEvent('keydown', { key: 'Escape', keyCode: 27, bubbles: true })
+    expect(
+      document
+        .querySelector('mat-dialog-container input')
+        ?.matches(':disabled')
+    ).toBeTrue();
+    expect(
+      (
+        document.querySelector(
+          'mat-dialog-actions button[type="button"]'
+        ) as HTMLButtonElement
+      ).disabled
+    ).toBeTrue();
+    (
+      document.querySelector('mat-dialog-container') as HTMLElement
+    ).dispatchEvent(
+      new KeyboardEvent('keydown', {
+        key: 'Escape',
+        keyCode: 27,
+        bubbles: true,
+      })
     );
-    (document.querySelector('.cdk-overlay-backdrop') as HTMLElement).click();
+    (
+      document.querySelector('.cdk-overlay-backdrop') as HTMLElement
+    ).click();
     await harness.fixture.whenStable();
     expect(dialogs.openDialogs.length).toBe(1);
-    expect(await firstValueFrom(navigation.getSections())).toEqual([section, other]);
+    expect(await firstValueFrom(navigation.getSections())).toEqual([
+      section,
+      other,
+    ]);
     request.flush({ acknowledged: true, deletedCount: 1 });
     await harness.fixture.whenStable();
     expect(results).toEqual([true]);
     expect(dialogs.openDialogs.length).toBe(0);
-    expect(await firstValueFrom(navigation.getSections())).toEqual([other]);
-    expect(harness.routeNativeElement?.querySelectorAll('.section-card').length).toBe(1);
-    expect(harness.routeNativeElement?.textContent).not.toContain(section.sectionTitle);
+    expect(await firstValueFrom(navigation.getSections())).toEqual([
+      other,
+    ]);
+    expect(
+      harness.routeNativeElement?.querySelectorAll('.section-card')
+        .length
+    ).toBe(1);
+    expect(harness.routeNativeElement?.textContent).not.toContain(
+      section.sectionTitle
+    );
     expect(router.url).toBe('/document-editor');
     component.deleteSection();
     http.expectNone(endpoint);
     http.expectNone('/api/documents/navigation/sections');
-    http.expectNone('/api/documents/navigation/workshop/delete-workshop-and-workshop-documents');
+    http.expectNone(
+      '/api/documents/navigation/workshop/delete-workshop-and-workshop-documents'
+    );
   });
 
   for (const [status, message] of [
@@ -195,23 +280,38 @@ describe('Section deletion', () => {
       const ref = await openDelete();
       await enterName();
       submit().click();
-      http.expectOne(endpoint).flush({}, { status, statusText: 'Rejected' });
+      http
+        .expectOne(endpoint)
+        .flush({}, { status, statusText: 'Rejected' });
       await harness.fixture.whenStable();
       expect(ref.componentInstance.saving()).toBeFalse();
       expect(ref.disableClose).toBeFalse();
       expect(ref.componentInstance.deleted()).toBeFalse();
-      expect(ref.componentInstance.form.controls.sectionTitle.value).toBe(section.sectionTitle);
+      expect(
+        ref.componentInstance.form.controls.sectionTitle.value
+      ).toBe(section.sectionTitle);
       expect(ref.componentInstance.error()).toContain(message);
-      expect(document.querySelector('[role="alert"]')?.textContent).toContain(message);
-      expect(await firstValueFrom(navigation.getSections())).toEqual([section, other]);
+      expect(
+        document.querySelector('[role="alert"]')?.textContent
+      ).toContain(message);
+      expect(await firstValueFrom(navigation.getSections())).toEqual([
+        section,
+        other,
+      ]);
       expect(submit().disabled).toBeFalse();
       submit().click();
       expect(ref.componentInstance.error()).toBe('');
-      http.expectOne(endpoint).flush({ acknowledged: true, deletedCount: 1 });
+      http
+        .expectOne(endpoint)
+        .flush({ acknowledged: true, deletedCount: 1 });
       await harness.fixture.whenStable();
       expect(dialogs.openDialogs.length).toBe(0);
-      expect(await firstValueFrom(navigation.getSections())).toEqual([other]);
-      http.expectNone('/api/documents/navigation/workshop/delete-workshop-and-workshop-documents');
+      expect(await firstValueFrom(navigation.getSections())).toEqual([
+        other,
+      ]);
+      http.expectNone(
+        '/api/documents/navigation/workshop/delete-workshop-and-workshop-documents'
+      );
     });
   }
 
@@ -222,16 +322,23 @@ describe('Section deletion', () => {
     { acknowledged: true, deletedCount: 0 },
     { acknowledged: true, deletedCount: 2 },
   ]) {
-    it(`rejects an unconfirmed result ${JSON.stringify(result)}`, async () => {
+    it(`rejects an unconfirmed result ${JSON.stringify(
+      result
+    )}`, async () => {
       const ref = await openDelete();
       await enterName();
       submit().click();
       http.expectOne(endpoint).flush(result);
       await harness.fixture.whenStable();
-      expect(ref.componentInstance.error()).toContain('did not confirm');
+      expect(ref.componentInstance.error()).toContain(
+        'did not confirm'
+      );
       expect(ref.componentInstance.saving()).toBeFalse();
       expect(ref.componentInstance.deleted()).toBeFalse();
-      expect(await firstValueFrom(navigation.getSections())).toEqual([section, other]);
+      expect(await firstValueFrom(navigation.getSections())).toEqual([
+        section,
+        other,
+      ]);
       expect(dialogs.openDialogs.length).toBe(1);
     });
   }
@@ -239,32 +346,55 @@ describe('Section deletion', () => {
   it('supports a legacy section key and removes the final section into the catalog empty state', async () => {
     navigation.removeSection(section._id);
     navigation.removeSection(other._id);
-    const legacy = { ...section, _id: 'angular', sectionTitle: 'Angular' };
+    const legacy = {
+      ...section,
+      _id: 'angular',
+      sectionTitle: 'Angular',
+    };
     navigation.addSection(legacy);
     await harness.fixture.whenStable();
     await openDelete(legacy);
     await enterName(legacy.sectionTitle);
     submit().click();
-    const request = http.expectOne('/api/documents/navigation/section/angular');
+    const request = http.expectOne(
+      '/api/documents/navigation/section/angular'
+    );
     expect(request.request.method).toBe('DELETE');
     request.flush({ acknowledged: true, deletedCount: 1 });
     await harness.fixture.whenStable();
-    expect(harness.routeNativeElement?.querySelectorAll('.section-card').length).toBe(0);
-    expect(harness.routeNativeElement?.textContent).toContain('No sections yet.');
+    expect(
+      harness.routeNativeElement?.querySelectorAll('.section-card')
+        .length
+    ).toBe(0);
+    expect(harness.routeNativeElement?.textContent).toContain(
+      'No sections yet.'
+    );
   });
 
   it('clears selected deleted-section state and invalidates its stale workshop cache', async () => {
     navigation.navigateToSection(section._id).subscribe();
-    http.expectOne((r) => r.url === workshopsEndpoint).flush([staleWorkshop]);
-    navigation.navigateToWorkshop(staleWorkshop.workshopDocumentGroupId).subscribe();
+    http
+      .expectOne((r) => r.url === workshopsEndpoint)
+      .flush([staleWorkshop]);
+    navigation
+      .navigateToWorkshop(staleWorkshop.workshopDocumentGroupId)
+      .subscribe();
     await openDelete();
     await enterName();
     submit().click();
-    http.expectOne(endpoint).flush({ acknowledged: true, deletedCount: 1 });
+    http
+      .expectOne(endpoint)
+      .flush({ acknowledged: true, deletedCount: 1 });
     await harness.fixture.whenStable();
-    expect(await firstValueFrom(navigation.getCurrentSection())).toBeUndefined();
-    expect(await firstValueFrom(navigation.getCurrentWorkshop())).toBeUndefined();
-    expect(await firstValueFrom(navigation.getWorkshops())).toEqual([]);
+    expect(
+      await firstValueFrom(navigation.getCurrentSection())
+    ).toBeUndefined();
+    expect(
+      await firstValueFrom(navigation.getCurrentWorkshop())
+    ).toBeUndefined();
+    expect(await firstValueFrom(navigation.getWorkshops())).toEqual(
+      []
+    );
     navigation.navigateToSection(section._id).subscribe();
     const reload = http.expectOne((r) => r.url === workshopsEndpoint);
     expect(reload.request.params.get('section')).toBe(section._id);
@@ -274,20 +404,38 @@ describe('Section deletion', () => {
   it('preserves unrelated selected workshops and their cached reads', async () => {
     navigation.navigateToSection(section._id).subscribe();
     http.expectOne((r) => r.url === workshopsEndpoint).flush([]);
-    const otherWorkshop = { ...staleWorkshop, _id: 'other-workshop', sectionId: other._id };
+    const otherWorkshop = {
+      ...staleWorkshop,
+      _id: 'other-workshop',
+      sectionId: other._id,
+    };
     navigation.navigateToSection(other._id).subscribe();
-    http.expectOne((r) => r.url === workshopsEndpoint).flush([otherWorkshop]);
-    navigation.navigateToWorkshop(otherWorkshop.workshopDocumentGroupId).subscribe();
+    http
+      .expectOne((r) => r.url === workshopsEndpoint)
+      .flush([otherWorkshop]);
+    navigation
+      .navigateToWorkshop(otherWorkshop.workshopDocumentGroupId)
+      .subscribe();
     await openDelete();
     await enterName();
     submit().click();
-    http.expectOne(endpoint).flush({ acknowledged: true, deletedCount: 1 });
+    http
+      .expectOne(endpoint)
+      .flush({ acknowledged: true, deletedCount: 1 });
     await harness.fixture.whenStable();
-    expect(await firstValueFrom(navigation.getCurrentSection())).toEqual(other);
-    expect(await firstValueFrom(navigation.getCurrentWorkshop())).toEqual(otherWorkshop);
-    expect(await firstValueFrom(navigation.getWorkshops())).toEqual([otherWorkshop]);
+    expect(
+      await firstValueFrom(navigation.getCurrentSection())
+    ).toEqual(other);
+    expect(
+      await firstValueFrom(navigation.getCurrentWorkshop())
+    ).toEqual(otherWorkshop);
+    expect(await firstValueFrom(navigation.getWorkshops())).toEqual([
+      otherWorkshop,
+    ]);
     navigation.navigateToSection(other._id).subscribe();
     http.expectNone((r) => r.url === workshopsEndpoint);
-    expect(await firstValueFrom(navigation.getWorkshops())).toEqual([otherWorkshop]);
+    expect(await firstValueFrom(navigation.getWorkshops())).toEqual([
+      otherWorkshop,
+    ]);
   });
 });

@@ -12,8 +12,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { WorkshopPageIdentifierDto } from '@tmdjr/document-contracts';
 import { finalize } from 'rxjs';
+import { WorkshopJourneyItem } from '../../../models/workshop-journey';
 import { WorkshopEditorService } from '../../../services/workshops.service';
 import { reorder } from '../../../view-models/ordering';
 import { DeletePageModalComponent } from './modals/delete-page-modal/delete-page-modal.component';
@@ -155,7 +155,7 @@ import { DeletePageModalComponent } from './modals/delete-page-modal/delete-page
   ],
 })
 export class PageListComponent {
-  readonly documents = input<WorkshopPageIdentifierDto[]>([]);
+  readonly documents = input<WorkshopJourneyItem[]>([]);
   readonly pending = signal(false);
   private readonly editor = inject(WorkshopEditorService);
   private readonly snackBar = inject(MatSnackBar);
@@ -167,7 +167,7 @@ export class PageListComponent {
 
   deletePage(
     event: Event,
-    workshopDocument: WorkshopPageIdentifierDto
+    workshopDocument: WorkshopJourneyItem
   ): void {
     event.preventDefault();
     this.dialogs.open(DeletePageModalComponent, {

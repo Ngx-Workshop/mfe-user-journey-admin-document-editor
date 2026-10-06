@@ -4,7 +4,9 @@ import { MatIcon } from '@angular/material/icon';
 @Pipe({ name: 'isDevicon', standalone: true, pure: true })
 export class IsDeviconPipe implements PipeTransform {
   transform(value: string | null | undefined): boolean {
-    return /^devicon-[a-z0-9-]+(?:\s+[\w-]+)*$/.test(value?.trim() ?? '');
+    return /^devicon-[a-z0-9-]+(?:\s+[\w-]+)*$/.test(
+      value?.trim() ?? ''
+    );
   }
 }
 
@@ -13,14 +15,16 @@ export class IsDeviconPipe implements PipeTransform {
   imports: [IsDeviconPipe, MatIcon],
   template: `
     @if (icon() | isDevicon) {
-      <i
-        class="devicon"
-        [class]="icon()?.trim()"
-        [class.devicon--large]="large()"
-        aria-hidden="true"
-      ></i>
+    <i
+      class="devicon"
+      [class]="icon()?.trim()"
+      [class.devicon--large]="large()"
+      aria-hidden="true"
+    ></i>
     } @else {
-      <mat-icon class="devicon" [class.devicon--large]="large()">{{ icon() }}</mat-icon>
+    <mat-icon class="devicon" [class.devicon--large]="large()">{{
+      icon()
+    }}</mat-icon>
     }
   `,
   styles: [

@@ -178,3 +178,55 @@ fields directly to image src must add class-string branching and Devicon styles
 before receiving icon-valued records; otherwise it will request the class string
 as an image URL. Deliver compatible readers first, then enable/use icon-valued
 records. No external consumer change or backend deployment was performed here.
+
+## Mixed page types — document-contracts 0.0.34
+
+WorkshopDocuments entries are discriminated by kind: PAGE, ASSESSMENT_TEST or
+CODING_LAB. `_id` is the workshop placement ID. External entries additionally have
+an opaque resourceId owned by the corresponding service. The UI derives its item
+type from WorkshopDto.workshopDocuments and preserves all fields through reorder.
+
+DocumentApiService.addReference POSTs /navigation/page/add-reference with
+AddWorkshopReferenceDto: workshopId (Mongo ID), kind, name and resourceId. The
+creation form supplies resourceId manually for this placeholder phase; it creates
+no foreign resource and performs no foreign lookup. PAGE creation still sends
+CreateWorkshopPageDto to create-page; resourceId and kind are not sent there.
+Sort positions for new entries are server-assigned.
+
+Document resolver selects metadata from the resolved workshop. PAGE alone GETs
+/workshop/:id and enables block editing. External entries render Hello world and
+never GET or POST document content. Rename targets placement _id and only changes
+its workshop label. Delete targets placement _id and unlinks external resources;
+confirmation explains that remote content is retained. Existing EXAM radio is
+replaced by Assessment Test. All calls retain environment.documentsApiBaseUrl.
+
+## Coding lab gallery (015)
+
+CodingLabsApiService GETs `${codingLabsApiBaseUrl}/labs` with credentials and
+q/skip/limit=24. Uses HandsOnLabMongo[] from coding-labs-contracts 0.0.6. The configured
+base is /api/coding-labs in production and development; local document API settings
+remain independent. Catalog spans workshops and includes draft/published labs for
+admin authoring, omitting archived records. Pagination uses raw response size;
+selection uses lab._id, never a draft-version or embed ID. Lab title is a suggested
+workshop label and stays editable. Existing AddWorkshopReferenceDto payload stays
+workshopId/kind=CODING_LAB/resourceId/name. No coding-lab service contract changes.
+
+## Assessment test gallery (016)
+
+AssessmentTestsApiService GETs assessmentTestsApiBaseUrl with credentials, using
+AssessmentTestDto[] from assessment-test-contracts 0.0.18. Both environments configure
+/api/assessment-test. This endpoint returns the whole admin catalog and supports no
+server search/pagination; filtering and 24-card reveal are local. Cards show metadata
+only, never question/answer text from the response. Selection uses test._id as
+resourceId in the existing workshopId/kind=ASSESSMENT_TEST/resourceId/name payload.
+Name is an editable workshop label. No foreign resource mutation or contract change.
+
+## Assessment learner preview (017)
+
+GET `${assessmentTestsApiBaseUrl}/${encodeURIComponent(resourceId)}` reads the exact
+linked AssessmentTestDto with credentials. The endpoint is admin-only and includes
+answer/feedback fields. The admin preview renders questions/choices, then locally
+grades by exact choice-value equality and shows feedback on completion. No attempt
+is created or submitted. The existing subject-only start-test contract cannot select
+the exact workshop definition; recorded learner use requires an explicit service-owned
+contract extension and safe owned attempt-question reads. No producer change here.
