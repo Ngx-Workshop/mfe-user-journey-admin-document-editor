@@ -433,3 +433,15 @@ verified start, answer progress, finish/results, feedback and restart. No record
 learner attempts changed. The initial host federation loading error was fixed using
 the app's explicit-DestroyRef subscription pattern and rechecked in the shell.
 See [017 handoff](../specs/017-assessment-learner-preview/handoff.md).
+
+## Coding lab learner preview verification — 2026-10-06
+
+PASS: 149 ChromeHeadless tests, app/spec TypeScript checks, production build to
+/tmp/document-editor-coding-preview-build and whitespace checks. Live hosted shell
+with local remote loaded the linked TypeScript Sum an array challenge, published
+Version 1. Instructions, hint expansion, sample input/output, local code editing
+and reset verified with no errors or service writes. Screenshot:
+/tmp/document-editor-coding-lab-learner-preview.png. Three existing heading assertions
+now trim incidental template whitespace. The preview intentionally has no runner
+until a learner execution/submission API is available. Draft/unpublished links
+display unavailable. See [018 handoff](../specs/018-coding-lab-learner-preview/handoff.md).

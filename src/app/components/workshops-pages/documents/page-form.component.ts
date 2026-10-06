@@ -89,7 +89,10 @@ export type PageForm = FormGroup<{
           [disabled]="saving() || saved()"
           (selected)="codingLabSelected.emit($event)"
         />
-        <p>Opening this page will show a Hello world placeholder.</p>
+        <p>
+          Opening this page will show the published coding lab learner
+          preview.
+        </p>
         } @else if (form().controls.pageType.value ===
         'ASSESSMENT_TEST') {
         <ngx-assessment-test-picker

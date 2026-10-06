@@ -209,7 +209,7 @@ describe('Workshop authoring pages', () => {
     await harness.fixture.whenStable();
     expect(router.url).toBe(editUrl);
     expect(
-      harness.routeNativeElement?.querySelector('h1')?.textContent
+      harness.routeNativeElement?.querySelector('h1')?.textContent?.trim()
     ).toBe('Edit Workshop');
     http.expectNone((r) => r.url.includes('/workshop/page-1'));
   });

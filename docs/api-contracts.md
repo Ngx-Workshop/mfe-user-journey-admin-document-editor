@@ -230,3 +230,12 @@ grades by exact choice-value equality and shows feedback on completion. No attem
 is created or submitted. The existing subject-only start-test contract cannot select
 the exact workshop definition; recorded learner use requires an explicit service-owned
 contract extension and safe owned attempt-question reads. No producer change here.
+
+## Coding lab learner preview (018)
+
+CodingLabsApiService GETs `${codingLabsApiBaseUrl}/published-labs/${encodeURIComponent(resourceId)}`
+with credentials and PublishedLabDto from coding-labs-contracts 0.0.6. Reads latest
+published learner projection only; drafts/archived/unpublished labs are unavailable.
+No author versions, hidden tests or reference solutions are fetched. Local code
+edits/reset do not mutate any service. The current API has no learner code-run or
+submit contract; reference-solution admin verification is not a learner runner.

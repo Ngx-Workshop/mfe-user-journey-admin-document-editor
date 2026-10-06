@@ -286,3 +286,14 @@ explicit DestroyRef, avoiding the live host's rxjs-interop injection-context mis
 Question groups use Material radio choices; complete valid answers gate local review.
 No document content editor or attempt mutation is invoked. Coding lab remains the
 existing placeholder. This replaces 014/016 assessment placeholder behavior only.
+
+## Coding lab learner preview — 2026-10-06
+
+WorkshopDetailComponent renders CodingLabPreviewComponent for CODING_LAB and the
+assessment preview for ASSESSMENT_TEST. ExternalPagePlaceholderComponent is removed.
+Stateless CodingLabsApiService reads published learner content. The preview owns
+loading/error state and local code FormControl, cancelling stale reads/resetting code
+when resourceId changes. LabInstructionsComponent presents safe text-only Markdown
+blocks without innerHTML. Hints use native details/summary; samples show published
+input/output. Responsive instruction/editor columns stack below 1200px. Code edits
+stay local; no execution/submission or editor-block persistence.

@@ -24,8 +24,8 @@ import {
 } from '../../../view-models/document-view-model';
 import { PageListComponent } from '../../workshops-sidepanel/page-list-controls/page-list.component';
 import { AssessmentTestPreviewComponent } from './assessment-test-preview.component';
+import { CodingLabPreviewComponent } from './coding-lab-preview.component';
 import { DocumentEditorComponent } from './document-editor.component';
-import { ExternalPagePlaceholderComponent } from './external-page-placeholder.component';
 
 @Component({
   selector: 'ngx-workshop-detail',
@@ -33,7 +33,7 @@ import { ExternalPagePlaceholderComponent } from './external-page-placeholder.co
     AsyncPipe,
     MatPaginatorModule,
     DocumentEditorComponent,
-    ExternalPagePlaceholderComponent,
+    CodingLabPreviewComponent,
     AssessmentTestPreviewComponent,
     PageListComponent,
     MatIconModule,
@@ -99,8 +99,11 @@ import { ExternalPagePlaceholderComponent } from './external-page-placeholder.co
         [resourceId]="vm.document.resourceId"
         [pageName]="vm.document.name"
       />
-      } @else if (vm.kind !== 'PAGE') {
-      <ngx-external-page-placeholder [entry]="vm.document" />
+      } @else if (vm.document.kind === 'CODING_LAB') {
+      <ngx-coding-lab-preview
+        [resourceId]="vm.document.resourceId"
+        [pageName]="vm.document.name"
+      />
       } @else {
       <ngx-document-editor
         [blocks]="vm.blocks"

@@ -152,7 +152,7 @@ describe('Section authoring', () => {
       `/document-editor/edit-section/${section._id}`
     );
     expect(
-      harness.routeNativeElement?.querySelector('h1')?.textContent
+      harness.routeNativeElement?.querySelector('h1')?.textContent?.trim()
     ).toBe('Edit Section');
     http.expectNone(
       (r) => r.url === '/api/documents/navigation/workshops'
@@ -426,7 +426,7 @@ describe('Section authoring', () => {
     await harness.fixture.whenStable();
     expect(router.url).toBe('/document-editor/create-section');
     expect(
-      harness.routeNativeElement?.querySelector('h1')?.textContent
+      harness.routeNativeElement?.querySelector('h1')?.textContent?.trim()
     ).toBe('Create Section');
     expect(document.querySelector('mat-dialog-container')).toBeNull();
   });
