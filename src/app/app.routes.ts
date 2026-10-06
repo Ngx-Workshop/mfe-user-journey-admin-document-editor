@@ -80,6 +80,22 @@ export const Routes: Route[] = [
             resolve: { workshopResolver },
             children: [
               {
+                path: 'create-page',
+                canDeactivate: [(component: { saving: () => boolean }) => !component.saving()],
+                loadComponent: () =>
+                  import('./components/workshops-pages/documents/create-page.component').then(
+                    (m) => m.CreatePageComponent
+                  ),
+              },
+              {
+                path: 'edit-page/:documentId',
+                canDeactivate: [(component: { saving: () => boolean }) => !component.saving()],
+                loadComponent: () =>
+                  import('./components/workshops-pages/documents/create-page.component').then(
+                    (m) => m.CreatePageComponent
+                  ),
+              },
+              {
                 path: '',
                 data: { alwaysRefresh: true },
                 resolve: { documentResolver },

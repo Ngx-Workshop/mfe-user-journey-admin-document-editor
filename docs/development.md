@@ -333,3 +333,41 @@ The relocation was verified with all 108 tests, source/spec TypeScript checks an
 production compilation. A fresh hosted browser reload required sign-in, so live
 route re-verification for this organizational follow-up remains unavailable until
 an authenticated session is restored.
+
+## Page authoring pages - 2026-10-06
+
+Create New Page and active-page Edit Page now navigate from the toolbar to
+`:section/:workshopId/create-page` and
+`:section/:workshopId/edit-page/:documentId`. Both forms load fresh workshop
+metadata, preserve PAGE/EXAM creation and name-only editing, and retain recoverable
+values on failure. Success opens the new/edited document; cancel returns to the
+originating page or the catalog for an empty workshop. Sidebar deletion remains
+a confirmation dialog. The existing sidebar spacing change was preserved.
+
+PASS: 27 focused ChromeHeadless router/component/HTTP/state/projection tests:
+
+```bash
+npm test -- --watch=false --browsers=ChromeHeadless \
+  --include='../testing/app/components/workshops-pages/documents/page-authoring.spec.ts' \
+  --include='../testing/app/components/workshops-sidepanel/page-list-controls/page-commands.spec.ts' \
+  --include='../testing/app/services/document-state.spec.ts' \
+  --include='../testing/app/view-models/document-view-model.spec.ts'
+```
+
+The IDE test tool discovered no tests; the configured Karma command above ran
+successfully. Tests use mocked HTTP and simulated host routing; the block editor
+presentation is stubbed to isolate metadata workflows. Tests cover exact payloads,
+fresh/missing context, route reuse, creation and rename return links, cancel,
+empty workshops, validation, permission denial/retry, pending departure/duplicate
+gates and confirmed-save navigation failure.
+
+PASS: production build via `npm run build -- --output-path
+/tmp/document-editor-page-authoring-041aeac6`; isolated output removed afterward,
+watched development bundle untouched. No dependency changes or installation.
+The existing npm scripts-prepend-node-path warning remains.
+
+Existing local remote and document service respond with HTTP 200. Hosted browser
+verification redirected to the authentication sign-in page; live create/rename,
+persistence, authorization, keyboard and narrow-screen checks remain unavailable.
+No live mutation or deployment was attempted. See
+[013 handoff](../specs/013-page-authoring-pages/handoff.md).

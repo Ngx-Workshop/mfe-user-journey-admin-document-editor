@@ -29,6 +29,7 @@ reuses the same configuration.
 | Editor state | src/app/services/editor-state.service.ts | Ordered save queue, latest-failure retry and save notices |
 | Catalog/editor   | src/app/components/workshops-pages/{sections,workshops,documents}/| Persisted section catalog, workshop cards and editor/paginator          |
 | Workshop authoring | src/app/components/workshops-pages/workshops/create-workshop.component.ts | Routed create/edit metadata and documents-folder thumbnail picker |
+| Page authoring | src/app/components/workshops-pages/documents/create-page.component.ts | Routed creation/renaming view model with shared PageFormComponent |
 | Image selection | src/app/components/document-image-picker/ | Shared image-field action and typed asset-picker dialog |
 | Artwork classification | src/app/components/devicon.component.ts | Shared Devicon class detection/rendering; font/CSS supplied by admin shell |
 | Context header   | src/app/components/workshops.component.ts                | Section header and nested router outlet                                 |
@@ -48,6 +49,9 @@ Routes are relative to the shell mount point:
   mutation ID, not the slug used by the existing document editor route.
 - :section: resolve section and workshops, then mount WorkshopsComponent.
 - :section/workshop-list: catalog; :section alone redirects here.
+- :section/:workshopId/create-page and :section/:workshopId/edit-page/:documentId:
+  dedicated page metadata forms, matched before the generic document ID child.
+  The workshop URL uses its slug; mutation bodies use its Mongo ID.
 - :section/:workshopId/:documentId: select workshop by slug and read page by ID.
 - :section/:workshopId also resolves a document although no documentId is supplied;
   this is a known gap, not a working default-page redirect.
@@ -90,7 +94,8 @@ Pending saves block departure and duplicate submissions; failures expose retry
 without discarding edits. Catalog create and workshop-card edit links replace the old
 workshop dialogs. Thumbnail URLs outside Cloudinary image delivery are preserved,
 and absent thumbnails use a generic image icon.
-Dialogs still delete workshops and create/edit/delete pages; the editor supports
+Dialogs still delete workshops and pages; page creation/renaming use routed forms.
+The editor supports
 PAGE/EXAM values without a distinct exam execution UI. Sort controls clone input arrays/records and commit confirmed response state.
 Labelled up/down buttons provide a keyboard equivalent to drag ordering.
 
@@ -205,3 +210,21 @@ Specs live in repository-root `testing/app`, mirroring the application folder tr
 Karma explicitly discovers `../testing/**/*.spec.ts` relative to `src`, and the
 spec TypeScript config includes the testing tree. Production source contains no specs.
 See [test layout and commands](../testing/README.md).
+
+## Page authoring pages - 2026-10-06
+
+The document toolbar links to Create New Page and Edit Page for the active document;
+sidebar page editing is removed while navigation, ordering and deletion remain.
+CreatePageComponent loads fresh workshop references by section/slug, validates the
+edited page belongs to that workshop, and orchestrates the existing create/rename
+commands through WorkshopEditorService. PageFormComponent renders the typed name
+form and creation-only PAGE/EXAM radios. Renaming never changes content or type.
+
+Pending saves disable fields, duplicate submissions and route departure. Failed
+reads/mutations expose recoverable errors; failed navigation after confirmed save
+retains saved state and prevents duplicate writes. Creation opens the newly returned
+page reference; editing returns to the same page. Cancel uses a validated returnPage
+query/current edit ID, then the first ordered page or the catalog for empty workshops.
+Missing workshop/page links cannot submit against stale singleton selection.
+Existing document routes, IDs, block data, endpoints and federation exports remain
+unchanged. See [013 handoff](../specs/013-page-authoring-pages/handoff.md).

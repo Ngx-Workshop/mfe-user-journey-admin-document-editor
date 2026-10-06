@@ -17,7 +17,6 @@ import { finalize } from 'rxjs';
 import { WorkshopEditorService } from '../../../services/workshops.service';
 import { reorder } from '../../../view-models/ordering';
 import { DeletePageModalComponent } from './modals/delete-page-modal/delete-page-modal.component';
-import { EditPageModalComponent } from './modals/edit-page-modal/edit-page-modal.component';
 
 @Component({
   selector: 'ngx-page-list',
@@ -55,14 +54,6 @@ import { EditPageModalComponent } from './modals/edit-page-modal/edit-page-modal
             routerLinkActive="page-order__link--selected"
             >{{ item.name }}</a
           >
-          <button
-            matIconButton
-            type="button"
-            [attr.aria-label]="'Edit ' + item.name"
-            (click)="editPage($event, item)"
-          >
-            <mat-icon>edit</mat-icon>
-          </button>
           <button
             matIconButton
             type="button"
@@ -105,6 +96,7 @@ import { EditPageModalComponent } from './modals/edit-page-modal/edit-page-modal
       :host {
         display: flex;
         flex-direction: column;
+        margin-top: 1rem;
       }
       .page-order__heading {
         font-size: 1.3rem;
@@ -173,17 +165,6 @@ export class PageListComponent {
   readonly workshopId = input('');
   private readonly dialogs = inject(MatDialog);
 
-  editPage(
-    event: Event,
-    workshopDocument: WorkshopPageIdentifierDto
-  ): void {
-    event.preventDefault();
-    this.dialogs.open(EditPageModalComponent, {
-      width: '400px',
-      backdropClass: 'blur-backdrop',
-      data: { workshopDocument },
-    });
-  }
   deletePage(
     event: Event,
     workshopDocument: WorkshopPageIdentifierDto

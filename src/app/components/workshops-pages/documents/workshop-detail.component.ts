@@ -3,7 +3,6 @@ import { Component, DestroyRef, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
-import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import {
   MatPaginatorModule,
@@ -23,7 +22,6 @@ import {
   documentContent,
   documentViewModel,
 } from '../../../view-models/document-view-model';
-import { CreatePageModalComponent } from '../../workshops-sidepanel/page-list-controls/modals/create-page-modal/create-page-modal.component';
 import { PageListComponent } from '../../workshops-sidepanel/page-list-controls/page-list.component';
 import { DocumentEditorComponent } from './document-editor.component';
 
@@ -61,9 +59,20 @@ import { DocumentEditorComponent } from './document-editor.component';
         aria-label="Select page"
       />
       }
-      <button matButton="filled" (click)="createPage()">
+      <a
+        matButton="filled"
+        [routerLink]="['../edit-page', vm.document._id]"
+        [attr.aria-label]="'Edit ' + vm.document.name"
+      >
+        <mat-icon>edit</mat-icon>Edit Page Settings
+      </a>
+      <a
+        matButton="filled"
+        routerLink="../create-page"
+        [queryParams]="{ returnPage: vm.document._id }"
+      >
         <mat-icon>note_add</mat-icon>Create New Page
-      </button>
+      </a>
     </div>
     @if (saves.pending()) {
     <p role="status">Saving page changes…</p>
@@ -171,7 +180,6 @@ import { DocumentEditorComponent } from './document-editor.component';
 export class WorkshopDetailComponent {
   readonly saves = inject(EditorStateService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly dialogs = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
@@ -208,13 +216,6 @@ export class WorkshopDetailComponent {
           }
         );
       });
-  }
-
-  createPage(): void {
-    this.dialogs.open(CreatePageModalComponent, {
-      width: '400px',
-      backdropClass: 'blur-backdrop',
-    });
   }
 
   pageEventChange(
