@@ -24,6 +24,9 @@ All context below is local; sibling checkouts are not required.
 - Preserve default App, named Routes, federation exposures and shared singleton versions. Keep API calls in services and backend authorization on the server.
 - Resolve routine choices locally. Ask only for consequential missing decisions;
   continue independent work while they remain pending.
+- Keep specs in `testing/app`, mirroring `src/app`; never import test code into
+  application source. Group workshop-page components under sections/workshops/documents
+  and keep the exported route tree in `src/app/app.routes.ts`.
 - Verify the changed scope; record actual passes, failures and unavailable integration
   checks separately. Builds and empty test suites do not establish working journeys.
 - Update affected context docs and leave exact external-owner handoffs. Do not

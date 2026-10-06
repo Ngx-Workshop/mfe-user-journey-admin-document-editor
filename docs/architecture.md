@@ -23,10 +23,12 @@ reuses the same configuration.
 | Bootstrap        | src/main.ts, src/bootstrap.ts, src/app/app.config.ts     | Standalone app, zoneless detection, HTTP DI interceptors and animations |
 | Host entry       | src/app/app.ts, src/app/app.routes.ts, webpack.config.js | Empty root App and host-mounted route tree                              |
 | Resolution       | src/app/resolvers/                                       | Sections, workshop slug selection and page lookup                       |
-| Navigation       | src/app/services/navigation.service.ts                   | HTTP reads, BehaviorSubject state, per-section replay cache             |
-| Mutations        | src/app/services/workshops.service.ts                    | Section/workshop/page CRUD, ordering, save and image upload calls       |
-| Catalog/editor   | src/app/components/workshops-pages/                      | Persisted section catalog, workshop cards and editor/paginator          |
-| Workshop authoring | src/app/components/workshops-pages/create-workshop.component.ts | Routed create/edit metadata and documents-folder thumbnail picker |
+| HTTP access | src/app/services/document-api.service.ts | Stateless typed endpoint requests; no selection, forms or editor events |
+| Navigation state | src/app/services/navigation.service.ts | Singleton observable selection state, timestamped replay cache, confirmed merges |
+| Commands | src/app/services/workshops.service.ts | Singleton mutation orchestration, response reconciliation and cache invalidation |
+| Editor state | src/app/services/editor-state.service.ts | Ordered save queue, latest-failure retry and save notices |
+| Catalog/editor   | src/app/components/workshops-pages/{sections,workshops,documents}/| Persisted section catalog, workshop cards and editor/paginator          |
+| Workshop authoring | src/app/components/workshops-pages/workshops/create-workshop.component.ts | Routed create/edit metadata and documents-folder thumbnail picker |
 | Image selection | src/app/components/document-image-picker/ | Shared image-field action and typed asset-picker dialog |
 | Artwork classification | src/app/components/devicon.component.ts | Shared Devicon class detection/rendering; font/CSS supplied by admin shell |
 | Context header   | src/app/components/workshops.component.ts                | Section header and nested router outlet                                 |
@@ -56,9 +58,9 @@ NavigationService exposes the fetched section catalog and merges confirmed
 creations/updates by ID, also refreshing the selected section when applicable.
 Catalog cards have sibling edit/delete actions revealed on hover/focus or shown on touch.
 SectionListComponent opens a section-specific typed-name confirmation dialog.
-WorkshopEditorService sends the bodyless DELETE; the server rejects nonempty
+DocumentApiService sends the bodyless DELETE through WorkshopEditorService; the server rejects nonempty
 sections with 409 rather than cascading. Only confirmed single-record deletion
-removes the keyed section and its workshop cache through NavigationService.
+is reconciled by WorkshopEditorService through NavigationService, removing the keyed section and cache.
 Selected state belonging to that section is cleared; unrelated state is preserved.
 Pending requests block duplicate submissions and dialog dismissal; failures retain
 confirmation text and offer retry/cancel. See [011 handoff](../specs/011-delete-sections/handoff.md).
@@ -66,14 +68,18 @@ CreateSectionComponent uses a routed typed Material form for create/edit, fresh
 section reads, a multiline sectionDescription input, and pending/error signals.
 Catalog cards display sectionDescription; the legacy numeric summary is preserved
 in response state but not shown or submitted.
-WorkshopEditorService owns the POST. New sections use generic artwork and open an
+WorkshopEditorService coordinates the POST through DocumentApiService. New sections use generic artwork and open an
 empty workshop catalog. NavigationService caches workshop requests and selects the
-current workshop from that list. Its nominal five-minute TTL uses takeUntil + shareReplay; it does not
-remove completed HTTP cache entries. Mutations generally force a section refresh.
+current workshop from that list. Its five-minute timestamped TTL starts on the HTTP response. Concurrent readers
+share a request; expired entries refetch and failed entries are removed. Confirmed
+mutations merge authoritative responses and invalidate the affected cache. Stale reads
+cannot overwrite newer selection or confirmed mutations.
 
-Workshop detail parses document.html into editor blocks; formChanged serializes
-and posts a save, showing a success/failure snackbar. Each event starts a separate
-subscription; there is no revision, save queue or unsaved-navigation guard here.
+Workshop detail parses document.html only when resolved document data changes.
+Sidebar metadata/order changes preserve the block input identity. EditorStateService
+snapshots and queues formChanged payloads with concatMap, retains the latest failed
+revision for retry and emits notices. The queue survives route destruction but is
+in memory: browser reload/closure and cross-client revision conflicts remain open.
 The Published chip is static UI, not a publication state.
 
 Workshop creation includes a default page on the server. CreateWorkshopComponent
@@ -85,8 +91,8 @@ without discarding edits. Catalog create and workshop-card edit links replace th
 workshop dialogs. Thumbnail URLs outside Cloudinary image delivery are preserved,
 and absent thumbnails use a generic image icon.
 Dialogs still delete workshops and create/edit/delete pages; the editor supports
-PAGE/EXAM values without a distinct exam execution UI. Sort controls optimistically
-mutate input arrays and post ordering.
+PAGE/EXAM values without a distinct exam execution UI. Sort controls clone input arrays/records and commit confirmed response state.
+Labelled up/down buttons provide a keyboard equivalent to drag ordering.
 
 ## External boundaries
 
@@ -160,3 +166,42 @@ with the selected WorkshopDto; its confirmation/mutation/refresh behavior is
 unchanged. Sidebar controls now contain only workshop navigation and drag ordering.
 No endpoint, DTO, authorization, route or federation changes.
 See [010 handoff](../specs/010-workshop-card-actions/handoff.md).
+
+## MVVM structure — 2026-10-05
+
+Only DocumentApiService imports HttpClient. DocumentAssetsService is a stateless
+adapter to the shell's ASSET_DATA_SOURCE; shared asset UI handles gallery/upload.
+NavigationService, WorkshopEditorService and EditorStateService are root singleton
+state/command boundaries. Components never call the HTTP adapter directly.
+
+CreateSectionComponent/CreateWorkshopComponent are routed local view models with
+typed forms, loading/error/pending signals and cancellable load streams. SectionFormComponent
+and WorkshopFormComponent render input form/state and emit actions. SectionCardComponent,
+WorkshopCardComponent and DocumentEditorComponent are presentation-only. Catalogs,
+context header, detail, sidebars and dialogs orchestrate streams, routes and user actions.
+Smaller orchestrators render directly without requiring another presentation component.
+Pure document projection/ordering helpers live in src/app/view-models.
+
+All 22 components inline their HTML/SCSS and use BEM for application-owned classes;
+the largest file is 227 lines. Dialogs now use stable typed forms and one finite
+mutation pipeline, disable forms/dismissal while pending, and retain edits on error.
+Page create/edit/sort responses reconcile current workshop state without redundant
+refreshes. Confirmed deletions reconcile first; background section refresh never
+changes route selection. See [012 handoff](../specs/012-mvvm-refactor/handoff.md).
+
+## Route and source organization — 2026-10-05
+
+The document detail route definitions now live directly in `src/app/app.routes.ts`
+under the existing `:workshopId` parent. `workshop-detail.routing.ts` was removed;
+empty/document-ID children, resolver order, fallback and lazy component loading are
+preserved. The host still consumes the same named `Routes` federation export.
+
+Workshop-page components are grouped by feature under
+`src/app/components/workshops-pages/sections`, `workshops` and `documents`.
+Section/workshop folders contain their catalog, authoring and presentation components;
+`documents` contains the detail orchestrator and editor presentation.
+
+Specs live in repository-root `testing/app`, mirroring the application folder tree.
+Karma explicitly discovers `../testing/**/*.spec.ts` relative to `src`, and the
+spec TypeScript config includes the testing tree. Production source contains no specs.
+See [test layout and commands](../testing/README.md).

@@ -1,6 +1,6 @@
 # Constitution — Document editor remote
 
-Version: 1.1.0 · Last amended: 2026-10-01
+Version: 1.2.0 · Last amended: 2026-10-05
 Original ratification date is unknown; the previous 1.0.0 record was amended 2026-01-12.
 
 This amendment preserves the five original principles and expands them with
@@ -13,7 +13,9 @@ changes, not evidence that inherited code already meets every requirement.
 Keep strict TypeScript and Angular template checking. Prefer standalone components,
 Angular control flow, typed reactive forms, signals and RxJS as appropriate to the
 existing zoneless Angular application. Avoid new any types and unnecessary state
-frameworks. Keep orchestration, presentation and HTTP responsibilities explicit.
+frameworks. Follow MVVM: stateless HTTP services, singleton domain state/command orchestration,
+route/dialog view models and focused presentational components. Components consume
+observable streams/signals; data access owns no singleton selection or editor state.
 
 ## 2. Testing
 
@@ -37,9 +39,9 @@ need an accessible equivalent where drag-and-drop alone is insufficient.
 
 ## 5. Simple, idiomatic design
 
-Prefer small focused components and existing patterns. Inline templates/styles
-are the default unless size harms readability; retain external templates where
-appropriate. Avoid unrelated refactors in feature work.
+Prefer small focused components and existing patterns. Keep HTML and SCSS inline in the component TypeScript file. Aim for approximately
+230 lines per component, splitting at meaningful view/orchestration boundaries rather
+than hiding code. Use BEM for application-owned SCSS classes. Avoid unrelated refactors in feature work.
 
 ## 6. Document integration boundaries
 
@@ -59,3 +61,9 @@ behavior changes. Include a Constitution Check in each spec/plan/tasks set. Chec
 correctness, tests, UX and accessibility, and document contract migration plans.
 Record existing gaps separately. Amend principles intentionally with rationale,
 version/date changes and dependent-template review; use a PR when submitting.
+
+## 1.2.0 amendment
+The user's 2026-10-05 repository refactor request makes inline component HTML/SCSS,
+BEM and MVVM layering durable rules. The line count remains a design target rather
+than a hard gate. The 012 spec/plan/tasks and architecture/development context were
+reviewed against these rules; generic feature templates remain applicable.

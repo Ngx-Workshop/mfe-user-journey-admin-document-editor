@@ -1,26 +1,8 @@
-import { environment } from '../../environments/environment';
-import { HttpClient } from '@angular/common/http';
-import { Injectable, inject } from '@angular/core';
-import {
-  SectionDto,
-  SectionsMapDto,
-  WorkshopDto,
-  WorkshopPageDto,
-} from '@tmdjr/document-contracts';
-import {
-  BehaviorSubject,
-  MonoTypeOperatorFunction,
-  Observable,
-  of,
-  timer,
-} from 'rxjs';
-import {
-  map,
-  shareReplay,
-  switchMap,
-  takeUntil,
-  tap,
-} from 'rxjs/operators';
+import { inject, Injectable } from '@angular/core';
+import { SectionDto, SectionsMapDto, WorkshopDto } from '@tmdjr/document-contracts';
+import { BehaviorSubject, defer, Observable, of } from 'rxjs';
+import { map, shareReplay, switchMap, tap } from 'rxjs/operators';
+import { DocumentApiService } from './document-api.service';
 
 const staticPages: Map<string, Partial<WorkshopDto>> = new Map([
   ['Angular', { name: 'Angular' }],
@@ -28,68 +10,49 @@ const staticPages: Map<string, Partial<WorkshopDto>> = new Map([
   ['RxJS', { name: 'RxJS' }],
 ]);
 
-function shareReplayWithTTL<T>(
-  bufferSize: number,
-  ttl: number
-): MonoTypeOperatorFunction<T> {
-  return (source: Observable<T>) => {
-    const stop$ = timer(ttl);
-    const shared$ = source.pipe(
-      takeUntil(stop$),
-      shareReplay(bufferSize)
-    );
-    return shared$;
-  };
-}
-
 @Injectable({
   providedIn: 'root',
 })
 export class NavigationService {
-  private readonly baseUrl = environment.documentsApiBaseUrl;
   private sections$ = new BehaviorSubject<SectionsMapDto>({
     sections: {},
   });
-  private currentSection$ = new BehaviorSubject<
-    SectionDto | undefined
-  >(undefined);
+  private currentSection$ = new BehaviorSubject<SectionDto | undefined>(undefined);
   private workshops$ = new BehaviorSubject<WorkshopDto[]>([]);
-  private currentWorkshop$ = new BehaviorSubject<
-    Partial<WorkshopDto> | undefined
-  >(undefined);
+  private currentWorkshop$ = new BehaviorSubject<Partial<WorkshopDto> | undefined>(undefined);
 
-  private sectionWorkshopsCache: {
-    [sectionId: string]: Observable<WorkshopDto[]>;
-  } = {};
-
-  private cacheTTL = 5 * 60 * 1000;
-
-  private http: HttpClient = inject(HttpClient);
+  private readonly sectionWorkshopsCache = new Map<
+    string,
+    {
+      expiresAt: number;
+      stream: Observable<WorkshopDto[]>;
+    }
+  >();
+  private selectionRevision = 0;
+  private readonly cacheTTL = 5 * 60 * 1000;
+  private readonly api = inject(DocumentApiService);
 
   fetchSections() {
-    return this.http
-      .get<SectionsMapDto>(`${this.baseUrl}/navigation/sections`)
-      .pipe(
-        tap((sections) => {
-          this.sections$.next(sections);
-        })
-      );
-  }
-
-  getSections() {
-    return this.sections$.pipe(
-      map(({ sections }) => Object.values(sections))
+    return this.api.fetchSections().pipe(
+      tap((sections) => {
+        this.sections$.next(sections);
+      })
     );
   }
 
+  getSections() {
+    return this.sections$.pipe(map(({ sections }) => Object.values(sections)));
+  }
+
   addWorkshop(workshop: WorkshopDto): void {
-    delete this.sectionWorkshopsCache[workshop.sectionId];
+    this.sectionWorkshopsCache.delete(workshop.sectionId);
     if (this.currentSection$.value?._id === workshop.sectionId) {
+      this.selectionRevision++;
       const workshops = this.workshops$.value;
       const exists = workshops.some((item) => item._id === workshop._id);
       this.workshops$.next(
         exists
-          ? workshops.map((item) => item._id === workshop._id ? workshop : item)
+          ? workshops.map((item) => (item._id === workshop._id ? workshop : item))
           : [...workshops, workshop]
       );
     }
@@ -114,7 +77,7 @@ export class NavigationService {
     const sections = { ...this.sections$.value.sections };
     delete sections[id];
     this.sections$.next({ sections });
-    delete this.sectionWorkshopsCache[id];
+    this.sectionWorkshopsCache.delete(id);
     if (this.currentSection$.value?._id === id) {
       this.currentSection$.next(undefined);
       this.workshops$.next([]);
@@ -125,26 +88,83 @@ export class NavigationService {
   }
 
   navigateToSection(sectionId: string, force = false) {
-    return of(sectionId).pipe(
-      tap((id) => {
-        this.currentSection$.next(
-          this.sections$.getValue().sections[id]
-        );
-      }),
-      switchMap((id) => this.fetchSectionWorkshops(id, force)),
-      tap((workshops) => this.workshops$.next(workshops))
-    );
+    return defer(() => {
+      const revision = ++this.selectionRevision;
+      if (this.currentSection$.value?._id !== sectionId) {
+        this.currentWorkshop$.next(undefined);
+        this.workshops$.next([]);
+      }
+      this.currentSection$.next(this.sections$.value.sections[sectionId]);
+      return this.fetchSectionWorkshops(sectionId, force).pipe(
+        tap((workshops) => {
+          if (revision === this.selectionRevision) this.publishWorkshops(sectionId, workshops);
+        })
+      );
+    });
+  }
+
+  /** Refresh data without changing the user's current route selection. */
+  refreshSection(sectionId: string) {
+    return defer(() => {
+      const revision = this.selectionRevision;
+      return this.fetchSectionWorkshops(sectionId, true).pipe(
+        tap((workshops) => {
+          if (revision === this.selectionRevision) this.publishWorkshops(sectionId, workshops);
+        })
+      );
+    });
+  }
+
+  private publishWorkshops(sectionId: string, workshops: WorkshopDto[]): void {
+    if (this.currentSection$.value?._id !== sectionId) return;
+    this.workshops$.next(workshops);
+    const selected = this.currentWorkshop$.value;
+    if (selected?.sectionId === sectionId) {
+      this.currentWorkshop$.next(workshops.find((item) => item._id === selected._id));
+    }
+  }
+
+  removeWorkshop(id: string, sectionId: string): void {
+    this.sectionWorkshopsCache.delete(sectionId);
+    if (this.currentSection$.value?._id === sectionId) {
+      this.selectionRevision++;
+      this.workshops$.next(this.workshops$.value.filter((item) => item._id !== id));
+    }
+    if (this.currentWorkshop$.value?._id === id) this.currentWorkshop$.next(undefined);
+  }
+
+  removePage(workshop: Partial<WorkshopDto>, pageId: string): void {
+    if (!workshop._id || !workshop.sectionId) return;
+    const current = this.workshops$.value.find((item) => item._id === workshop._id);
+    if (current)
+      this.addWorkshop({
+        ...current,
+        workshopDocuments: current.workshopDocuments.filter((page) => page._id !== pageId),
+      });
+    else this.sectionWorkshopsCache.delete(workshop.sectionId);
   }
 
   private fetchSectionWorkshops(sectionId: string, force = false) {
-    if (force || !this.sectionWorkshopsCache[sectionId]) {
-      this.sectionWorkshopsCache[sectionId] = this.http
-        .get<WorkshopDto[]>(`${this.baseUrl}/navigation/workshops`, {
-          params: { section: sectionId },
-        })
-        .pipe(shareReplayWithTTL(1, this.cacheTTL));
-    }
-    return this.sectionWorkshopsCache[sectionId];
+    return defer(() => {
+      const cached = this.sectionWorkshopsCache.get(sectionId);
+      if (!force && cached && cached.expiresAt > Date.now()) return cached.stream;
+      const entry = {
+        expiresAt: Number.POSITIVE_INFINITY,
+        stream: this.api.fetchSectionWorkshops(sectionId).pipe(
+          tap({
+            next: () => (entry.expiresAt = Date.now() + this.cacheTTL),
+            error: () => {
+              if (this.sectionWorkshopsCache.get(sectionId) === entry) {
+                this.sectionWorkshopsCache.delete(sectionId);
+              }
+            },
+          }),
+          shareReplay({ bufferSize: 1, refCount: false })
+        ),
+      };
+      this.sectionWorkshopsCache.set(sectionId, entry);
+      return entry.stream;
+    });
   }
 
   navigateToWorkshop(workshopDocumentId: string) {
@@ -152,11 +172,7 @@ export class NavigationService {
       tap((id) => {
         this.currentWorkshop$.next(
           staticPages.get(id) ??
-            this.workshops$
-              .getValue()
-              .find(
-                (workshop) => workshop.workshopDocumentGroupId === id
-              )
+            this.workshops$.getValue().find((workshop) => workshop.workshopDocumentGroupId === id)
         );
       }),
       map(() => this.currentWorkshop$.getValue())
@@ -164,9 +180,7 @@ export class NavigationService {
   }
 
   navigateToDocument(workshopDocumentId: string) {
-    return this.http.get<WorkshopPageDto>(
-      `${this.baseUrl}/workshop/${workshopDocumentId}`
-    );
+    return this.api.getDocument(workshopDocumentId);
   }
 
   getCurrentSection() {

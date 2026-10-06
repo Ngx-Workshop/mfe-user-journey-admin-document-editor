@@ -1,204 +1,143 @@
-import { environment } from '../../environments/environment';
-import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { FormGroup } from '@angular/forms';
 import {
-  SectionDto,
   CreateSectionDto,
-  UpdateSectionDto,
   CreateWorkshopPageDto,
   DeletePageParamsDto,
-  DeleteResultDto,
   EditPageNameUpdateWorkshopDto,
+  SectionDto,
+  UpdateSectionDto,
   UpdateWorkshopDto,
-  WorkshopDto,
-  WorkshopPageDto,
   WorkshopPageIdentifierDto,
 } from '@tmdjr/document-contracts';
-import { Subject } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { KeyValue } from '../interfaces/common.interface';
+import { catchError, map, of, switchMap, take, tap } from 'rxjs';
+import { DocumentApiService } from './document-api.service';
+import { NavigationService } from './navigation.service';
 
-export interface CloudinaryUploadResponse {
-  asset_id: string;
-  public_id: string;
-  version: number;
-  version_id: string;
-  signature: string;
-  width: number;
-  height: number;
-  format: string;
-  resource_type: string;
-  created_at: string;
-  tags: string[];
-  pages: number;
-  bytes: number;
-  type: string;
-  etag: string;
-  placeholder: boolean;
-  url: string;
-  secure_url: string;
-  folder: string;
-  original_filename: string;
-  api_key: string;
-}
+export type { Result } from './document-api.service';
 
-export interface Result<T> {
-  success?: T;
-  error?: number;
-}
-
-@Injectable({
-  providedIn: 'root',
-})
+/** Singleton command/state boundary. HTTP services never own selection or editor state. */
+@Injectable({ providedIn: 'root' })
 export class WorkshopEditorService {
-  private readonly baseUrl = environment.documentsApiBaseUrl;
-  private httpClient = inject(HttpClient);
-
-  saveEditorDataSubject = new Subject<unknown>();
-  saveEditorData$ = this.saveEditorDataSubject.asObservable();
-  savePageHTML(html: string, _id: string) {
-    return this.apiCall<WorkshopPageDto>(
-      '/workshop/update-workshop-html',
-      { _id, html }
-    );
-  }
-
-  private apiCall<T>(
-    url: string,
-    body: unknown,
-    method: 'post' | 'get' = 'post',
-    params?: HttpParams
-  ) {
-    const request = this.httpClient.request<T>(
-      method,
-      this.baseUrl + url,
-      {
-        body,
-        params,
-      }
-    );
-
-    return request.pipe(
-      map((data: T) => ({ success: data }) as Result<T>)
-    );
-  }
-
-  createSection(
-    section: CreateSectionDto & Pick<
-      SectionDto,
-      'menuSvgPath' | 'headerSvgPath'
-    >
-  ) {
-    return this.httpClient.post<SectionDto>(
-      `${this.baseUrl}/navigation/section/create-section`,
-      section
-    );
-  }
+  private readonly api = inject(DocumentApiService);
+  private readonly navigation = inject(NavigationService);
 
   getSection(id: string) {
-    return this.httpClient.get<SectionDto>(
-      `${this.baseUrl}/navigation/section/${encodeURIComponent(id)}`
-    );
+    return this.api.getSection(id);
+  }
+
+  createSection(section: CreateSectionDto & Pick<SectionDto, 'menuSvgPath' | 'headerSvgPath'>) {
+    return this.api.createSection(section).pipe(tap((value) => this.navigation.addSection(value)));
   }
 
   updateSection(id: string, section: UpdateSectionDto) {
-    return this.httpClient.patch<SectionDto>(
-      `${this.baseUrl}/navigation/section/${encodeURIComponent(id)}`,
-      section
-    );
+    return this.api
+      .updateSection(id, section)
+      .pipe(tap((value) => this.navigation.addSection(value)));
   }
 
   deleteSection(id: string) {
-    return this.httpClient.delete<DeleteResultDto>(
-      `${this.baseUrl}/navigation/section/${encodeURIComponent(id)}`
+    return this.api.deleteSection(id).pipe(
+      tap((result) => {
+        if (result?.acknowledged === true && result.deletedCount === 1) {
+          this.navigation.removeSection(id);
+        }
+      })
     );
   }
 
   createWorkshop(workshop: UpdateWorkshopDto) {
-    return this.apiCall<WorkshopDto>(
-      '/navigation/workshop/create-workshop',
-      workshop
+    return this.api.createWorkshop(workshop).pipe(
+      tap(({ success }) => {
+        if (success) this.navigation.addWorkshop(success);
+      })
     );
   }
 
   editWorkshopNameAndSummary(workshop: UpdateWorkshopDto) {
-    return this.apiCall<WorkshopDto>(
-      '/navigation/workshop/edit-workshop-name-and-summary',
-      workshop
+    return this.api.editWorkshopNameAndSummary(workshop).pipe(
+      tap(({ success }) => {
+        if (success) this.navigation.addWorkshop(success);
+      })
     );
   }
 
-  deleteWorkshop(_id: string) {
-    return this.apiCall<{ id: string }>(
-      '/navigation/workshop/delete-workshop-and-workshop-documents',
-      { _id }
+  deleteWorkshop(id: string) {
+    return this.navigation.getCurrentSection().pipe(
+      take(1),
+      switchMap((section) =>
+        this.api.deleteWorkshop(id).pipe(
+          tap(({ success }) => {
+            if (success?.acknowledged !== true || success.deletedCount !== 1) {
+              throw new Error('The server did not confirm workshop deletion.');
+            }
+            if (section) this.navigation.removeWorkshop(id, section._id);
+          }),
+          switchMap((result) =>
+            section
+              ? this.navigation.refreshSection(section._id).pipe(
+                  map(() => result),
+                  // Confirmed deletion has already been reconciled. Do not invite a duplicate mutation.
+                  catchError(() => of(result))
+                )
+              : of(result)
+          )
+        )
+      )
     );
   }
 
-  sortWorkshops(workshop: UpdateWorkshopDto[]) {
-    return this.apiCall<WorkshopDto[]>(
-      '/navigation/workshop/sort-workshops',
-      workshop
+  sortWorkshops(workshops: UpdateWorkshopDto[]) {
+    return this.api.sortWorkshops(workshops).pipe(
+      tap(({ success }) => {
+        if (!success) throw new Error('The server did not confirm workshop order.');
+        success.forEach((workshop) => this.navigation.addWorkshop(workshop));
+      })
     );
   }
 
   createPage(page: CreateWorkshopPageDto) {
-    return this.apiCall<WorkshopDto>(
-      '/navigation/page/create-page',
-      page
+    return this.api.createPage(page).pipe(
+      tap(({ success }) => {
+        if (!success) throw new Error('The server did not confirm page creation.');
+        this.navigation.addWorkshop(success);
+      })
     );
   }
 
   deletePage(page: DeletePageParamsDto) {
-    return this.apiCall<DeleteResultDto>(
-      '/navigation/page/delete-page-and-update-workshop',
-      page
+    return this.navigation.getCurrentWorkshop().pipe(
+      take(1),
+      switchMap((workshop) =>
+        this.api.deletePage(page).pipe(
+          tap(({ success }) => {
+            if (success?.acknowledged !== true || success.deletedCount !== 1) {
+              throw new Error('The server did not confirm page deletion.');
+            }
+            if (workshop) this.navigation.removePage(workshop, page._id);
+          })
+        )
+      )
     );
   }
 
   editPageName(page: EditPageNameUpdateWorkshopDto) {
-    return this.apiCall<WorkshopDto>(
-      '/navigation/page/edit-page-name-update-workshop',
-      page
+    return this.api.editPageName(page).pipe(
+      tap(({ success }) => {
+        if (!success) throw new Error('The server did not confirm page update.');
+        this.navigation.addWorkshop(success);
+      })
     );
   }
 
-  sortDocuments(
-    pages: WorkshopPageIdentifierDto[],
-    workshopId: string
-  ) {
-    const params = new HttpParams().set('workshopId', workshopId);
-    return this.apiCall<WorkshopDto[]>(
-      '/navigation/page/sort-pages',
-      pages,
-      'post',
-      params
+  sortDocuments(pages: WorkshopPageIdentifierDto[], workshopId: string) {
+    return this.api.sortDocuments(pages, workshopId).pipe(
+      tap(({ success }) => {
+        if (!success) throw new Error('The server did not confirm page order.');
+        this.navigation.addWorkshop(success);
+      })
     );
   }
-
-  uploadImage(formData: FormData) {
-    return this.apiCall<CloudinaryUploadResponse>(
-      '/uploader/image-upload',
-      formData,
-      'post'
-    );
-  }
-
-  ifErrorsSetMessages(
-    formGroup: FormGroup,
-    formControlMessages: KeyValue,
-    errorMessages: KeyValue
-  ): boolean {
-    let errorMessage = false;
-    Object.keys(formGroup.controls).forEach((element) => {
-      const errors = formGroup.get(element)?.errors;
-      if (errors) {
-        errorMessage = true;
-        formControlMessages[element] =
-          errorMessages[Object.keys(errors)[0]];
-      }
-    });
-    return errorMessage;
+  savePageHTML(html: string, id: string) {
+    return this.api.savePageHTML(html, id);
   }
 }

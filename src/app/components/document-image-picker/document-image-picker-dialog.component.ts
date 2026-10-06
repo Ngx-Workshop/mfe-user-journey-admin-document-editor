@@ -20,7 +20,7 @@ import {
   imports: [MatButtonModule, MatDialogModule, AssetManagerComponent],
   template: `
     <h2 mat-dialog-title>Choose a document image</h2>
-    <mat-dialog-content>
+    <mat-dialog-content class="image-picker__content">
       @if (loading()) {
         <p role="status">Loading document images…</p>
       } @else if (folder(); as folder) {
@@ -39,7 +39,7 @@ import {
         />
       }
       @if (error()) {
-        <p role="alert">{{ error() }}</p>
+        <p class="image-picker__error" role="alert">{{ error() }}</p>
         @if (!folder() && !loading()) {
           <button matButton type="button" (click)="loadFolder()">Retry loading images</button>
         }
@@ -49,10 +49,16 @@ import {
       <button matButton type="button" [mat-dialog-close]="undefined">Cancel</button>
     </mat-dialog-actions>
   `,
-  styles: [`
-    mat-dialog-content { min-height: 120px; }
-    [role='alert'] { color: var(--mat-sys-error); }
-  `],
+  styles: [
+    `
+      .image-picker__content {
+        min-height: 120px;
+      }
+      .image-picker__error {
+        color: var(--mat-sys-error);
+      }
+    `,
+  ],
 })
 export class DocumentImagePickerDialogComponent {
   private readonly assets = inject(DocumentAssetsService);
@@ -70,23 +76,29 @@ export class DocumentImagePickerDialogComponent {
     if (this.loading()) return;
     this.loading.set(true);
     this.error.set('');
-    this.assets.findDocumentsFolder().pipe(
-      takeUntilDestroyed(this.destroyRef),
-      finalize(() => this.loading.set(false))
-    ).subscribe({
-      next: (folder) => this.folder.set(folder),
-      error: (error: unknown) => this.error.set(
-        error instanceof DocumentsAssetFolderNotFoundError
-          ? error.message
-          : assetErrorMessage(error)
-      ),
-    });
+    this.assets
+      .findDocumentsFolder()
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.loading.set(false))
+      )
+      .subscribe({
+        next: (folder) => this.folder.set(folder),
+        error: (error: unknown) =>
+          this.error.set(
+            error instanceof DocumentsAssetFolderNotFoundError
+              ? error.message
+              : assetErrorMessage(error)
+          ),
+      });
   }
 
   selectImage(asset: Asset): void {
     const url = assetPreviewUrl(asset);
     if (!url) {
-      this.error.set('This image has no usable URL. Select another image or cancel to enter an image URL manually.');
+      this.error.set(
+        'This image has no usable URL. Select another image or cancel to enter an image URL manually.'
+      );
       return;
     }
     this.dialogRef.close(url);

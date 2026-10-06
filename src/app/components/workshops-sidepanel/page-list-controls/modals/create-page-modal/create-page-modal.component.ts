@@ -1,144 +1,117 @@
-import { CommonModule } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-} from '@angular/core';
-import {
-  FormBuilder,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import {
-  MatDialogModule,
-  MatDialogRef,
-} from '@angular/material/dialog';
+import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatRadioModule as MatRatioModule } from '@angular/material/radio';
-import {
-  BehaviorSubject,
-  combineLatest,
-  filter,
-  map,
-  mergeMap,
-  switchMap,
-  take,
-  takeUntil,
-  tap,
-} from 'rxjs';
-
-import { CreateWorkshopPageDto } from '@tmdjr/document-contracts';
-import { KeyValue } from '../../../../../interfaces/common.interface';
+import { MatRadioModule } from '@angular/material/radio';
+import { finalize, take } from 'rxjs';
 import { NavigationService } from '../../../../../services/navigation.service';
 import { WorkshopEditorService } from '../../../../../services/workshops.service';
 
-interface PageType {
-  value: string;
-  viewValue: string;
-}
 @Component({
   selector: 'ngx-create-page-modal',
-  templateUrl: './create-page-modal.component.html',
-  styleUrls: ['./create-page-modal.component.scss'],
   imports: [
-    CommonModule,
-    MatFormFieldModule,
-    MatDialogModule,
     ReactiveFormsModule,
     MatButtonModule,
+    MatDialogModule,
+    MatFormFieldModule,
     MatInputModule,
-    MatRatioModule,
+    MatRadioModule,
   ],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <h2 mat-dialog-title>Create a New Page?</h2>
+    <form [formGroup]="form" (ngSubmit)="create()" [attr.aria-busy]="pending()">
+      <mat-dialog-content>
+        <mat-form-field class="page-dialog__field">
+          <mat-label>Name</mat-label>
+          <input matInput formControlName="name" />
+          <mat-error>Enter a page name.</mat-error>
+        </mat-form-field>
+        <mat-radio-group
+          class="page-dialog__types"
+          formControlName="pageType"
+          aria-label="Page type"
+        >
+          <mat-radio-button value="PAGE">Workshop Page</mat-radio-button>
+          <mat-radio-button value="EXAM">Workshop Exam</mat-radio-button>
+        </mat-radio-group>
+        @if (error()) {
+          <p class="page-dialog__error" role="alert">{{ error() }}</p>
+        }
+      </mat-dialog-content>
+      <mat-dialog-actions align="end">
+        <button matButton type="button" mat-dialog-close [disabled]="pending()">Cancel</button>
+        <button
+          matButton="filled"
+          type="submit"
+          [disabled]="form.invalid || pending() || !workshopId"
+        >
+          {{ pending() ? 'Creating…' : 'Create' }}
+        </button>
+      </mat-dialog-actions>
+    </form>
+  `,
+  styles: [
+    `
+      .page-dialog__field {
+        width: 100%;
+      }
+      .page-dialog__types {
+        display: flex;
+        gap: 21px;
+        padding: 14px 0;
+      }
+      .page-dialog__error {
+        color: var(--mat-sys-error);
+      }
+    `,
+  ],
 })
 export class CreatePageModalComponent {
-  private workshopEditorService = inject(WorkshopEditorService);
-  private navigationService = inject(NavigationService);
-  private dialogRef = inject(MatDialogRef<CreatePageModalComponent>);
-  private formBuilder = inject(FormBuilder);
-
-  pageTypes: PageType[] = [
-    { value: 'PAGE', viewValue: 'Workshop Page' },
-    { value: 'EXAM', viewValue: 'Workshop Exam' },
-  ];
-
-  createPageFormLevelMessage$ = new BehaviorSubject<
-    string | undefined
-  >(undefined);
-  errorMessages: KeyValue = {
-    required: 'Required',
-  };
-
-  createPageControlsErrorMessages: KeyValue = {
-    name: '',
-  };
-
-  loading$ = new BehaviorSubject<boolean>(false);
-  formGroup$ = this.navigationService.getCurrentWorkshop().pipe(
-    filter(
-      (workshop): workshop is NonNullable<typeof workshop> =>
-        !!workshop
-    ),
-    map((workshop) =>
-      this.formBuilder.nonNullable.group({
-        workshopId: workshop._id,
-        sortId: workshop.workshopDocuments?.length,
-        name: ['', Validators.required],
-        pageType: ['PAGE', Validators.required],
-      })
-    )
-  );
-
-  viewModel$ = combineLatest({
-    formGroup: this.formGroup$.pipe(
-      tap((formGroup) => {
-        formGroup.statusChanges
-          .pipe(takeUntil(this.dialogRef.afterClosed()))
-          .subscribe(() => {
-            this.workshopEditorService.ifErrorsSetMessages(
-              formGroup,
-              this.createPageControlsErrorMessages,
-              this.errorMessages
-            );
-          });
-      })
-    ),
-    loading: this.loading$.pipe(
-      tap((loading) => (this.dialogRef.disableClose = loading))
-    ),
-    createPageFormLevelMessage: this.createPageFormLevelMessage$,
+  private readonly editor = inject(WorkshopEditorService);
+  private readonly dialog = inject(MatDialogRef<CreatePageModalComponent>);
+  private readonly destroyRef = inject(DestroyRef);
+  readonly pending = signal(false);
+  readonly error = signal('');
+  protected workshopId = '';
+  private sortId = 0;
+  readonly form = inject(FormBuilder).nonNullable.group({
+    name: ['', [Validators.required, Validators.pattern(/\S/)]],
+    pageType: ['PAGE' as 'PAGE' | 'EXAM', Validators.required],
   });
 
-  onCreatePage(formGroupValue: unknown) {
-    this.workshopEditorService
-      .createPage(formGroupValue as CreateWorkshopPageDto)
+  constructor() {
+    inject(NavigationService)
+      .getCurrentWorkshop()
+      .pipe(take(1))
+      .subscribe((workshop) => {
+        this.workshopId = workshop?._id ?? '';
+        this.sortId = workshop?.workshopDocuments?.length ?? 0;
+        if (!this.workshopId) this.error.set('Select a workshop before creating a page.');
+      });
+  }
+
+  create(): void {
+    if (this.pending() || this.form.invalid || !this.workshopId) return;
+    this.pending.set(true);
+    this.dialog.disableClose = true;
+    this.form.disable();
+    this.error.set('');
+    this.editor
+      .createPage({ ...this.form.getRawValue(), workshopId: this.workshopId, sortId: this.sortId })
       .pipe(
-        tap(() => this.loading$.next(true)),
-        mergeMap(() =>
-          this.navigationService.getCurrentWorkshop().pipe(take(1))
-        )
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => {
+          this.pending.set(false);
+          this.dialog.disableClose = false;
+          this.form.enable();
+        })
       )
       .subscribe({
-        next: (workshop) => {
-          this.navigationService
-            .navigateToSection(workshop?.sectionId ?? '', true)
-            .pipe(
-              take(1),
-              switchMap(() =>
-                this.navigationService.navigateToWorkshop(
-                  workshop?.workshopDocumentGroupId ?? ''
-                )
-              ),
-              tap(() => this.dialogRef.close())
-            )
-            .subscribe();
-        },
-        error: () =>
-          this.createPageFormLevelMessage$.next(
-            this.errorMessages['httpFailure']
-          ),
+        next: () => this.dialog.close(),
+        error: () => this.error.set('Could not create the page. Please try again.'),
       });
   }
 }

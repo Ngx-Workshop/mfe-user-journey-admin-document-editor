@@ -36,3 +36,13 @@ creation and dynamic ID-based catalog links, resolving the static catalog portio
 of UI-02/API-03. Section-list Swagger shape is corrected and contracts regenerated,
 including the missing-model build repair. Existing workshop slug and unrelated
 validation/CRUD findings remain open. Live integration acceptance is still pending.
+
+## MVVM refactor update — 2026-10-05
+
+[012 MVVM refactor](../specs/012-mvvm-refactor/handoff.md) addresses UI-04 (cache TTL),
+UI-05 save ordering/JSON failure containment, UI-06 pending/error recovery, UI-07
+immutable ordering/selected-workshop synchronization, UI-08 response typing and
+UI-10 keyboard page actions/ordering and responsive sidebars. It removes the unused
+legacy upload call. Browser closure/conflicts and UI-03 default/zero-page and active
+page deletion routing remain separate concerns. Static publication/exam behavior
+and shell-owned federation warnings are unchanged.

@@ -2,6 +2,7 @@ import { inject } from '@angular/core';
 import { Route } from '@angular/router';
 import { userAuthenticatedGuard } from '@tmdjr/ngx-user-metadata';
 
+import { documentResolver } from './resolvers/document.resolver';
 import { sectionResolver } from './resolvers/section.resolver';
 import { workshopResolver } from './resolvers/workshop.resolver';
 import { NavigationService } from './services/navigation.service';
@@ -18,53 +19,47 @@ export const Routes: Route[] = [
         path: '',
         pathMatch: 'full',
         loadComponent: () =>
-          import(
-            './components/workshops-pages/section-list.component'
-          ).then((m) => m.SectionListComponent),
+          import('./components/workshops-pages/sections/section-list.component').then(
+            (m) => m.SectionListComponent
+          ),
       },
       {
         path: 'create-section',
-        canDeactivate: [
-          (component: { saving: () => boolean }) => !component.saving(),
-        ],
+        canDeactivate: [(component: { saving: () => boolean }) => !component.saving()],
         loadComponent: () =>
-          import('./components/workshops-pages/create-section.component')
-            .then((m) => m.CreateSectionComponent),
+          import('./components/workshops-pages/sections/create-section.component').then(
+            (m) => m.CreateSectionComponent
+          ),
       },
       {
         path: 'edit-section/:sectionId',
-        canDeactivate: [
-          (component: { saving: () => boolean }) => !component.saving(),
-        ],
+        canDeactivate: [(component: { saving: () => boolean }) => !component.saving()],
         loadComponent: () =>
-          import('./components/workshops-pages/create-section.component')
-            .then((m) => m.CreateSectionComponent),
+          import('./components/workshops-pages/sections/create-section.component').then(
+            (m) => m.CreateSectionComponent
+          ),
       },
       {
         path: ':section/create-workshop',
-        canDeactivate: [
-          (component: { saving: () => boolean }) => !component.saving(),
-        ],
+        canDeactivate: [(component: { saving: () => boolean }) => !component.saving()],
         loadComponent: () =>
-          import('./components/workshops-pages/create-workshop.component')
-            .then((m) => m.CreateWorkshopComponent),
+          import('./components/workshops-pages/workshops/create-workshop.component').then(
+            (m) => m.CreateWorkshopComponent
+          ),
       },
       {
         path: ':section/edit-workshop/:workshopId',
-        canDeactivate: [
-          (component: { saving: () => boolean }) => !component.saving(),
-        ],
+        canDeactivate: [(component: { saving: () => boolean }) => !component.saving()],
         loadComponent: () =>
-          import('./components/workshops-pages/create-workshop.component')
-            .then((m) => m.CreateWorkshopComponent),
+          import('./components/workshops-pages/workshops/create-workshop.component').then(
+            (m) => m.CreateWorkshopComponent
+          ),
       },
       {
         path: ':section',
         resolve: { sectionResolver },
         loadComponent: () =>
-          import('./components/workshops.component').then(
-            (m) => m.WorkshopsComponent
-          ),
+          import('./components/workshops.component').then((m) => m.WorkshopsComponent),
         children: [
           {
             path: '',
@@ -76,17 +71,34 @@ export const Routes: Route[] = [
             data: { alwaysRefresh: true },
             resolve: { workshopResolver },
             loadComponent: () =>
-              import(
-                './components/workshops-pages/workshop-list.component'
-              ).then((m) => m.WorkshopListComponent),
+              import('./components/workshops-pages/workshops/workshop-list.component').then(
+                (m) => m.WorkshopListComponent
+              ),
           },
           {
             path: ':workshopId',
             resolve: { workshopResolver },
-            loadChildren: () =>
-              import(
-                './components/workshops-pages/workshop-detail.routing'
-              ).then((m) => m.WORKSHOPS_DETAIL_ROUTES),
+            children: [
+              {
+                path: '',
+                data: { alwaysRefresh: true },
+                resolve: { documentResolver },
+                loadComponent: () =>
+                  import('./components/workshops-pages/documents/workshop-detail.component').then(
+                    (m) => m.WorkshopDetailComponent
+                  ),
+              },
+              {
+                path: ':documentId',
+                data: { alwaysRefresh: true },
+                resolve: { documentResolver },
+                loadComponent: () =>
+                  import('./components/workshops-pages/documents/workshop-detail.component').then(
+                    (m) => m.WorkshopDetailComponent
+                  ),
+              },
+              { path: '**', redirectTo: '/404' },
+            ],
           },
         ],
       },

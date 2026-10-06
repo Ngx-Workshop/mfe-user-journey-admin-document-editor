@@ -75,7 +75,7 @@ and host-mounted acceptance scenarios. Cover catalog/deep links, CRUD, sorting,
 block round-trip, request failure/retry, permission denial, keyboard/focus and narrow
 viewports where affected. Use HTTP test doubles for local failures and report their
 limits. Section creation now has six browser component/HTTP checks in
-src/app/components/workshops-pages/section-creation.spec.ts; unrelated journeys
+testing/app/components/workshops-pages/sections/section-creation.spec.ts; unrelated journeys
 still need coverage. There is no package lint script.
 
 ## Migration checks — 2026-10-01
@@ -168,9 +168,9 @@ and environment regressions):
 
 ```bash
 npm test -- --watch=false --browsers=ChromeHeadless \
-  --include='src/app/components/workshops-pages/workshop-authoring.spec.ts' \
-  --include='src/app/components/workshops-pages/section-creation.spec.ts' \
-  --include='src/app/services/document-api-environment.spec.ts'
+  --include='../testing/app/components/workshops-pages/workshops/workshop-authoring.spec.ts' \
+  --include='../testing/app/components/workshops-pages/sections/section-creation.spec.ts' \
+  --include='../testing/app/services/document-api-environment.spec.ts'
 ```
 
 PASS: production compilation using `npm run build -- --output-path
@@ -196,10 +196,10 @@ PASS: 57 focused ChromeHeadless tests:
 
 ```bash
 npm test -- --watch=false --browsers=ChromeHeadless \
-  --include='src/app/components/document-image-picker/document-image-picker.spec.ts' \
-  --include='src/app/components/workshops-pages/section-creation.spec.ts' \
-  --include='src/app/components/workshops-pages/workshop-authoring.spec.ts' \
-  --include='src/app/services/document-api-environment.spec.ts'
+  --include='../testing/app/components/document-image-picker/document-image-picker.spec.ts' \
+  --include='../testing/app/components/workshops-pages/sections/section-creation.spec.ts' \
+  --include='../testing/app/components/workshops-pages/workshops/workshop-authoring.spec.ts' \
+  --include='../testing/app/services/document-api-environment.spec.ts'
 ```
 
 Checks use real Material dialogs/picker components with mocked HTTP, including
@@ -233,11 +233,11 @@ PASS: 66 focused ChromeHeadless component/router/HTTP tests:
 
 ```bash
 npm test -- --watch=false --browsers=ChromeHeadless \
-  --include='src/app/components/devicon.component.spec.ts' \
-  --include='src/app/components/document-image-picker/document-image-picker.spec.ts' \
-  --include='src/app/components/workshops-pages/section-creation.spec.ts' \
-  --include='src/app/components/workshops-pages/workshop-authoring.spec.ts' \
-  --include='src/app/services/document-api-environment.spec.ts'
+  --include='../testing/app/components/devicon.component.spec.ts' \
+  --include='../testing/app/components/document-image-picker/document-image-picker.spec.ts' \
+  --include='../testing/app/components/workshops-pages/sections/section-creation.spec.ts' \
+  --include='../testing/app/components/workshops-pages/workshops/workshop-authoring.spec.ts' \
+  --include='../testing/app/services/document-api-environment.spec.ts'
 ```
 
 Includes class/path classification, Material fallback, exclusive icon/image
@@ -260,7 +260,7 @@ links and drag ordering remain. Long text scrolls without moving the actions.
 
 PASS: 26 focused ChromeHeadless tests:
 `npm test -- --watch=false --browsers=ChromeHeadless
---include='src/app/components/workshops-pages/workshop-authoring.spec.ts'`.
+--include='../testing/app/components/workshops-pages/workshops/workshop-authoring.spec.ts'`.
 Includes real focus/reveal CSS, independent card/edit hrefs, sidebar action absence,
 selected-card confirmation/cancel, exact deletion body and catalog refresh, scroll
 position regression, existing authoring/artwork/picker checks. HTTP is mocked.
@@ -284,9 +284,9 @@ PASS: 48 focused ChromeHeadless tests (20 section deletion, 26 workshop authorin
 
 ```bash
 npm test -- --watch=false --browsers=ChromeHeadless \
-  --include='src/app/components/workshops-pages/section-deletion.spec.ts' \
-  --include='src/app/components/workshops-pages/workshop-authoring.spec.ts' \
-  --include='src/app/services/document-api-environment.spec.ts'
+  --include='../testing/app/components/workshops-pages/sections/section-deletion.spec.ts' \
+  --include='../testing/app/components/workshops-pages/workshops/workshop-authoring.spec.ts' \
+  --include='../testing/app/services/document-api-environment.spec.ts'
 ```
 
 The initial expanded run additionally included section-creation.spec.ts:
@@ -304,3 +304,32 @@ output removed; watched dist untouched. Synthetic fixture image 404s and the npm
 scripts-prepend-node-path warning remain. No dependency changes or deployment.
 Live empty/nonempty deletion, auth, gateway and persistence checks were not run;
 see [011 handoff](../specs/011-delete-sections/handoff.md).
+
+## MVVM refactor verification — 2026-10-05
+
+The 012 refactor passed all 108 Karma ChromeHeadless tests (89 existing plus 19 new),
+source/spec TypeScript checks and a production build to
+/tmp/document-editor-production-check. It preserves the active development watcher.
+Live hosted-shell/local-remote checks covered catalogs, existing editor rendering,
+pagination, create-page dialog/cancel, workshop authoring form/cancel and return navigation. No record mutations,
+reorders or uploads were submitted in the live browser. HTTP/component tests cover
+mutation success/failure, pending gates, cache TTL/stale responses and ordered save retry.
+
+All 22 component files inline HTML/SCSS; largest is 227 lines. Only
+DocumentApiService imports HttpClient. See [012 handoff](../specs/012-mvvm-refactor/handoff.md)
+for architecture and integration limits. Existing host Material collision and image
+loader/preconnect warnings remain; dependency/federation versions are unchanged.
+
+## Separate test tree — 2026-10-05
+
+Specs now live under `testing/app`, mirroring `src/app`. `npm test` still runs the
+whole suite; focused `--include` paths begin with `../testing/` because this installed
+Karma builder discovers relative to `src`. The TypeScript spec config includes
+`testing/**/*.ts` and source declarations, compiling referenced application modules
+through imports. The application config excludes the testing tree and specs.
+See [testing/README.md](../testing/README.md) for examples.
+
+The relocation was verified with all 108 tests, source/spec TypeScript checks and
+production compilation. A fresh hosted browser reload required sign-in, so live
+route re-verification for this organizational follow-up remains unavailable until
+an authenticated session is restored.

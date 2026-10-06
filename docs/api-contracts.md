@@ -49,8 +49,8 @@ Nest's default POST status is 201 even where Swagger advertises ApiOkResponse.
 
 ## Known producer/consumer differences
 
-- Editor sortDocuments is typed as WorkshopDto[]; the service returns WorkshopDto.
-  Editor deleteWorkshop expects `{ id }`; the service returns DeleteResultDto.
+- DocumentApiService now types sortDocuments as WorkshopDto and deleteWorkshop as
+  DeleteResultDto, matching the previously reviewed service returns (012 refactor).
 - Sections are a single wrapper object and Swagger now describes that shape.
   Some workshop Swagger responses still use the Mongoose Workshop schema rather
   than the actual mapped WorkshopDto.
@@ -61,11 +61,9 @@ Nest's default POST status is 201 even where Swagger advertises ApiOkResponse.
   The editor's creation request uses CreateSectionDto plus a Pick of published
   SectionDto for menuSvgPath/headerSvgPath. Description is declared by the creation
   DTO, but image paths are not; their acceptance remains unverified.
-- The retained legacy uploadImage method targets POST
-  /api/documents/uploader/image-upload with multipart `image` and expects secure_url.
-  No uploader controller/module exists in service-document; its gateway destination
-  and owner remain unverified. Section/workshop authoring use the shell uploader
-  adapter instead; the obsolete workshop upload dialogs have been removed.
+- The unused legacy document-service uploadImage method was removed in 012.
+  Section/workshop authoring continue using the shell uploader adapter. No endpoint
+  or gateway change is required.
 
 ## Compatibility handoff
 
