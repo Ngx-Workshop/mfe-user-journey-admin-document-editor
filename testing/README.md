@@ -2,8 +2,8 @@
 
 Keep specs outside production source. `testing/app` mirrors `src/app`:
 
-- `testing/app/components/workshops-pages/sections` covers section catalog/authoring/deletion.
-- `testing/app/components/workshops-pages/workshops` covers workshop catalog/authoring.
+- `testing/app/features/document-editor/pages/sections` covers section catalog/authoring/deletion.
+- `testing/app/features/document-editor/pages/workshops` covers workshop catalog/authoring.
 - Other component, service and view-model specs follow their matching app folders.
 
 Test files import application code from `src/app`; application code must not import
@@ -19,7 +19,7 @@ Run a focused suite with:
 
 ```sh
 npm test -- --watch=false --browsers=ChromeHeadless \
-  --include='../testing/app/services/document-state.spec.ts'
+  --include='../testing/app/features/document-editor/state/document-state.spec.ts'
 ```
 
 The installed Karma builder discovers tests relative to the project's `src` source

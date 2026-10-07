@@ -75,7 +75,7 @@ and host-mounted acceptance scenarios. Cover catalog/deep links, CRUD, sorting,
 block round-trip, request failure/retry, permission denial, keyboard/focus and narrow
 viewports where affected. Use HTTP test doubles for local failures and report their
 limits. Section creation now has six browser component/HTTP checks in
-testing/app/components/workshops-pages/sections/section-creation.spec.ts; unrelated journeys
+testing/app/features/document-editor/pages/sections/section-creation.spec.ts; unrelated journeys
 still need coverage. There is no package lint script.
 
 ## Migration checks — 2026-10-01
@@ -168,9 +168,9 @@ and environment regressions):
 
 ```bash
 npm test -- --watch=false --browsers=ChromeHeadless \
-  --include='../testing/app/components/workshops-pages/workshops/workshop-authoring.spec.ts' \
-  --include='../testing/app/components/workshops-pages/sections/section-creation.spec.ts' \
-  --include='../testing/app/services/document-api-environment.spec.ts'
+  --include='../testing/app/features/document-editor/pages/workshops/workshop-authoring.spec.ts' \
+  --include='../testing/app/features/document-editor/pages/sections/section-creation.spec.ts' \
+  --include='../testing/app/features/document-editor/api/document-api-environment.spec.ts'
 ```
 
 PASS: production compilation using `npm run build -- --output-path
@@ -196,10 +196,10 @@ PASS: 57 focused ChromeHeadless tests:
 
 ```bash
 npm test -- --watch=false --browsers=ChromeHeadless \
-  --include='../testing/app/components/document-image-picker/document-image-picker.spec.ts' \
-  --include='../testing/app/components/workshops-pages/sections/section-creation.spec.ts' \
-  --include='../testing/app/components/workshops-pages/workshops/workshop-authoring.spec.ts' \
-  --include='../testing/app/services/document-api-environment.spec.ts'
+  --include='../testing/app/features/document-editor/components/document-image-picker/document-image-picker.spec.ts' \
+  --include='../testing/app/features/document-editor/pages/sections/section-creation.spec.ts' \
+  --include='../testing/app/features/document-editor/pages/workshops/workshop-authoring.spec.ts' \
+  --include='../testing/app/features/document-editor/api/document-api-environment.spec.ts'
 ```
 
 Checks use real Material dialogs/picker components with mocked HTTP, including
@@ -233,11 +233,11 @@ PASS: 66 focused ChromeHeadless component/router/HTTP tests:
 
 ```bash
 npm test -- --watch=false --browsers=ChromeHeadless \
-  --include='../testing/app/components/devicon.component.spec.ts' \
-  --include='../testing/app/components/document-image-picker/document-image-picker.spec.ts' \
-  --include='../testing/app/components/workshops-pages/sections/section-creation.spec.ts' \
-  --include='../testing/app/components/workshops-pages/workshops/workshop-authoring.spec.ts' \
-  --include='../testing/app/services/document-api-environment.spec.ts'
+  --include='../testing/app/features/document-editor/components/devicon.component.spec.ts' \
+  --include='../testing/app/features/document-editor/components/document-image-picker/document-image-picker.spec.ts' \
+  --include='../testing/app/features/document-editor/pages/sections/section-creation.spec.ts' \
+  --include='../testing/app/features/document-editor/pages/workshops/workshop-authoring.spec.ts' \
+  --include='../testing/app/features/document-editor/api/document-api-environment.spec.ts'
 ```
 
 Includes class/path classification, Material fallback, exclusive icon/image
@@ -260,7 +260,7 @@ links and drag ordering remain. Long text scrolls without moving the actions.
 
 PASS: 26 focused ChromeHeadless tests:
 `npm test -- --watch=false --browsers=ChromeHeadless
---include='../testing/app/components/workshops-pages/workshops/workshop-authoring.spec.ts'`.
+--include='../testing/app/features/document-editor/pages/workshops/workshop-authoring.spec.ts'`.
 Includes real focus/reveal CSS, independent card/edit hrefs, sidebar action absence,
 selected-card confirmation/cancel, exact deletion body and catalog refresh, scroll
 position regression, existing authoring/artwork/picker checks. HTTP is mocked.
@@ -284,9 +284,9 @@ PASS: 48 focused ChromeHeadless tests (20 section deletion, 26 workshop authorin
 
 ```bash
 npm test -- --watch=false --browsers=ChromeHeadless \
-  --include='../testing/app/components/workshops-pages/sections/section-deletion.spec.ts' \
-  --include='../testing/app/components/workshops-pages/workshops/workshop-authoring.spec.ts' \
-  --include='../testing/app/services/document-api-environment.spec.ts'
+  --include='../testing/app/features/document-editor/pages/sections/section-deletion.spec.ts' \
+  --include='../testing/app/features/document-editor/pages/workshops/workshop-authoring.spec.ts' \
+  --include='../testing/app/features/document-editor/api/document-api-environment.spec.ts'
 ```
 
 The initial expanded run additionally included section-creation.spec.ts:
@@ -348,10 +348,10 @@ PASS: 27 focused ChromeHeadless router/component/HTTP/state/projection tests:
 
 ```bash
 npm test -- --watch=false --browsers=ChromeHeadless \
-  --include='../testing/app/components/workshops-pages/documents/page-authoring.spec.ts' \
-  --include='../testing/app/components/workshops-sidepanel/page-list-controls/page-commands.spec.ts' \
-  --include='../testing/app/services/document-state.spec.ts' \
-  --include='../testing/app/view-models/document-view-model.spec.ts'
+  --include='../testing/app/features/document-editor/pages/documents/page-authoring.spec.ts' \
+  --include='../testing/app/features/document-editor/components/workshops-sidepanel/page-list-controls/page-commands.spec.ts' \
+  --include='../testing/app/features/document-editor/state/document-state.spec.ts' \
+  --include='../testing/app/features/document-editor/utils/document-view-model.spec.ts'
 ```
 
 The IDE test tool discovered no tests; the configured Karma command above ran
@@ -445,3 +445,16 @@ and reset verified with no errors or service writes. Screenshot:
 now trim incidental template whitespace. The preview intentionally has no runner
 until a learner execution/submission API is available. Draft/unpublished links
 display unavailable. See [018 handoff](../specs/018-coding-lab-learner-preview/handoff.md).
+
+## Source organization parity — 2026-10-07
+
+See [source organization](source-organization.md). Run `npm run check:layout`,
+the full ChromeHeadless suite, and a production build after relocating files.
+Test include selectors now use `../testing/app/features/document-editor/`.
+
+Verified: 149 ChromeHeadless tests, application/spec TypeScript checks,
+layout checks and production compilation pass. Builds used isolated
+`/tmp/admin-layout-document-editor-production` output, preserving watched bundles.
+All existing TypeScript files were compared against HEAD: only relative path
+strings changed. Hosted browser/service integration was not rerun for this
+mechanical reorganization.

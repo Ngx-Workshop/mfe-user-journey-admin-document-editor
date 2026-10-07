@@ -22,19 +22,19 @@ reuses the same configuration.
 | ---------------- | -------------------------------------------------------- | ----------------------------------------------------------------------- |
 | Bootstrap        | src/main.ts, src/bootstrap.ts, src/app/app.config.ts     | Standalone app, zoneless detection, HTTP DI interceptors and animations |
 | Host entry       | src/app/app.ts, src/app/app.routes.ts, webpack.config.js | Empty root App and host-mounted route tree                              |
-| Resolution       | src/app/resolvers/                                       | Sections, workshop slug selection and page lookup                       |
-| HTTP access | src/app/services/document-api.service.ts | Stateless typed endpoint requests; no selection, forms or editor events |
-| Navigation state | src/app/services/navigation.service.ts | Singleton observable selection state, timestamped replay cache, confirmed merges |
-| Commands | src/app/services/workshops.service.ts | Singleton mutation orchestration, response reconciliation and cache invalidation |
-| Editor state | src/app/services/editor-state.service.ts | Ordered save queue, latest-failure retry and save notices |
-| Catalog/editor   | src/app/components/workshops-pages/{sections,workshops,documents}/| Persisted section catalog, workshop cards and editor/paginator          |
-| Workshop authoring | src/app/components/workshops-pages/workshops/create-workshop.component.ts | Routed create/edit metadata and documents-folder thumbnail picker |
-| Page authoring | src/app/components/workshops-pages/documents/create-page.component.ts | Routed creation/renaming view model with shared PageFormComponent |
-| Image selection | src/app/components/document-image-picker/ | Shared image-field action and typed asset-picker dialog |
-| Artwork classification | src/app/components/devicon.component.ts | Shared Devicon class detection/rendering; font/CSS supplied by admin shell |
-| Context header   | src/app/components/workshops.component.ts                | Section header and nested router outlet                                 |
-| Controls/dialogs | src/app/components/workshops-sidepanel/                  | Drag ordering, metadata forms, typed-name delete confirmation           |
-| Validation       | src/app/form-validators/match-string.validator.ts        | Name confirmation validator                                             |
+| Resolution       | src/app/features/document-editor/resolvers/                                       | Sections, workshop slug selection and page lookup                       |
+| HTTP access | src/app/features/document-editor/api/document-api.service.ts | Stateless typed endpoint requests; no selection, forms or editor events |
+| Navigation state | src/app/features/document-editor/state/navigation.service.ts | Singleton observable selection state, timestamped replay cache, confirmed merges |
+| Commands | src/app/features/document-editor/state/workshops.service.ts | Singleton mutation orchestration, response reconciliation and cache invalidation |
+| Editor state | src/app/features/document-editor/state/editor-state.service.ts | Ordered save queue, latest-failure retry and save notices |
+| Catalog/editor   | src/app/features/document-editor/pages/{sections,workshops,documents}/| Persisted section catalog, workshop cards and editor/paginator          |
+| Workshop authoring | src/app/features/document-editor/pages/workshops/create-workshop.component.ts | Routed create/edit metadata and documents-folder thumbnail picker |
+| Page authoring | src/app/features/document-editor/pages/documents/create-page.component.ts | Routed creation/renaming view model with shared PageFormComponent |
+| Image selection | src/app/features/document-editor/components/document-image-picker/ | Shared image-field action and typed asset-picker dialog |
+| Artwork classification | src/app/features/document-editor/components/devicon.component.ts | Shared Devicon class detection/rendering; font/CSS supplied by admin shell |
+| Context header   | src/app/features/document-editor/pages/workshops/workshops.component.ts                | Section header and nested router outlet                                 |
+| Controls/dialogs | src/app/features/document-editor/components/workshops-sidepanel/                  | Drag ordering, metadata forms, typed-name delete confirmation           |
+| Validation       | src/app/features/document-editor/forms/match-string.validator.ts        | Name confirmation validator                                             |
 
 ## Routes and data flow
 
@@ -185,7 +185,7 @@ and WorkshopFormComponent render input form/state and emit actions. SectionCardC
 WorkshopCardComponent and DocumentEditorComponent are presentation-only. Catalogs,
 context header, detail, sidebars and dialogs orchestrate streams, routes and user actions.
 Smaller orchestrators render directly without requiring another presentation component.
-Pure document projection/ordering helpers live in src/app/view-models.
+Pure document projection/ordering helpers live in src/app/features/document-editor/utils.
 
 All 22 components inline their HTML/SCSS and use BEM for application-owned classes;
 the largest file is 227 lines. Dialogs now use stable typed forms and one finite
@@ -202,7 +202,7 @@ empty/document-ID children, resolver order, fallback and lazy component loading 
 preserved. The host still consumes the same named `Routes` federation export.
 
 Workshop-page components are grouped by feature under
-`src/app/components/workshops-pages/sections`, `workshops` and `documents`.
+`src/app/features/document-editor/pages/sections`, `workshops` and `documents`.
 Section/workshop folders contain their catalog, authoring and presentation components;
 `documents` contains the detail orchestrator and editor presentation.
 
@@ -297,3 +297,11 @@ when resourceId changes. LabInstructionsComponent presents safe text-only Markdo
 blocks without innerHTML. Hints use native details/summary; samples show published
 input/output. Responsive instruction/editor columns stack below 1200px. Code edits
 stay local; no execution/submission or editor-block persistence.
+
+## Uniform admin source layout — 2026-10-07
+
+Follow [the shared source convention](source-organization.md). Feature code lives
+under `src/app/features/document-editor`; page-only views/models stay beside their
+page, reusable views live under `components`, stateless adapters under `api`, and
+singleton orchestration under `state`. Tests mirror the responsibility folders.
+The app entry files and external integration contracts are preserved.

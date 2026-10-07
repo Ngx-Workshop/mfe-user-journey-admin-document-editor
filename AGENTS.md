@@ -25,7 +25,7 @@ All context below is local; sibling checkouts are not required.
 - Resolve routine choices locally. Ask only for consequential missing decisions;
   continue independent work while they remain pending.
 - Keep specs in `testing/app`, mirroring `src/app`; never import test code into
-  application source. Group workshop-page components under sections/workshops/documents
+  application source. Group workshop-page components under pages/sections, pages/workshops and pages/documents
   and keep the exported route tree in `src/app/app.routes.ts`.
 - Verify the changed scope; record actual passes, failures and unavailable integration
   checks separately. Builds and empty test suites do not establish working journeys.
@@ -33,3 +33,7 @@ All context below is local; sibling checkouts are not required.
   publish packages or deploy merely to validate documentation.
 
 This is a repository-local Markdown workflow inspired by Spec Kit.
+
+Source layout: follow [the shared convention](docs/source-organization.md) and run
+`npm run check:layout` after moving files. Feature code belongs under
+`src/app/features/document-editor`; test folders mirror the source folders.

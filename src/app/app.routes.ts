@@ -2,10 +2,10 @@ import { inject } from '@angular/core';
 import { Route } from '@angular/router';
 import { userAuthenticatedGuard } from '@tmdjr/ngx-user-metadata';
 
-import { documentResolver } from './resolvers/document.resolver';
-import { sectionResolver } from './resolvers/section.resolver';
-import { workshopResolver } from './resolvers/workshop.resolver';
-import { NavigationService } from './services/navigation.service';
+import { documentResolver } from './features/document-editor/resolvers/document.resolver';
+import { sectionResolver } from './features/document-editor/resolvers/section.resolver';
+import { workshopResolver } from './features/document-editor/resolvers/workshop.resolver';
+import { NavigationService } from './features/document-editor/state/navigation.service';
 
 export const Routes: Route[] = [
   {
@@ -19,39 +19,51 @@ export const Routes: Route[] = [
         path: '',
         pathMatch: 'full',
         loadComponent: () =>
-          import('./components/workshops-pages/sections/section-list.component').then(
+          import('./features/document-editor/pages/sections/section-list.component').then(
             (m) => m.SectionListComponent
           ),
       },
       {
         path: 'create-section',
-        canDeactivate: [(component: { saving: () => boolean }) => !component.saving()],
+        canDeactivate: [
+          (component: { saving: () => boolean }) =>
+            !component.saving(),
+        ],
         loadComponent: () =>
-          import('./components/workshops-pages/sections/create-section.component').then(
+          import('./features/document-editor/pages/sections/create-section.component').then(
             (m) => m.CreateSectionComponent
           ),
       },
       {
         path: 'edit-section/:sectionId',
-        canDeactivate: [(component: { saving: () => boolean }) => !component.saving()],
+        canDeactivate: [
+          (component: { saving: () => boolean }) =>
+            !component.saving(),
+        ],
         loadComponent: () =>
-          import('./components/workshops-pages/sections/create-section.component').then(
+          import('./features/document-editor/pages/sections/create-section.component').then(
             (m) => m.CreateSectionComponent
           ),
       },
       {
         path: ':section/create-workshop',
-        canDeactivate: [(component: { saving: () => boolean }) => !component.saving()],
+        canDeactivate: [
+          (component: { saving: () => boolean }) =>
+            !component.saving(),
+        ],
         loadComponent: () =>
-          import('./components/workshops-pages/workshops/create-workshop.component').then(
+          import('./features/document-editor/pages/workshops/create-workshop.component').then(
             (m) => m.CreateWorkshopComponent
           ),
       },
       {
         path: ':section/edit-workshop/:workshopId',
-        canDeactivate: [(component: { saving: () => boolean }) => !component.saving()],
+        canDeactivate: [
+          (component: { saving: () => boolean }) =>
+            !component.saving(),
+        ],
         loadComponent: () =>
-          import('./components/workshops-pages/workshops/create-workshop.component').then(
+          import('./features/document-editor/pages/workshops/create-workshop.component').then(
             (m) => m.CreateWorkshopComponent
           ),
       },
@@ -59,7 +71,9 @@ export const Routes: Route[] = [
         path: ':section',
         resolve: { sectionResolver },
         loadComponent: () =>
-          import('./components/workshops.component').then((m) => m.WorkshopsComponent),
+          import('./features/document-editor/pages/workshops/workshops.component').then(
+            (m) => m.WorkshopsComponent
+          ),
         children: [
           {
             path: '',
@@ -71,7 +85,7 @@ export const Routes: Route[] = [
             data: { alwaysRefresh: true },
             resolve: { workshopResolver },
             loadComponent: () =>
-              import('./components/workshops-pages/workshops/workshop-list.component').then(
+              import('./features/document-editor/pages/workshops/workshop-list.component').then(
                 (m) => m.WorkshopListComponent
               ),
           },
@@ -81,17 +95,23 @@ export const Routes: Route[] = [
             children: [
               {
                 path: 'create-page',
-                canDeactivate: [(component: { saving: () => boolean }) => !component.saving()],
+                canDeactivate: [
+                  (component: { saving: () => boolean }) =>
+                    !component.saving(),
+                ],
                 loadComponent: () =>
-                  import('./components/workshops-pages/documents/create-page.component').then(
+                  import('./features/document-editor/pages/documents/create-page.component').then(
                     (m) => m.CreatePageComponent
                   ),
               },
               {
                 path: 'edit-page/:documentId',
-                canDeactivate: [(component: { saving: () => boolean }) => !component.saving()],
+                canDeactivate: [
+                  (component: { saving: () => boolean }) =>
+                    !component.saving(),
+                ],
                 loadComponent: () =>
-                  import('./components/workshops-pages/documents/create-page.component').then(
+                  import('./features/document-editor/pages/documents/create-page.component').then(
                     (m) => m.CreatePageComponent
                   ),
               },
@@ -100,7 +120,7 @@ export const Routes: Route[] = [
                 data: { alwaysRefresh: true },
                 resolve: { documentResolver },
                 loadComponent: () =>
-                  import('./components/workshops-pages/documents/workshop-detail.component').then(
+                  import('./features/document-editor/pages/documents/workshop-detail.component').then(
                     (m) => m.WorkshopDetailComponent
                   ),
               },
@@ -109,7 +129,7 @@ export const Routes: Route[] = [
                 data: { alwaysRefresh: true },
                 resolve: { documentResolver },
                 loadComponent: () =>
-                  import('./components/workshops-pages/documents/workshop-detail.component').then(
+                  import('./features/document-editor/pages/documents/workshop-detail.component').then(
                     (m) => m.WorkshopDetailComponent
                   ),
               },
