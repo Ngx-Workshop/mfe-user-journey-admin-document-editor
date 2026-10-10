@@ -209,7 +209,9 @@ describe('Workshop authoring pages', () => {
     await harness.fixture.whenStable();
     expect(router.url).toBe(editUrl);
     expect(
-      harness.routeNativeElement?.querySelector('h1')?.textContent?.trim()
+      harness.routeNativeElement
+        ?.querySelector('h1')
+        ?.textContent?.trim()
     ).toBe('Edit Workshop');
     http.expectNone((r) => r.url.includes('/workshop/page-1'));
   });
@@ -517,8 +519,8 @@ describe('Workshop authoring pages', () => {
         status === 403
           ? 'administrator'
           : status === 404
-          ? 'no longer exists'
-          : 'Please try again'
+            ? 'no longer exists'
+            : 'Please try again'
       );
       expect(
         harness.routeNativeElement?.querySelector('[role="alert"]')

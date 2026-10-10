@@ -503,12 +503,25 @@ describe('Routed page authoring', () => {
           'Linked test'
         );
       } else {
-        http.expectOne('/api/coding-labs/published-labs/%24opaque-resource').flush({
-          labId: 'remote-id', versionId: 'version', versionNumber: 1, title: 'Linked lab',
-          language: 'javascript', promptMarkdown: 'Solve the challenge', starterCode: '', hints: [], sampleTests: [],
-        });
+        http
+          .expectOne(
+            '/api/coding-labs/published-labs/%24opaque-resource'
+          )
+          .flush({
+            labId: 'remote-id',
+            versionId: 'version',
+            versionNumber: 1,
+            title: 'Linked lab',
+            language: 'javascript',
+            promptMarkdown: 'Solve the challenge',
+            starterCode: '',
+            hints: [],
+            sampleTests: [],
+          });
         await harness.fixture.whenStable();
-        expect(harness.routeNativeElement?.textContent).toContain('Linked lab');
+        expect(harness.routeNativeElement?.textContent).toContain(
+          'Linked lab'
+        );
       }
       expect(harness.routeNativeElement?.textContent).toContain(
         'Hello example'
@@ -577,28 +590,37 @@ describe('Routed page authoring', () => {
       await navigating;
       await harness.fixture.whenStable();
       if (kind === 'ASSESSMENT_TEST') {
-        http
-          .expectOne('/api/assessment-test/remote-id')
-          .flush({
-            _id: 'remote-id',
-            name: 'Linked test',
-            subject: 'ANGULAR',
-            level: 1,
-            testQuestions: [],
-            lastUpdated: '',
-            __v: 0,
-          });
+        http.expectOne('/api/assessment-test/remote-id').flush({
+          _id: 'remote-id',
+          name: 'Linked test',
+          subject: 'ANGULAR',
+          level: 1,
+          testQuestions: [],
+          lastUpdated: '',
+          __v: 0,
+        });
         await harness.fixture.whenStable();
         expect(harness.routeNativeElement?.textContent).toContain(
           'Linked test'
         );
       } else {
-        http.expectOne('/api/coding-labs/published-labs/remote-id').flush({
-          labId: 'remote-id', versionId: 'version', versionNumber: 1, title: 'Linked lab',
-          language: 'javascript', promptMarkdown: 'Solve the challenge', starterCode: '', hints: [], sampleTests: [],
-        });
+        http
+          .expectOne('/api/coding-labs/published-labs/remote-id')
+          .flush({
+            labId: 'remote-id',
+            versionId: 'version',
+            versionNumber: 1,
+            title: 'Linked lab',
+            language: 'javascript',
+            promptMarkdown: 'Solve the challenge',
+            starterCode: '',
+            hints: [],
+            sampleTests: [],
+          });
         await harness.fixture.whenStable();
-        expect(harness.routeNativeElement?.textContent).toContain('Linked lab');
+        expect(harness.routeNativeElement?.textContent).toContain(
+          'Linked lab'
+        );
       }
       http.expectNone('/api/documents/workshop/external');
       await harness.navigateByUrl(`${base}/edit-page/external`);
@@ -630,24 +652,31 @@ describe('Routed page authoring', () => {
       await harness.fixture.whenStable();
       expect(router.url).toBe(`${base}/external`);
       if (kind === 'ASSESSMENT_TEST') {
-        http
-          .expectOne('/api/assessment-test/remote-id')
-          .flush({
-            _id: 'remote-id',
-            name: 'Linked test',
-            subject: 'ANGULAR',
-            level: 1,
-            testQuestions: [],
-            lastUpdated: '',
-            __v: 0,
-          });
+        http.expectOne('/api/assessment-test/remote-id').flush({
+          _id: 'remote-id',
+          name: 'Linked test',
+          subject: 'ANGULAR',
+          level: 1,
+          testQuestions: [],
+          lastUpdated: '',
+          __v: 0,
+        });
         await harness.fixture.whenStable();
       }
       if (kind === 'CODING_LAB') {
-        http.expectOne('/api/coding-labs/published-labs/remote-id').flush({
-          labId: 'remote-id', versionId: 'version', versionNumber: 1, title: 'Linked lab',
-          language: 'javascript', promptMarkdown: 'Solve the challenge', starterCode: '', hints: [], sampleTests: [],
-        });
+        http
+          .expectOne('/api/coding-labs/published-labs/remote-id')
+          .flush({
+            labId: 'remote-id',
+            versionId: 'version',
+            versionNumber: 1,
+            title: 'Linked lab',
+            language: 'javascript',
+            promptMarkdown: 'Solve the challenge',
+            starterCode: '',
+            hints: [],
+            sampleTests: [],
+          });
         await harness.fixture.whenStable();
       }
       expect(harness.routeNativeElement?.textContent).toContain(

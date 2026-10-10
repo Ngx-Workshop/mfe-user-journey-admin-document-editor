@@ -91,16 +91,14 @@ describe('Assessment test gallery picker', () => {
       AssessmentTestPickerComponent
     );
     const vm = fixture.componentInstance;
-    http
-      .expectOne('/api/assessment-test')
-      .flush(
-        Array.from({ length: 30 }, (_, index) => ({
-          ...assessment,
-          _id: `test-${index}`,
-          name: `Example ${index}`,
-          subject: index % 2 ? 'RXJS' : 'ANGULAR',
-        }))
-      );
+    http.expectOne('/api/assessment-test').flush(
+      Array.from({ length: 30 }, (_, index) => ({
+        ...assessment,
+        _id: `test-${index}`,
+        name: `Example ${index}`,
+        subject: index % 2 ? 'RXJS' : 'ANGULAR',
+      }))
+    );
     expect(vm.visibleTests().length).toBe(24);
     expect(vm.hasMore()).toBeTrue();
     vm.loadMore();

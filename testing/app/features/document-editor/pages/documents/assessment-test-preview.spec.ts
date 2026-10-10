@@ -124,14 +124,12 @@ describe('Assessment learner preview', () => {
     fixture.componentRef.setInput('resourceId', 'third');
     await fixture.whenStable();
     expect(stale.cancelled).toBeTrue();
-    http
-      .expectOne('/api/assessment-test/third')
-      .flush({
-        ...test,
-        _id: 'third',
-        name: 'Third test',
-        testQuestions: [],
-      });
+    http.expectOne('/api/assessment-test/third').flush({
+      ...test,
+      _id: 'third',
+      name: 'Third test',
+      testQuestions: [],
+    });
     await fixture.whenStable();
     expect(fixture.nativeElement.textContent).toContain('Third test');
     expect(fixture.nativeElement.textContent).toContain(

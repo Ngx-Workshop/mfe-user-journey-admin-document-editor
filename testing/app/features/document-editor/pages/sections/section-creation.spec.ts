@@ -152,7 +152,9 @@ describe('Section authoring', () => {
       `/document-editor/edit-section/${section._id}`
     );
     expect(
-      harness.routeNativeElement?.querySelector('h1')?.textContent?.trim()
+      harness.routeNativeElement
+        ?.querySelector('h1')
+        ?.textContent?.trim()
     ).toBe('Edit Section');
     http.expectNone(
       (r) => r.url === '/api/documents/navigation/workshops'
@@ -310,13 +312,11 @@ describe('Section authoring', () => {
       (await firstValueFrom(navigation.getSections()))[0].sectionTitle
     ).toBe('TypeScript');
     component.create();
-    http
-      .expectOne(sectionEndpoint)
-      .flush({
-        ...section,
-        sectionTitle: 'Renamed',
-        headerSvgPath: imageUrl,
-      });
+    http.expectOne(sectionEndpoint).flush({
+      ...section,
+      sectionTitle: 'Renamed',
+      headerSvgPath: imageUrl,
+    });
     await harness.fixture.whenStable();
     expect(router.url).toBe('/document-editor');
   });
@@ -426,7 +426,9 @@ describe('Section authoring', () => {
     await harness.fixture.whenStable();
     expect(router.url).toBe('/document-editor/create-section');
     expect(
-      harness.routeNativeElement?.querySelector('h1')?.textContent?.trim()
+      harness.routeNativeElement
+        ?.querySelector('h1')
+        ?.textContent?.trim()
     ).toBe('Create Section');
     expect(document.querySelector('mat-dialog-container')).toBeNull();
   });
