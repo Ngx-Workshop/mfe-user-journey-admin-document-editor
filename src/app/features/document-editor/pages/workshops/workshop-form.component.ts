@@ -23,6 +23,7 @@ import { DocumentImagePickerButtonComponent } from '../../components/document-im
 
 type WorkshopForm = {
   name: FormControl<string>;
+  level: FormControl<number>;
   summary: FormControl<string>;
   thumbnail: FormControl<string>;
 };
@@ -89,6 +90,22 @@ type WorkshopForm = {
             rows="4"
           ></textarea>
           <mat-error>Enter a workshop summary.</mat-error>
+        </mat-form-field>
+        <mat-form-field
+          class="workshop-form__field"
+          appearance="outline"
+        >
+          <mat-label>Workshop level</mat-label>
+          <input
+            matInput
+            type="number"
+            formControlName="level"
+            required
+            min="1"
+            max="20"
+            step="1"
+          />
+          <mat-error>Enter a whole-number level from 1 to 20.</mat-error>
         </mat-form-field>
         @if (form().controls.thumbnail.value) {
           @if (form().controls.thumbnail.value | isDevicon) {

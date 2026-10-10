@@ -366,11 +366,13 @@ describe('Workshop authoring pages', () => {
       name: workshop.name,
       summary: workshop.summary,
       thumbnail: workshop.thumbnail,
+      level: 1,
     });
     component.form.setValue({
       name: ' Renamed ',
       summary: ' New summary ',
       thumbnail: ' /photo.png ',
+      level: 20,
     });
     component.save();
     component.save();
@@ -385,6 +387,7 @@ describe('Workshop authoring pages', () => {
       name: 'Renamed',
       summary: 'New summary',
       thumbnail: '/photo.png',
+      level: 20,
     });
     http.expectNone(createEndpoint);
     const updated = {
@@ -414,6 +417,36 @@ describe('Workshop authoring pages', () => {
     ).toBe(`/document-editor/${section._id}/renamed/page-1`);
   });
 
+  it('requires a level from 1 to 20 and sends the selected level on creation', async () => {
+    const component = await openPage();
+    const input = harness.routeNativeElement?.querySelector(
+      'input[formControlName="level"]'
+    ) as HTMLInputElement;
+    expect(input.required).toBeTrue();
+    expect(input.value).toBe('1');
+    component.form.patchValue({ name: 'Workshop', summary: 'Summary' });
+    for (const value of ['', '0', '21', '1.5']) {
+      input.value = value;
+      input.dispatchEvent(new Event('input'));
+      component.save();
+      expect(component.form.controls.level.invalid).toBeTrue();
+      http.expectNone(createEndpoint);
+    }
+    input.value = '20';
+    input.dispatchEvent(new Event('input'));
+    component.save();
+    const request = http.expectOne(createEndpoint);
+    expect(request.request.body.level).toBe(20);
+    request.flush({}, { status: 500, statusText: 'Failure' });
+  });
+
+  it('loads a saved level when editing', async () => {
+    const component = await harness.navigateByUrl(editUrl, CreateWorkshopComponent);
+    http.expectOne(listEndpoint).flush([{ ...workshop, level: 7 }]);
+    await harness.fixture.whenStable();
+    expect(component.form.controls.level.value).toBe(7);
+  });
+
   it('creates with section ID and count, blocks duplicate saves and returns to a fresh catalog', async () => {
     const component = await openPage();
     expect(component.editing()).toBeFalse();
@@ -421,6 +454,7 @@ describe('Workshop authoring pages', () => {
       name: ' New workshop ',
       summary: ' New summary ',
       thumbnail: '',
+      level: 1,
     });
     component.save();
     component.save();
@@ -434,6 +468,7 @@ describe('Workshop authoring pages', () => {
       name: 'New workshop',
       summary: 'New summary',
       thumbnail: '',
+      level: 1,
     });
     const created = {
       ...workshop,
@@ -463,7 +498,7 @@ describe('Workshop authoring pages', () => {
       { name: 'Name', summary: '\n ', thumbnail: '/photo.png' },
       { name: 'Name', summary: 'Summary', thumbnail: ' ' },
     ]) {
-      component.form.setValue(values);
+      component.form.setValue({ ...values, level: 1 });
       component.save();
       expect(component.form.invalid).toBeTrue();
       expect(component.form.touched).toBeTrue();
@@ -482,6 +517,7 @@ describe('Workshop authoring pages', () => {
       name: 'First',
       summary: 'First workshop',
       thumbnail: '',
+      level: 1,
     });
     component.save();
     const request = http.expectOne(createEndpoint);

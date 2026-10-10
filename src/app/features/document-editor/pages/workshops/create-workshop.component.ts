@@ -59,6 +59,15 @@ export class CreateWorkshopComponent {
     name: ['', [Validators.required, Validators.pattern(/\S/)]],
     summary: ['', [Validators.required, Validators.pattern(/\S/)]],
     thumbnail: [''],
+    level: [
+      1,
+      [
+        Validators.required,
+        Validators.min(1),
+        Validators.max(20),
+        Validators.pattern(/^\d+$/),
+      ],
+    ],
   });
 
   constructor() {
@@ -75,7 +84,9 @@ export class CreateWorkshopComponent {
           this.workshopLoaded.set(false);
           this.saved.set(false);
           this.error.set('');
-          this.form.reset({ name: '', summary: '', thumbnail: '' });
+          this.form.reset({
+            name: '', summary: '', thumbnail: '', level: 1,
+          });
           this.form.controls.thumbnail.setValidators(
             workshopId === null
               ? []
@@ -122,6 +133,9 @@ export class CreateWorkshopComponent {
             name: workshop.name,
             summary: workshop.summary,
             thumbnail: workshop.thumbnail,
+            // Published contracts predate level; legacy responses default to 1.
+            level:
+              (workshop as typeof workshop & { level?: number }).level ?? 1,
           });
         }
         this.workshopLoaded.set(true);
@@ -154,6 +168,7 @@ export class CreateWorkshopComponent {
       name: values.name.trim(),
       summary: values.summary.trim(),
       thumbnail: values.thumbnail.trim(),
+      level: values.level,
     });
     if (this.form.invalid) {
       this.form.markAllAsTouched();

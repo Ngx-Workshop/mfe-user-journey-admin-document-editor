@@ -31,7 +31,7 @@
     "@angular/build": "^21.1.0",
     "@angular/cli": "21.1.0",
     "@angular/compiler-cli": "21.1.0",
-    "@tmdjr/document-contracts": "0.0.36",
+    "@tmdjr/document-contracts": "0.0.37",
     "@tmdjr/ngx-editor-js2": "^21.0.9",
     "@tmdjr/ngx-asset-manager": "21.1.0",
     "@tmdjr/ngx-user-metadata": "^21.0.4",

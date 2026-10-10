@@ -458,3 +458,9 @@ layout checks and production compilation pass. Builds used isolated
 All existing TypeScript files were compared against HEAD: only relative path
 strings changed. Hosted browser/service integration was not rerun for this
 mechanical reorganization.
+
+## Workshop level verification — 2026-10-10
+
+153 service tests and 28 focused ChromeHeadless workshop-authoring tests passed. Service production build, OpenAPI regeneration, generated contract compilation and editor production build passed. Whitespace checks passed.
+No live MongoDB/gateway/hosted UI checks, publication or deployment.
+See [handoff](../specs/019-workshop-level/handoff.md).

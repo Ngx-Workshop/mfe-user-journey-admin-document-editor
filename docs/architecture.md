@@ -305,3 +305,10 @@ under `src/app/features/document-editor`; page-only views/models stay beside the
 page, reusable views live under `components`, stateless adapters under `api`, and
 singleton orchestration under `state`. Tests mirror the responsibility folders.
 The app entry files and external integration contracts are preserved.
+
+## Workshop level — 2026-10-10
+
+Workshop metadata includes level (default 1, range 1–20). The service validates
+integer payloads, preserves omitted edit values and returns 1 for legacy records.
+The administrator form requires level on create/edit and loads saved values.
+See [019 handoff](../specs/019-workshop-level/handoff.md) for contract delivery order.
