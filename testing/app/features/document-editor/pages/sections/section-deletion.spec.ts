@@ -38,7 +38,7 @@ describe('Section deletion', () => {
   const endpoint = `/api/documents/navigation/section/${section._id}`;
   const workshopsEndpoint = '/api/documents/navigation/workshops';
   const staleWorkshop: WorkshopDto = {
-  level: 1,
+    level: 1,
     _id: 'workshop-id',
     sectionId: section._id,
     name: 'Types',

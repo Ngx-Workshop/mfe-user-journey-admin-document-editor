@@ -39,33 +39,35 @@ import { OptimizeCloudinaryUrlPipe } from './optimize-cloudinary-url.pipe';
         [routerLink]="[
           '../',
           workshop().workshopDocumentGroupId,
-          workshop().workshopDocuments[0]?._id || ''
+          workshop().workshopDocuments[0]?._id || '',
         ]"
       >
         <div class="workshop-card__artwork">
-          @if (workshop().thumbnail) { @if (workshop().thumbnail |
-          isDevicon) {
-          <div class="workshop-card__icon">
-            <ngx-menu-devicon
-              [icon]="workshop().thumbnail"
-              [large]="true"
-              aria-hidden="true"
-              style="--devicon-size: 96px"
-            />
-          </div>
+          @if (workshop().thumbnail) {
+            @if (workshop().thumbnail | isDevicon) {
+              <div class="workshop-card__icon">
+                <ngx-menu-devicon
+                  [icon]="workshop().thumbnail"
+                  [large]="true"
+                  aria-hidden="true"
+                  style="--devicon-size: 96px"
+                />
+              </div>
+            } @else {
+              <img
+                class="workshop-card__image"
+                [ngSrc]="workshop().thumbnail | optimizeCloudinaryUrl"
+                [alt]="workshop().name"
+                priority
+                fill
+              />
+            }
           } @else {
-          <img
-            class="workshop-card__image"
-            [ngSrc]="workshop().thumbnail | optimizeCloudinaryUrl"
-            [alt]="workshop().name"
-            priority
-            fill
-          />
-          } } @else {
-          <mat-icon aria-hidden="true">image</mat-icon>
+            <mat-icon aria-hidden="true">image</mat-icon>
           }
 
           <div class="workshop-card__level">Level {{ level() }}</div>
+          <div class="workshop-detail__published">Published</div>
         </div>
         <h2 class="workshop-card__title">{{ workshop().name }}</h2>
         <!-- <p class="workshop-card__level">Level {{ level() }}</p> -->
@@ -160,19 +162,25 @@ import { OptimizeCloudinaryUrlPipe } from './optimize-cloudinary-url.pipe';
         margin: 0;
       }
 
+      .workshop-detail__published,
       .workshop-card__level {
         position: absolute;
         bottom: 0.4rem;
-        left: 0.4rem;
         display: inline-flex;
         align-items: center;
-        max-width: 100%;
         height: var(--mat-chip-container-height, 32px);
         padding: 0 8px;
         font-size: 0.875rem;
         font-weight: 100;
         background: var(--mat-sys-primary-container);
+        border: 1px solid var(--mat-sys-primary);
         border-radius: var(--mat-chip-container-shape-radius, 8px);
+      }
+      .workshop-card__level {
+        left: 0.4rem;
+      }
+      .workshop-detail__published {
+        right: 0.4rem;
       }
       .workshop-card__summary {
         font-size: 1rem;

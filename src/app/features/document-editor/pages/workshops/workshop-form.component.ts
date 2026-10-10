@@ -105,7 +105,9 @@ type WorkshopForm = {
             max="20"
             step="1"
           />
-          <mat-error>Enter a whole-number level from 1 to 20.</mat-error>
+          <mat-error
+            >Enter a whole-number level from 1 to 20.</mat-error
+          >
         </mat-form-field>
         @if (form().controls.thumbnail.value) {
           @if (form().controls.thumbnail.value | isDevicon) {

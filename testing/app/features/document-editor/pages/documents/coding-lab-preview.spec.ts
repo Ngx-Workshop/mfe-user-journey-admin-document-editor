@@ -113,17 +113,15 @@ describe('Coding lab learner preview', () => {
     fixture.componentRef.setInput('resourceId', 'third');
     await fixture.whenStable();
     expect(stale.cancelled).toBeTrue();
-    http
-      .expectOne('/api/coding-labs/published-labs/third')
-      .flush({
-        ...lab,
-        labId: 'third',
-        title: 'Third lab',
-        starterCode: 'new code',
-        hints: [],
-        sampleTests: [],
-        promptMarkdown: '',
-      });
+    http.expectOne('/api/coding-labs/published-labs/third').flush({
+      ...lab,
+      labId: 'third',
+      title: 'Third lab',
+      starterCode: 'new code',
+      hints: [],
+      sampleTests: [],
+      promptMarkdown: '',
+    });
     await fixture.whenStable();
     expect(fixture.nativeElement.textContent).toContain('Third lab');
     expect(fixture.nativeElement.textContent).toContain(

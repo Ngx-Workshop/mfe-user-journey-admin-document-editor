@@ -157,10 +157,18 @@ describe('Routed page authoring', () => {
     const toolbar = harness.routeNativeElement?.querySelector(
       '.workshop-detail__toolbar'
     );
-    expect(toolbar?.querySelector('.workshop-detail__level')?.textContent?.trim()).toBe('Level 7');
+    expect(
+      toolbar
+        ?.querySelector('.workshop-detail__level')
+        ?.textContent?.trim()
+    ).toBe('Level 7');
     state.addWorkshop({ ...workshop, level: 20 });
     await harness.fixture.whenStable();
-    expect(toolbar?.querySelector('.workshop-detail__level')?.textContent?.trim()).toBe('Level 20');
+    expect(
+      toolbar
+        ?.querySelector('.workshop-detail__level')
+        ?.textContent?.trim()
+    ).toBe('Level 20');
     const edit = toolbar?.querySelector(
       '[aria-label="Edit First"]'
     ) as HTMLAnchorElement;

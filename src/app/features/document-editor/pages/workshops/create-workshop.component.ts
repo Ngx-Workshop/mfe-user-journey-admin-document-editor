@@ -85,7 +85,10 @@ export class CreateWorkshopComponent {
           this.saved.set(false);
           this.error.set('');
           this.form.reset({
-            name: '', summary: '', thumbnail: '', level: 1,
+            name: '',
+            summary: '',
+            thumbnail: '',
+            level: 1,
           });
           this.form.controls.thumbnail.setValidators(
             workshopId === null
@@ -135,7 +138,8 @@ export class CreateWorkshopComponent {
             thumbnail: workshop.thumbnail,
             // Published contracts predate level; legacy responses default to 1.
             level:
-              (workshop as typeof workshop & { level?: number }).level ?? 1,
+              (workshop as typeof workshop & { level?: number })
+                .level ?? 1,
           });
         }
         this.workshopLoaded.set(true);

@@ -32,7 +32,7 @@ describe('Workshop authoring pages', () => {
     categoriesLastUpdated: '',
   };
   const workshop: WorkshopDto = {
-  level: 1,
+    level: 1,
     _id: '507f1f77bcf86cd799439012',
     sectionId: section._id,
     sortId: 0,
@@ -154,7 +154,9 @@ describe('Workshop authoring pages', () => {
     const card = harness.routeNativeElement?.querySelector(
       '.workshop-card'
     ) as HTMLElement;
-    expect(card.querySelector('.workshop-card__level')?.textContent?.trim()).toBe('Level 1');
+    expect(
+      card.querySelector('.workshop-card__level')?.textContent?.trim()
+    ).toBe('Level 1');
     const editorLink = card.querySelector(
       '.workshop-card__link'
     ) as HTMLAnchorElement;
@@ -426,7 +428,10 @@ describe('Workshop authoring pages', () => {
     ) as HTMLInputElement;
     expect(input.required).toBeTrue();
     expect(input.value).toBe('1');
-    component.form.patchValue({ name: 'Workshop', summary: 'Summary' });
+    component.form.patchValue({
+      name: 'Workshop',
+      summary: 'Summary',
+    });
     for (const value of ['', '0', '21', '1.5']) {
       input.value = value;
       input.dispatchEvent(new Event('input'));
@@ -443,7 +448,10 @@ describe('Workshop authoring pages', () => {
   });
 
   it('loads a saved level when editing', async () => {
-    const component = await harness.navigateByUrl(editUrl, CreateWorkshopComponent);
+    const component = await harness.navigateByUrl(
+      editUrl,
+      CreateWorkshopComponent
+    );
     http.expectOne(listEndpoint).flush([{ ...workshop, level: 7 }]);
     await harness.fixture.whenStable();
     expect(component.form.controls.level.value).toBe(7);

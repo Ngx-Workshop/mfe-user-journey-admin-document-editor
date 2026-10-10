@@ -12,6 +12,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { NgxEditorJsBlock } from '@tmdjr/ngx-editor-js2';
 import { combineLatest, map, shareReplay } from 'rxjs';
+import { PageListComponent } from '../../components/workshops-sidepanel/page-list-controls/page-list.component';
 import {
   ResolvedWorkshopEntry,
   WorkshopJourneyItem,
@@ -22,7 +23,6 @@ import {
   journeyViewModel,
   resolvedEntryContent,
 } from '../../utils/document-view-model';
-import { PageListComponent } from '../../components/workshops-sidepanel/page-list-controls/page-list.component';
 import { AssessmentTestPreviewComponent } from './assessment-test-preview.component';
 import { CodingLabPreviewComponent } from './coding-lab-preview.component';
 import { DocumentEditorComponent } from './document-editor.component';
