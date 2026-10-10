@@ -2,6 +2,7 @@ import { NgOptimizedImage } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   input,
   output,
 } from '@angular/core';
@@ -38,34 +39,36 @@ import { OptimizeCloudinaryUrlPipe } from './optimize-cloudinary-url.pipe';
         [routerLink]="[
           '../',
           workshop().workshopDocumentGroupId,
-          workshop().workshopDocuments[0]?._id || '',
+          workshop().workshopDocuments[0]?._id || ''
         ]"
       >
         <div class="workshop-card__artwork">
-          @if (workshop().thumbnail) {
-            @if (workshop().thumbnail | isDevicon) {
-              <div class="workshop-card__icon">
-                <ngx-menu-devicon
-                  [icon]="workshop().thumbnail"
-                  [large]="true"
-                  aria-hidden="true"
-                  style="--devicon-size: 96px"
-                />
-              </div>
-            } @else {
-              <img
-                class="workshop-card__image"
-                [ngSrc]="workshop().thumbnail | optimizeCloudinaryUrl"
-                [alt]="workshop().name"
-                priority
-                fill
-              />
-            }
+          @if (workshop().thumbnail) { @if (workshop().thumbnail |
+          isDevicon) {
+          <div class="workshop-card__icon">
+            <ngx-menu-devicon
+              [icon]="workshop().thumbnail"
+              [large]="true"
+              aria-hidden="true"
+              style="--devicon-size: 96px"
+            />
+          </div>
           } @else {
-            <mat-icon aria-hidden="true">image</mat-icon>
+          <img
+            class="workshop-card__image"
+            [ngSrc]="workshop().thumbnail | optimizeCloudinaryUrl"
+            [alt]="workshop().name"
+            priority
+            fill
+          />
+          } } @else {
+          <mat-icon aria-hidden="true">image</mat-icon>
           }
+
+          <div class="workshop-card__level">Level {{ level() }}</div>
         </div>
         <h2 class="workshop-card__title">{{ workshop().name }}</h2>
+        <!-- <p class="workshop-card__level">Level {{ level() }}</p> -->
         <p class="workshop-card__summary">{{ workshop().summary }}</p>
       </a>
       <div class="workshop-card__actions">
@@ -92,6 +95,7 @@ import { OptimizeCloudinaryUrlPipe } from './optimize-cloudinary-url.pipe';
   `,
   styles: [
     `
+      @use '@angular/material' as mat;
       :host {
         display: block;
         max-width: 100%;
@@ -155,6 +159,21 @@ import { OptimizeCloudinaryUrlPipe } from './optimize-cloudinary-url.pipe';
         padding: 12px 8px;
         margin: 0;
       }
+
+      .workshop-card__level {
+        position: absolute;
+        bottom: 0.4rem;
+        left: 0.4rem;
+        display: inline-flex;
+        align-items: center;
+        max-width: 100%;
+        height: var(--mat-chip-container-height, 32px);
+        padding: 0 8px;
+        font-size: 0.875rem;
+        font-weight: 100;
+        background: var(--mat-sys-primary-container);
+        border-radius: var(--mat-chip-container-shape-radius, 8px);
+      }
       .workshop-card__summary {
         font-size: 1rem;
         font-weight: 100;
@@ -188,6 +207,7 @@ import { OptimizeCloudinaryUrlPipe } from './optimize-cloudinary-url.pipe';
 })
 export class WorkshopCardComponent {
   readonly workshop = input.required<WorkshopDto>();
+  readonly level = computed(() => this.workshop().level ?? 1);
   readonly visible = input(true);
   readonly order = input(0);
   readonly deleteWorkshop = output<WorkshopDto>();

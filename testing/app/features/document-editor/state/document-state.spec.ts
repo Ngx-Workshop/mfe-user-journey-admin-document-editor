@@ -20,6 +20,7 @@ const section: SectionDto = {
   headerSvgPath: '',
 };
 const workshop: WorkshopDto = {
+  level: 1,
   workshopDocumentsLastUpdated: '',
   _id: 'workshop-1',
   sectionId: section._id,

@@ -464,3 +464,5 @@ mechanical reorganization.
 153 service tests and 28 focused ChromeHeadless workshop-authoring tests passed. Service production build, OpenAPI regeneration, generated contract compilation and editor production build passed. Whitespace checks passed.
 No live MongoDB/gateway/hosted UI checks, publication or deployment.
 See [handoff](../specs/019-workshop-level/handoff.md).
+
+Workshop level display follow-up (2026-10-10): detail toolbar now shows a Material level chip; workshop cards show level below the title. Both default missing level to 1. The toolbar follows current workshop state. Installed contracts include level; five test fixtures were updated to the required field. Verified 52 focused ChromeHeadless tests and production build; no hosted UI check or deployment.

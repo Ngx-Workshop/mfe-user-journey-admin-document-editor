@@ -48,6 +48,9 @@ import { DocumentEditorComponent } from './document-editor.component';
           ><mat-icon>arrow_back</mat-icon>Back to Workshops</a
         >
         <div class="workshop-detail__spacer"></div>
+        <mat-chip class="workshop-detail__level">
+          Level {{ vm.workshopLevel }}
+        </mat-chip>
         <mat-chip class="workshop-detail__published"
           >Published</mat-chip
         >
@@ -126,6 +129,7 @@ import { DocumentEditorComponent } from './document-editor.component';
   styles: [
     `
       @use '@angular/material' as mat;
+      .workshop-detail__level,
       .workshop-detail__published {
         @include mat.chips-overrides(
           (

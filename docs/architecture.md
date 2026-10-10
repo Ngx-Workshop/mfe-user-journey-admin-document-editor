@@ -312,3 +312,5 @@ Workshop metadata includes level (default 1, range 1–20). The service validate
 integer payloads, preserves omitted edit values and returns 1 for legacy records.
 The administrator form requires level on create/edit and loads saved values.
 See [019 handoff](../specs/019-workshop-level/handoff.md) for contract delivery order.
+
+Workshop level display follow-up (2026-10-10): detail toolbar now shows a Material level chip; workshop cards show level below the title. Both default missing level to 1. The toolbar follows current workshop state. Installed contracts include level; five test fixtures were updated to the required field. Verified 52 focused ChromeHeadless tests and production build; no hosted UI check or deployment.

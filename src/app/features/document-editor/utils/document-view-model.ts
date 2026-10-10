@@ -76,6 +76,7 @@ export function journeyViewModel(
     ...content,
     document,
     documents,
+    workshopLevel: workshop?.level ?? 1,
     workshopId: workshop?._id ?? '',
     workshopDocumentGroupId: workshop?.workshopDocumentGroupId ?? '',
     pageIndex: Math.max(

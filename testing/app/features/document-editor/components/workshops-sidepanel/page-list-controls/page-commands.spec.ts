@@ -22,6 +22,7 @@ const section: SectionDto = {
   categoriesLastUpdated: '',
 };
 const workshop: WorkshopDto = {
+  level: 1,
   _id: 'workshop',
   sectionId: 'angular',
   workshopDocumentGroupId: 'streams',

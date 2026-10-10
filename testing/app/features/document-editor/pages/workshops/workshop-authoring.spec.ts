@@ -32,6 +32,7 @@ describe('Workshop authoring pages', () => {
     categoriesLastUpdated: '',
   };
   const workshop: WorkshopDto = {
+  level: 1,
     _id: '507f1f77bcf86cd799439012',
     sectionId: section._id,
     sortId: 0,
@@ -153,6 +154,7 @@ describe('Workshop authoring pages', () => {
     const card = harness.routeNativeElement?.querySelector(
       '.workshop-card'
     ) as HTMLElement;
+    expect(card.querySelector('.workshop-card__level')?.textContent?.trim()).toBe('Level 1');
     const editorLink = card.querySelector(
       '.workshop-card__link'
     ) as HTMLAnchorElement;
