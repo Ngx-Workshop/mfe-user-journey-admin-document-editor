@@ -1,5 +1,14 @@
 # Document editor development
 
+## Build toolchain compatibility
+
+Keep `@angular-devkit/build-angular` pinned to `21.2.26` and the npm webpack
+override at `5.105.2`. Builder `21.2.28` uses webpack `5.112.0`, whose federation
+identifiers break `license-webpack-plugin@4.0.2` with an undefined `trim` error.
+Both pins keep one compatible webpack runtime. Keep license extraction enabled;
+validate a normal production build and non-empty `3rdpartylicenses.txt` before
+removing these pins after an upstream fix.
+
 ## Local document workflow (2026-10-03)
 
 This mirrors the assessment repositories, using document-specific ports and data.
