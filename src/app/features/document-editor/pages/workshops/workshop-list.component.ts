@@ -1,3 +1,8 @@
+import { NgxActionBar } from '@tmdjr/ngx-workshop-design-system';
+import { DocumentPanelComponent } from '../../components/document-panel.component';
+import { DocumentViewportDirective } from '../../components/document-viewport.directive';
+import { signal } from '@angular/core';
+import { NgxButton } from '@tmdjr/ngx-workshop-design-system';
 import { AsyncPipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
@@ -17,8 +22,9 @@ import { WorkshopCardComponent } from './workshop-card.component';
 export { OptimizeCloudinaryUrlPipe } from './optimize-cloudinary-url.pipe';
 
 @Component({
+  host: { class: 'ngx-design-system ngx-document-design' },
   selector: 'ngx-workshop-list',
-  imports: [
+  imports: [NgxActionBar, DocumentPanelComponent, DocumentViewportDirective,NgxButton,
     AsyncPipe,
     RouterLink,
     MatButtonModule,
@@ -28,17 +34,11 @@ export { OptimizeCloudinaryUrlPipe } from './optimize-cloudinary-url.pipe';
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="workshop-catalog__toolbar">
-      <a routerLink="../../" matButton="filled"
-        ><mat-icon>arrow_back</mat-icon> Back to Sections</a
-      >
-      <div class="workshop-catalog__spacer"></div>
-      <a matButton="filled" routerLink="../create-workshop"
-        ><mat-icon>note_add</mat-icon>Create New Workshop</a
-      >
-    </div>
+    <ngx-action-bar heading="Workshops"><a routerLink="../../" mat-flat-button ngxButton surface="outline"><mat-icon>arrow_back</mat-icon>Back to Sections</a><a mat-flat-button ngxButton surface="outline" routerLink="../create-workshop"><mat-icon>note_add</mat-icon>Create New Workshop</a></ngx-action-bar>
     @if (workshops$ | async; as workshops) {
-      <div class="workshop-catalog__content">
+      <main class="document-layout"><div class="document-layout__workspace workshop-catalog__content" ngxDocumentViewport>
+        <div class="workshop-catalog__switch" role="group" aria-label="Workshop panels"><button mat-button [attr.aria-pressed]="pane() === 'workshops'" (click)="pane.set('workshops')">Workshops</button><button mat-button [attr.aria-pressed]="pane() === 'order'" (click)="pane.set('order')">Order</button></div>
+        <ngx-document-panel heading="Workshops" eyebrow="DOCUMENTS / CATALOGUE" background="grid" [class.workshop-catalog__hidden]="pane() !== 'workshops'">
         <div class="workshop-catalog__cards">
           @for (
             workshop of workshops;
@@ -57,74 +57,42 @@ export { OptimizeCloudinaryUrlPipe } from './optimize-cloudinary-url.pipe';
             </p>
           }
         </div>
+        </ngx-document-panel>
+        <ngx-document-panel heading="Workshop order" eyebrow="DOCUMENTS / NAVIGATION" shape="chamfered" [class.workshop-catalog__hidden]="pane() !== 'order'">
         <ngx-workshop-list-control
           class="workshop-catalog__sidebar"
           [workshops]="workshops"
         />
-      </div>
+        </ngx-document-panel>
+      </div></main>
     }
   `,
-  styles: [
-    `
-      :host {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-      }
-      .workshop-catalog__toolbar {
-        position: sticky;
-        top: 56px;
-        min-height: 56px;
-        z-index: 5;
-        display: flex;
-        width: 100%;
-        background: var(--mat-sys-primary);
-        align-items: center;
-        a {
-          color: var(--mat-sys-on-primary);
-          background: var(--mat-sys-primary);
-          margin: 0 12px;
-        }
-      }
-      .workshop-catalog__spacer {
-        flex: 1;
-      }
-      .workshop-catalog__content {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) 460px;
-        gap: 24px;
-        width: 100%;
-        align-items: start;
-      }
-      .workshop-catalog__cards {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 24px;
-        padding: 24px;
-        justify-content: center;
-        min-width: 0;
-      }
-      .workshop-catalog__sidebar {
-        position: sticky;
-        top: 112px;
-        width: 320px;
-      }
-      @media (max-width: 900px) {
-        .workshop-catalog__content {
-          grid-template-columns: 1fr;
-        }
-        .workshop-catalog__sidebar {
-          position: static;
-          width: 100%;
-        }
-        .workshop-catalog__toolbar {
-          flex-wrap: wrap;
-        }
-      }
-    `,
-  ],
+  styles: [`
+    :host { display: block; min-width: 0; color: var(--ngx-color-text); background: var(--ngx-color-canvas); }
+    ngx-action-bar { --ngx-action-bar-top: 96px; }
+    .document-layout { padding: 1rem; }
+    .document-layout__workspace { min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); gap: 1rem; }
+    @media (max-width: 720px) {
+      ngx-action-bar { --ngx-action-bar-top: 76px; gap: 4px; }
+      ngx-action-bar a, ngx-action-bar button { min-width: 0; padding-inline: 8px; font-size: 0.7rem; }
+      .document-layout { padding: 0.5rem; }
+    }
+    .workshop-catalog__content { grid-template-columns: minmax(0, 1fr) 320px; }
+    .workshop-catalog__cards { display: grid; grid-template-columns: minmax(0, 1fr); }
+    .workshop-catalog__switch { display: none; }
+    @media (max-width: 1000px) {
+      .workshop-catalog__content { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); gap: 8px; }
+      .workshop-catalog__switch { display: flex; }
+      .workshop-catalog__switch button[aria-pressed='true'] { background: var(--ngx-color-surface-high); }
+      ngx-document-panel { grid-column: 1; grid-row: 2; }
+      .workshop-catalog__hidden { display: none; }
+    }
+
+  `],
+
 })
 export class WorkshopListComponent {
+  readonly pane = signal<'workshops' | 'order'>('workshops');
   private readonly dialogs = inject(MatDialog);
   readonly workshops$ = inject(NavigationService)
     .getWorkshops()
@@ -138,6 +106,7 @@ export class WorkshopListComponent {
     this.dialogs.open(DeleteWorkshopModalComponent, {
       width: '400px',
       backdropClass: 'blur-backdrop',
+      panelClass: 'ngx-design-system-overlay',
       data: { workshop },
     });
   }

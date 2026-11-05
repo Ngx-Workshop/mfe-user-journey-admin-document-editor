@@ -1,3 +1,5 @@
+import { ChangeDetectionStrategy } from '@angular/core';
+import { NgxButton } from '@tmdjr/ngx-workshop-design-system';
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
@@ -20,8 +22,10 @@ import { NavigationService } from '../../../../../state/navigation.service';
 import { WorkshopEditorService } from '../../../../../state/workshops.service';
 
 @Component({
+  host: { class: 'ngx-design-system ngx-document-design' },
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'ngx-delete-page-modal',
-  imports: [
+  imports: [NgxButton,
     ReactiveFormsModule,
     MatButtonModule,
     MatDialogModule,
@@ -56,7 +60,7 @@ import { WorkshopEditorService } from '../../../../../state/workshops.service';
       </mat-dialog-content>
       <mat-dialog-actions align="end">
         <button
-          matButton
+          mat-flat-button ngxButton surface="outline"
           type="button"
           mat-dialog-close
           [disabled]="pending()"
@@ -64,7 +68,7 @@ import { WorkshopEditorService } from '../../../../../state/workshops.service';
           Cancel
         </button>
         <button
-          matButton="filled"
+          mat-flat-button ngxButton surface="outline"
           type="submit"
           [disabled]="form.invalid || pending()"
         >
@@ -79,7 +83,7 @@ import { WorkshopEditorService } from '../../../../../state/workshops.service';
         width: 100%;
       }
       .delete-page__error {
-        color: var(--mat-sys-error);
+        color: var(--ngx-color-error);
       }
     `,
   ],

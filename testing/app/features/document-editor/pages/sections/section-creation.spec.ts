@@ -416,7 +416,7 @@ describe('Section authoring', () => {
 
   it('opens creation from the catalog link instead of a modal', async () => {
     const link = harness.routeNativeElement?.querySelector(
-      '.section-catalog__headline a'
+      'ngx-action-bar a'
     ) as HTMLAnchorElement;
     expect(link.getAttribute('href')).toBe(
       '/document-editor/create-section'
@@ -908,7 +908,7 @@ describe('Section authoring', () => {
       ).toBeTrue();
       expect(
         harness.routeNativeElement?.querySelector(
-          'ngx-particle-header img'
+          '.workshops__image'
         )
       ).toBeNull();
       navigation.addSection({ ...saved, headerSvgPath: imageUrl });
@@ -918,7 +918,7 @@ describe('Section authoring', () => {
       ).toBeNull();
       expect(
         harness.routeNativeElement
-          ?.querySelector('ngx-particle-header img')
+          ?.querySelector('.workshops__image')
           ?.getAttribute('src')
       ).toBe(imageUrl);
     });

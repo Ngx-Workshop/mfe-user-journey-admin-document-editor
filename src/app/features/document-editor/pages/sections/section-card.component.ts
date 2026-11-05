@@ -14,6 +14,7 @@ import {
 } from '../../components/devicon.component';
 
 @Component({
+  host: { class: 'ngx-design-system ngx-document-design' },
   selector: 'ngx-section-card',
   imports: [
     RouterLink,
@@ -36,7 +37,7 @@ import {
               [icon]="section().headerSvgPath"
               [large]="true"
               aria-hidden="true"
-              style="--devicon-size: 64px"
+              style="--devicon-size: 32px"
             />
           } @else {
             <img
@@ -81,83 +82,21 @@ import {
       </div>
     </article>
   `,
-  styles: [
-    `
-      :host {
-        display: block;
-        max-width: 350px;
-        width: 100%;
-      }
-      .section-card {
-        position: relative;
-      }
-      .section-card__link {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-decoration: none;
-        border-radius: 24px;
-        transition: box-shadow 0.4s;
-        box-shadow: var(--mat-sys-level3);
-        color: var(--mat-sys-on-primary-container);
-        background: var(--mat-sys-secondary-container);
-        &:hover {
-          box-shadow: var(--mat-sys-level5);
-        }
-      }
-      .section-card__image {
-        width: 160px;
-        height: 160px;
-        object-fit: contain;
-        padding: 20px;
-      }
-      .section-card__placeholder {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        height: 200px;
-        font-size: 4rem;
-        color: var(--mat-sys-primary-fixed);
-        background: var(--mat-sys-primary-fixed-dim);
-        border-radius: 24px 24px 0 0;
-      }
-      .section-card__title {
-        font-size: 2rem;
-        font-weight: 400;
-        margin: 0 0 8px;
-      }
-      .section-card__description {
-        padding: 0 19px;
-        font-size: 1.2rem;
-        font-weight: 300;
-        line-height: 1.75rem;
-        margin: 0 0 24px;
-      }
-      .section-card__actions {
-        position: absolute;
-        top: 8px;
-        right: 8px;
-        display: flex;
-        border-radius: var(--mat-sys-corner-full);
-        color: var(--mat-sys-primary);
-        background: var(--mat-sys-surface-container);
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity 0.15s;
-      }
-      .section-card:is(:hover, :focus-within) .section-card__actions {
-        opacity: 1;
-        pointer-events: auto;
-      }
-      @media (hover: none) {
-        .section-card__actions {
-          opacity: 1;
-          pointer-events: auto;
-        }
-      }
-    `,
-  ],
+  styles: [`
+    :host { display: block; min-width: 0; }
+    .section-card { position: relative; border-bottom: 1px solid var(--ngx-color-border); background: var(--ngx-color-surface); }
+    .section-card__link { display: grid; grid-template-columns: 40px minmax(0, 1fr); column-gap: 12px; padding: 10px 96px 10px 10px; color: var(--ngx-color-text); text-decoration: none; min-height: 72px; }
+    .section-card__image, .section-card__placeholder { grid-column: 1; grid-row: 1 / 3; width: 32px; height: 32px; object-fit: contain; align-self: center; }
+    .section-card__title { grid-column: 2; margin: 0 0 4px; font-family: var(--ngx-font-heading); font-size: 0.9rem; overflow-wrap: anywhere; }
+    .section-card__description { grid-column: 2; margin: 0; font-size: 0.75rem; color: var(--ngx-color-muted); overflow-wrap: anywhere; }
+    .section-card__actions { position: absolute; top: 8px; right: 4px; display: flex; opacity: 0; pointer-events: none; }
+    .section-card:is(:hover, :focus-within) .section-card__actions { opacity: 1; pointer-events: auto; }
+    .section-card__link:focus-visible { outline: 2px solid var(--ngx-color-primary); outline-offset: -2px; }
+    @media (hover: none) { .section-card__actions { opacity: 1; pointer-events: auto; } }
+    @media (max-width: 600px) { .section-card__link { padding-right: 10px; padding-bottom: 48px; } .section-card__actions { top: auto; bottom: 4px; } }
+
+  `],
+
 })
 export class SectionCardComponent {
   readonly section = input.required<SectionDto>();

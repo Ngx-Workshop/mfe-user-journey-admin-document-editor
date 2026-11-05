@@ -1,3 +1,5 @@
+import { ChangeDetectionStrategy } from '@angular/core';
+import { NgxButton } from '@tmdjr/ngx-workshop-design-system';
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
@@ -16,7 +18,6 @@ import { MatInputModule } from '@angular/material/input';
 import { SectionDto } from '@tmdjr/document-contracts';
 import { finalize } from 'rxjs';
 import { MatchStringValidator } from '../../forms/match-string.validator';
-import { NavigationService } from '../../state/navigation.service';
 import { WorkshopEditorService } from '../../state/workshops.service';
 
 export interface DeleteSectionDialogData {
@@ -24,8 +25,10 @@ export interface DeleteSectionDialogData {
 }
 
 @Component({
+  host: { class: 'ngx-design-system ngx-document-design' },
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'ngx-delete-section-modal',
-  imports: [
+  imports: [NgxButton,
     ReactiveFormsModule,
     MatButtonModule,
     MatDialogModule,
@@ -75,7 +78,7 @@ export interface DeleteSectionDialogData {
       </mat-dialog-content>
       <mat-dialog-actions align="end">
         <button
-          matButton
+          mat-flat-button ngxButton surface="outline"
           type="button"
           [mat-dialog-close]="undefined"
           [disabled]="saving()"
@@ -83,7 +86,7 @@ export interface DeleteSectionDialogData {
           Cancel
         </button>
         <button
-          matButton="filled"
+          mat-flat-button ngxButton surface="outline"
           class="delete-section__button"
           type="submit"
           [disabled]="form.invalid || saving() || deleted()"
@@ -105,18 +108,17 @@ export interface DeleteSectionDialogData {
         width: 100%;
       }
       .delete-section__error {
-        color: var(--mat-sys-error);
+        color: var(--ngx-color-error);
       }
       .delete-section__button:not(:disabled) {
-        color: var(--mat-sys-on-error);
-        background-color: var(--mat-sys-error);
+        color: var(--ngx-color-text);
+        background-color: var(--ngx-color-error);
       }
     `,
   ],
 })
 export class DeleteSectionModalComponent {
   private readonly editor = inject(WorkshopEditorService);
-  private readonly navigation = inject(NavigationService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dialogRef = inject(
     MatDialogRef<DeleteSectionModalComponent, boolean>

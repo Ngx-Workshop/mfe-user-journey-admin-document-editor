@@ -1,3 +1,5 @@
+import { ChangeDetectionStrategy } from '@angular/core';
+import { NgxButton } from '@tmdjr/ngx-workshop-design-system';
 import {
   Component,
   computed,
@@ -30,8 +32,10 @@ type PreviewState = {
 };
 
 @Component({
+  host: { class: 'ngx-design-system ngx-document-design' },
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'ngx-assessment-test-preview',
-  imports: [MatButtonModule, MatRadioModule],
+  imports: [NgxButton,MatButtonModule, MatRadioModule],
   template: `
     <section
       class="assessment-preview"
@@ -51,7 +55,7 @@ type PreviewState = {
       }
       @if (state().error) {
         <p role="alert">{{ state().error }}</p>
-        <button matButton type="button" (click)="retry()">
+        <button mat-flat-button ngxButton surface="outline" type="button" (click)="retry()">
           Retry loading test
         </button>
       }
@@ -68,7 +72,7 @@ type PreviewState = {
             answers before finishing.
           </p>
           <button
-            matButton="filled"
+            mat-flat-button ngxButton surface="outline"
             type="button"
             (click)="started.set(true)"
           >
@@ -109,7 +113,7 @@ type PreviewState = {
             </article>
           }
           <button
-            matButton="filled"
+            mat-flat-button ngxButton surface="outline"
             type="button"
             (click)="restart()"
           >
@@ -154,13 +158,13 @@ type PreviewState = {
             }
             <p>Answer every question to see your results.</p>
             <button
-              matButton="filled"
+              mat-flat-button ngxButton surface="outline"
               type="submit"
               [disabled]="!complete()"
             >
               Finish preview
             </button>
-            <button matButton type="button" (click)="restart()">
+            <button mat-flat-button ngxButton surface="outline" type="button" (click)="restart()">
               Start over
             </button>
           </form>
@@ -177,24 +181,24 @@ type PreviewState = {
         min-width: 0;
       }
       .assessment-preview {
-        background: var(--mat-sys-surface-container-low);
+        background: var(--ngx-color-surface);
         padding: 1.5rem;
-        border-radius: var(--mat-sys-corner-medium);
+        border-radius: var(--ngx-radius-sm);
         margin-bottom: 2rem;
         max-width: 750px;
         min-width: 0;
       }
       .assessment-preview__eyebrow {
-        color: var(--mat-sys-primary);
+        color: var(--ngx-color-primary);
       }
       .assessment-preview__progress {
         width: 100%;
-        accent-color: var(--mat-sys-primary);
+        accent-color: var(--ngx-color-primary);
       }
       .assessment-preview__question {
         margin: 24px 0;
         padding: 16px;
-        border: 1px solid var(--mat-sys-outline-variant);
+        border: 1px solid var(--ngx-color-border);
         border-radius: 12px;
         min-width: 0;
       }
@@ -210,14 +214,14 @@ type PreviewState = {
       }
       .assessment-preview__review {
         padding: 16px 0;
-        border-bottom: 1px solid var(--mat-sys-outline-variant);
+        border-bottom: 1px solid var(--ngx-color-border);
         white-space: pre-wrap;
       }
       .assessment-preview__result {
         padding: 16px;
         border-radius: 12px;
-        background: var(--mat-sys-primary-container);
-        color: var(--mat-sys-on-primary-container);
+        background: var(--ngx-color-surface-high);
+        color: var(--ngx-color-text);
       }
       button {
         margin: 8px 8px 0 0;

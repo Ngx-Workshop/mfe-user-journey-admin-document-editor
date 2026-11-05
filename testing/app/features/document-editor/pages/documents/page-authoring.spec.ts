@@ -263,47 +263,19 @@ describe('Routed page authoring', () => {
   });
 
   for (const editing of [false, true]) {
-    it(`matches the document toolbar styling on the ${
-      editing ? 'edit' : 'create'
-    } page`, async () => {
+    it(`uses the shared toolbar and metadata panel on the ${editing ? 'edit' : 'create'} page`, async () => {
       await open(editing);
-      const host: HTMLElement = harness.fixture.nativeElement;
-      host.style.setProperty('--mat-sys-primary', 'rgb(20, 40, 60)');
-      host.style.setProperty(
-        '--mat-sys-on-primary',
-        'rgb(240, 245, 250)'
-      );
-      const form = harness.routeNativeElement?.querySelector(
-        'ngx-page-form'
-      ) as HTMLElement;
-      const toolbar = form.querySelector(
-        '.page-form__toolbar'
-      ) as HTMLElement;
-      const content = form.querySelector('main') as HTMLElement;
-      const button = toolbar.querySelector(
-        'button'
-      ) as HTMLButtonElement;
-      const toolbarStyle = getComputedStyle(toolbar);
-      const buttonStyle = getComputedStyle(button);
+      const form = harness.routeNativeElement?.querySelector('ngx-page-form') as HTMLElement;
+      const toolbar = form.querySelector('ngx-action-bar') as HTMLElement;
+      const panel = form.querySelector('ngx-document-panel') as HTMLElement;
+      const button = toolbar.querySelector('button') as HTMLButtonElement;
       expect(toolbar.parentElement).toBe(form);
-      expect(content.contains(toolbar)).toBeFalse();
-      expect(toolbarStyle.position).toBe('sticky');
-      expect(toolbarStyle.top).toBe('56px');
-      expect(toolbarStyle.minHeight).toBe('56px');
-      expect(toolbarStyle.zIndex).toBe('5');
-      expect(toolbarStyle.display).toBe('flex');
-      expect(toolbarStyle.flexWrap).toBe('wrap');
-      expect(toolbarStyle.backgroundColor).toBe('rgb(20, 40, 60)');
-      expect(toolbar.getBoundingClientRect().width).toBe(
-        form.getBoundingClientRect().width
-      );
-      expect(button.getAttribute('matButton')).toBe('filled');
-      expect(buttonStyle.color).toBe('rgb(240, 245, 250)');
-      expect(buttonStyle.backgroundColor).toBe(
-        toolbarStyle.backgroundColor
-      );
-      expect(buttonStyle.marginLeft).toBe('12px');
-      expect(buttonStyle.marginRight).toBe('12px');
+      expect(panel.contains(toolbar)).toBeFalse();
+      expect(toolbar.querySelector('h1')?.textContent?.trim()).toBe(editing ? 'Edit Page' : 'Create Page');
+      expect(button.textContent).toContain('Back to Workshop');
+      expect(button.type).toBe('button');
+      expect(panel.querySelector('[role="region"]')?.getAttribute('aria-label')).toBe('Page settings');
+      expect(panel.querySelector('input[formControlName="name"]')).not.toBeNull();
     });
 
     it(`retains ${

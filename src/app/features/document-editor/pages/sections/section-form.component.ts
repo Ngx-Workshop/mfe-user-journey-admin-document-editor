@@ -1,3 +1,7 @@
+import { NgxActionBar } from '@tmdjr/ngx-workshop-design-system';
+import { DocumentPanelComponent } from '../../components/document-panel.component';
+import { DocumentViewportDirective } from '../../components/document-viewport.directive';
+import { NgxButton } from '@tmdjr/ngx-workshop-design-system';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -14,7 +18,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { RouterModule } from '@angular/router';
-import { NgxParticleHeader } from '@tmdjr/ngx-shared-headers';
 import {
   IsDeviconPipe,
   MenuDeviconComponent,
@@ -29,34 +32,29 @@ type SectionForm = {
 };
 
 @Component({
+  host: { class: 'ngx-design-system ngx-document-design' },
   selector: 'ngx-section-form',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
+  imports: [NgxActionBar, DocumentPanelComponent, DocumentViewportDirective,NgxButton,
     RouterModule,
     DocumentImagePickerButtonComponent,
     ReactiveFormsModule,
     MatButtonModule,
     MatFormFieldModule,
     MatInputModule,
-    NgxParticleHeader,
     MatIconModule,
     MenuDeviconComponent,
     IsDeviconPipe,
   ],
   template: `
-    <ngx-particle-header>
-      <h1 class="section-form__title">
-        {{ editing() ? 'Edit Section' : 'Create Section' }}
-      </h1>
-    </ngx-particle-header>
-    <div class="section-form__action-bar">
-      <a
+    <ngx-action-bar [heading]="editing() ? 'Edit Section' : 'Create Section'">      <a
         [routerLink]="editing() ? '../../' : '../'"
-        matButton="filled"
+        mat-flat-button ngxButton surface="outline"
       >
         <mat-icon>arrow_back</mat-icon> Back to Sections</a
       >
-    </div>
+</ngx-action-bar>
+    <main class="document-layout"><div class="document-layout__workspace" ngxDocumentViewport><ngx-document-panel heading="Section details" eyebrow="DOCUMENTS / METADATA">
     @if (loadingSection()) {
       <p role="status">Loading section…</p>
     }
@@ -187,7 +185,7 @@ type SectionForm = {
         <p class="section-form__error" role="alert">{{ error() }}</p>
         @if (editing() && !sectionLoaded() && !loadingSection()) {
           <button
-            matButton
+            mat-flat-button ngxButton surface="outline"
             type="button"
             (click)="retrySection.emit()"
           >
@@ -197,7 +195,7 @@ type SectionForm = {
       }
       <div class="section-form__form-actions">
         <button
-          matButton
+          mat-flat-button ngxButton surface="outline"
           type="button"
           (click)="returnToSections.emit()"
           [disabled]="saving()"
@@ -205,7 +203,7 @@ type SectionForm = {
           {{ created() ? 'Back to Sections' : 'Cancel' }}
         </button>
         <button
-          matButton="filled"
+          mat-flat-button ngxButton surface="outline"
           type="submit"
           [disabled]="
             form().invalid ||
@@ -226,68 +224,27 @@ type SectionForm = {
         </button>
       </div>
     </form>
+    </ngx-document-panel></div></main>
   `,
-  styles: [
-    `
-      .section-form__title {
-        font-size: 1.85rem;
-        font-weight: 100;
-        margin: 1.7rem 0;
-        padding: 0 1rem;
-      }
+  styles: [`
+    :host { display: block; min-width: 0; color: var(--ngx-color-text); background: var(--ngx-color-canvas); }
+    ngx-action-bar { --ngx-action-bar-top: 96px; }
+    .document-layout { padding: 1rem; }
+    .document-layout__workspace { min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); gap: 1rem; }
+    @media (max-width: 720px) {
+      ngx-action-bar { --ngx-action-bar-top: 76px; gap: 4px; }
+      ngx-action-bar a, ngx-action-bar button { min-width: 0; padding-inline: 8px; font-size: 0.7rem; }
+      .document-layout { padding: 0.5rem; }
+    }
+    .section-form__body, .section-form__fields { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; border: 0; padding: 0; margin: 0; min-width: 0; }
+    .section-form__field { width: 100%; min-width: 0; }
+    .section-form__error { color: var(--ngx-color-error); }
+    .section-form__form-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .section-form__image-preview { max-width: 160px; max-height: 100px; object-fit: contain; }
+    .section-form__icon-preview { --devicon-size: 40px; }
 
-      .section-form__body {
-        display: block;
-        max-width: 960px;
-        margin: auto;
-        padding: 24px;
-      }
-      .section-form__fields {
-        border: 0;
-        padding: 0;
-        margin: 0;
-        min-width: 0;
-      }
-      .section-form__field {
-        width: 100%;
-        margin-top: 8px;
-      }
-      .section-form__error {
-        color: var(--mat-sys-error);
-      }
-      .section-form__form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-        margin-top: 24px;
-      }
-      .section-form__action-bar {
-        position: sticky;
-        top: 56px;
-        height: 56px;
-        z-index: 5;
-        display: flex;
-        flex-direction: row;
-        width: 100%;
-        background: var(--mat-sys-primary);
-        align-items: center;
-        a,
-        button,
-        mat-paginator {
-          color: var(--mat-sys-on-primary);
-          background: var(--mat-sys-primary);
-          margin: 0 12px;
-        }
-      }
-      .section-form__image-preview,
-      .section-form__icon-preview {
-        display: block;
-        max-width: 100%;
-        max-height: 240px;
-        margin: 1rem 0;
-      }
-    `,
-  ],
+  `],
+
 })
 export class SectionFormComponent {
   readonly editing = input(false);

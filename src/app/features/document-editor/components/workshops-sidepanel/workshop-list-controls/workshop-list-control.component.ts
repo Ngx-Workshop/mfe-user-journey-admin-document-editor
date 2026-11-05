@@ -1,3 +1,4 @@
+import { ChangeDetectionStrategy } from '@angular/core';
 import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 import {
   Component,
@@ -17,6 +18,8 @@ import { WorkshopEditorService } from '../../../state/workshops.service';
 import { reorder } from '../../../utils/ordering';
 
 @Component({
+  host: { class: 'ngx-design-system ngx-document-design' },
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'ngx-workshop-list-control',
   imports: [
     RouterLink,
@@ -26,7 +29,7 @@ import { reorder } from '../../../utils/ordering';
     DragDropModule,
   ],
   template: `
-    <h3 class="workshop-order__heading">Workshop List's Order</h3>
+    <h3 class="workshop-order__heading">Workshops</h3>
     <div
       cdkDropList
       class="workshop-order__list"
@@ -34,11 +37,7 @@ import { reorder } from '../../../utils/ordering';
       (cdkDropListDropped)="onDrop($event)"
     >
       @for (item of workshops(); track item._id; let i = $index) {
-        <button
-          matButton="filled"
-          cdkDrag
-          class="workshop-order__item"
-        >
+        <div cdkDrag class="workshop-order__item">
           <div class="workshop-order__row">
             <mat-icon
               cdkDragHandle
@@ -47,7 +46,7 @@ import { reorder } from '../../../utils/ordering';
               >drag_indicator</mat-icon
             >
             <a
-              class="workshop-order__link"
+              class="workshop-order__link" [title]="item.name"
               [routerLink]="[
                 '../',
                 item.workshopDocumentGroupId,
@@ -56,8 +55,7 @@ import { reorder } from '../../../utils/ordering';
               routerLinkActive="workshop-order__link--selected"
               >{{ item.name }}</a
             >
-          </div>
-          <!-- <div class="workshop-order__actions">
+
             <button
               matIconButton
               type="button"
@@ -76,70 +74,24 @@ import { reorder } from '../../../utils/ordering';
             >
               <mat-icon>arrow_downward</mat-icon>
             </button>
-          </div> -->
-        </button>
+          </div>
+        </div>
       }
     </div>
   `,
-  styles: [
-    `
-      :host {
-        display: flex;
-        flex-direction: column;
-        margin-top: 1rem;
-      }
-      .workshop-order__heading {
-        font-size: 1.3rem;
-        font-weight: 100;
-        margin: 0.5rem;
-        padding: 0.5rem;
-        color: var(--mat-sys-primary);
-        border-bottom: 1px solid var(--mat-sys-primary);
-      }
-      .workshop-order__list {
-        display: flex;
-        gap: 0.5rem;
-        flex-direction: column;
-        padding: 0.4rem 1rem;
-      }
-      .workshop-order__item {
-        display: flex;
-        flex-direction: row;
-        justify-content: flex-start;
-        font-size: 1rem;
-        padding: 1.4rem 0.6rem;
-        border-radius: var(--mat-sys-corner-full);
-        color: var(--mat-sys-on-secondary-container);
-        background: var(--mat-sys-secondary-container);
-      }
-      .workshop-order__item:hover,
-      .workshop-order__item:focus-within {
-        background: var(--mat-sys-primary-container);
-      }
-      .workshop-order__row {
-        display: flex;
-        gap: 4px;
-        align-items: center;
-      }
-      .workshop-order__link {
-        flex: 1;
-        color: inherit;
-        text-decoration: none;
-        overflow-wrap: anywhere;
-      }
-      .workshop-order__link--selected {
-        color: var(--mat-sys-on-primary-container);
-        background: var(--mat-sys-primary-container);
-      }
-      .workshop-order__actions {
-        display: flex;
-        justify-content: flex-end;
-      }
-      .workshop-order__drag-handle {
-        cursor: grab;
-      }
-    `,
-  ],
+  styles: [`
+    :host { display: block; min-width: 0; }
+    .workshop-order__heading { font-family: var(--ngx-font-heading); font-size: 0.8rem; margin: 4px 0 8px; }
+    .workshop-order__list { display: grid; grid-template-columns: minmax(0, 1fr); gap: 4px; }
+    .workshop-order__item { border-bottom: 1px solid var(--ngx-color-border); min-width: 0; background: var(--ngx-color-surface); }
+    .workshop-order__row { display: flex; align-items: center; gap: 4px; min-width: 0; padding: 4px; }
+    .workshop-order__link { flex: 1; min-width: 0; font-size: 0.75rem; color: var(--ngx-color-text); text-decoration: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 6px 2px; }
+    .workshop-order__link--selected { color: var(--ngx-color-primary); font-weight: 600; }
+    .workshop-order__drag-handle { cursor: grab; flex-shrink: 0; color: var(--ngx-color-muted); }
+    .workshop-order__link:focus-visible { outline: 2px solid var(--ngx-color-primary); }
+
+  `],
+
 })
 export class WorkshopListControlsComponent {
   readonly workshops = input<WorkshopDto[]>([]);

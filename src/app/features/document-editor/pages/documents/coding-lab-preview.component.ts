@@ -1,3 +1,6 @@
+import { NgxCodeBlock } from '@tmdjr/ngx-workshop-design-system';
+import { ChangeDetectionStrategy } from '@angular/core';
+import { NgxButton } from '@tmdjr/ngx-workshop-design-system';
 import { JsonPipe } from '@angular/common';
 import {
   Component,
@@ -31,8 +34,10 @@ type LabPreviewState = {
 };
 
 @Component({
+  host: { class: 'ngx-design-system ngx-document-design' },
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'ngx-coding-lab-preview',
-  imports: [
+  imports: [NgxCodeBlock,NgxButton,
     JsonPipe,
     ReactiveFormsModule,
     MatButtonModule,
@@ -51,7 +56,7 @@ type LabPreviewState = {
       }
       @if (state().error) {
         <p role="alert">{{ state().error }}</p>
-        <button matButton type="button" (click)="retry()">
+        <button mat-flat-button ngxButton surface="outline" type="button" (click)="retry()">
           Retry loading lab
         </button>
       }
@@ -86,11 +91,11 @@ type LabPreviewState = {
                 <h4>{{ sample.name }}</h4>
                 @if (sample.kind === 'io') {
                   <p>Input</p>
-                  <pre>{{ sample.input | json }}</pre>
+                  <ngx-code-block [code]="(sample.input | json) || 'null'" language="json" [wrap]="true" />
                   <p>Expected output</p>
-                  <pre>{{ sample.expected | json }}</pre>
+                  <ngx-code-block [code]="(sample.expected | json) || 'null'" language="json" [wrap]="true" />
                 } @else {
-                  <pre>{{ sample.testCode }}</pre>
+                  <ngx-code-block [code]="sample.testCode || ''" [language]="lab.language" [wrap]="true" />
                 }
               </article>
             } @empty {
@@ -124,7 +129,7 @@ type LabPreviewState = {
               submitting solutions are not available yet.
             </p>
             <button
-              matButton
+              mat-flat-button ngxButton surface="outline"
               type="button"
               [disabled]="code.value === lab.starterCode"
               (click)="resetCode()"
@@ -139,18 +144,18 @@ type LabPreviewState = {
   styles: [
     `
       .lab-preview {
-        padding: 24px;
-        border-radius: 16px;
-        background: var(--mat-sys-surface-container);
+        padding: 8px;
+        border-radius: var(--ngx-radius-sm);
+        background: var(--ngx-color-surface);
         overflow-wrap: anywhere;
       }
       .lab-preview__eyebrow {
-        color: var(--mat-sys-primary);
+        color: var(--ngx-color-primary);
       }
       .lab-preview__workspace {
         display: grid;
         grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-        gap: 24px;
+        gap: 12px;
       }
       .lab-preview__code-label {
         display: block;
@@ -164,22 +169,22 @@ type LabPreviewState = {
         resize: vertical;
         min-height: 300px;
         padding: 16px;
-        border: 1px solid var(--mat-sys-outline);
+        border: 1px solid var(--ngx-color-border);
         border-radius: 12px;
         font: 14px/1.6 monospace;
         tab-size: 2;
-        color: var(--mat-sys-on-surface);
-        background: var(--mat-sys-surface-container-lowest);
+        color: var(--ngx-color-text);
+        background: var(--ngx-color-canvas);
       }
       .lab-preview__code:focus-visible {
-        outline: 2px solid var(--mat-sys-primary);
+        outline: 2px solid var(--ngx-color-primary);
         outline-offset: 2px;
       }
       .lab-preview__hint,
       .lab-preview__example {
         padding: 12px;
         margin: 12px 0;
-        border: 1px solid var(--mat-sys-outline-variant);
+        border: 1px solid var(--ngx-color-border);
         border-radius: 8px;
       }
       .lab-preview__hint summary {

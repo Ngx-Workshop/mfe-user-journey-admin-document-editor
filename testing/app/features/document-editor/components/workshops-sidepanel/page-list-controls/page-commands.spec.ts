@@ -69,6 +69,28 @@ describe('Page command orchestration', () => {
   });
   afterEach(() => http.verify());
 
+  it('exposes keyboard ordering without nested controls and prevents repeated pending moves', () => {
+    const fixture = TestBed.createComponent(PageListComponent);
+    fixture.componentRef.setInput('documents', workshop.workshopDocuments);
+    fixture.componentRef.setInput('workshopId', workshop._id);
+    fixture.detectChanges();
+    const element = fixture.nativeElement as HTMLElement;
+    expect(element.querySelector('button a, button button')).toBeNull();
+    expect((element.querySelector('[aria-label="Move First up"]') as HTMLButtonElement).disabled).toBeTrue();
+    const down = element.querySelector('[aria-label="Move First down"]') as HTMLButtonElement;
+    down.click();
+    const request = http.expectOne('/api/documents/navigation/page/sort-pages?workshopId=workshop');
+    expect(request.request.body.map((item: { _id: string }) => item._id)).toEqual(['p2', 'p1']);
+    fixture.detectChanges();
+    expect(down.disabled).toBeTrue();
+    down.click();
+    http.expectNone('/api/documents/navigation/page/sort-pages?workshopId=workshop');
+    request.flush({}, { status: 500, statusText: 'Failure' });
+    fixture.detectChanges();
+    expect(down.disabled).toBeFalse();
+    expect(workshop.workshopDocuments.map(item => item._id)).toEqual(['p1', 'p2']);
+  });
+
   it('keeps input records untouched after rejected reordering and synchronizes selection on retry', async () => {
     const fixture = TestBed.createComponent(PageListComponent);
     const items = workshop.workshopDocuments.map((item) =>

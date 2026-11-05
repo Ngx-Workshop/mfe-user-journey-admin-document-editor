@@ -1,3 +1,4 @@
+import { ChangeDetectionStrategy } from '@angular/core';
 import {
   Component,
   DestroyRef,
@@ -13,6 +14,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { DocumentImagePickerDialogComponent } from './document-image-picker-dialog.component';
 
 @Component({
+  host: { class: 'ngx-design-system ngx-document-design' },
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'ngx-document-image-picker-button',
   imports: [MatButtonModule, MatIconModule],
   template: `

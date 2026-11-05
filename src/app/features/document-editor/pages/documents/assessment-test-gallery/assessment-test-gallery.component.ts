@@ -1,9 +1,12 @@
+import { ChangeDetectionStrategy } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { Component, input, output } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { AssessmentTestDto } from '@tmdjr/service-nestjs-assessment-test-contracts';
 
 @Component({
+  host: { class: 'ngx-design-system ngx-document-design' },
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'ngx-assessment-test-gallery',
   imports: [MatIconModule, DatePipe],
   template: `
@@ -73,26 +76,26 @@ import { AssessmentTestDto } from '@tmdjr/service-nestjs-assessment-test-contrac
         display: flex;
         flex-direction: column;
         gap: 12px;
-        padding: 20px;
+        padding: 10px;
         text-align: left;
         font: inherit;
-        color: var(--mat-sys-on-surface);
-        background: var(--mat-sys-surface-container);
-        border: 2px solid var(--mat-sys-outline-variant);
-        border-radius: 16px;
+        color: var(--ngx-color-text);
+        background: var(--ngx-color-surface);
+        border: 2px solid var(--ngx-color-border);
+        border-radius: var(--ngx-radius-sm);
         cursor: pointer;
         overflow-wrap: anywhere;
       }
       .assessment-gallery__card:hover:not(:disabled),
       .assessment-gallery__card--selected {
-        border-color: var(--mat-sys-primary);
+        border-color: var(--ngx-color-primary);
       }
       .assessment-gallery__card--selected {
-        background: var(--mat-sys-primary-container);
-        color: var(--mat-sys-on-primary-container);
+        background: var(--ngx-color-surface-high);
+        color: var(--ngx-color-text);
       }
       .assessment-gallery__card:focus-visible {
-        outline: 3px solid var(--mat-sys-primary);
+        outline: 3px solid var(--ngx-color-primary);
         outline-offset: 3px;
       }
       .assessment-gallery__card:disabled {

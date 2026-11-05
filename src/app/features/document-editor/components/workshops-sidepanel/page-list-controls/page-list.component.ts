@@ -1,9 +1,11 @@
+import { ChangeDetectionStrategy } from '@angular/core';
 import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 import {
   Component,
   DestroyRef,
   inject,
   input,
+  output,
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -19,6 +21,8 @@ import { reorder } from '../../../utils/ordering';
 import { DeletePageModalComponent } from './modals/delete-page-modal/delete-page-modal.component';
 
 @Component({
+  host: { class: 'ngx-design-system ngx-document-design' },
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'ngx-page-list',
   imports: [
     RouterLink,
@@ -28,7 +32,7 @@ import { DeletePageModalComponent } from './modals/delete-page-modal/delete-page
     DragDropModule,
   ],
   template: `
-    <h3 class="page-order__heading">Page List's Order</h3>
+    <h3 class="page-order__heading">Pages</h3>
     <div
       cdkDropList
       class="page-order__list"
@@ -36,7 +40,7 @@ import { DeletePageModalComponent } from './modals/delete-page-modal/delete-page
       (cdkDropListDropped)="onDrop($event)"
     >
       @for (item of documents(); track item._id; let i = $index) {
-        <button matButton="filled" cdkDrag class="page-order__item">
+        <div cdkDrag class="page-order__item">
           <div class="page-order__row">
             <mat-icon
               cdkDragHandle
@@ -45,7 +49,7 @@ import { DeletePageModalComponent } from './modals/delete-page-modal/delete-page
               >drag_indicator</mat-icon
             >
             <a
-              class="page-order__link"
+              class="page-order__link" [title]="item.name" (click)="pageSelected.emit()"
               [routerLink]="[
                 '../../',
                 workshopDocumentGroupId(),
@@ -62,8 +66,7 @@ import { DeletePageModalComponent } from './modals/delete-page-modal/delete-page
             >
               <mat-icon>delete</mat-icon>
             </button>
-          </div>
-          <!-- <div class="page-order__actions">
+
             <button
               matIconButton
               type="button"
@@ -82,79 +85,27 @@ import { DeletePageModalComponent } from './modals/delete-page-modal/delete-page
             >
               <mat-icon>arrow_downward</mat-icon>
             </button>
-          </div> -->
-        </button>
+          </div>
+        </div>
       }
     </div>
   `,
-  styles: [
-    `
-      ::ng-deep .page-order__item .mdc-button__label {
-        width: 100%;
-      }
+  styles: [`
+    :host { display: block; min-width: 0; }
+    .page-order__heading { font-family: var(--ngx-font-heading); font-size: 0.8rem; margin: 4px 0 8px; }
+    .page-order__list { display: grid; grid-template-columns: minmax(0, 1fr); gap: 4px; }
+    .page-order__item { border-bottom: 1px solid var(--ngx-color-border); min-width: 0; background: var(--ngx-color-surface); }
+    .page-order__row { display: flex; align-items: center; gap: 4px; min-width: 0; padding: 4px; }
+    .page-order__link { flex: 1; min-width: 0; font-size: 0.75rem; color: var(--ngx-color-text); text-decoration: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 6px 2px; }
+    .page-order__link--selected { color: var(--ngx-color-primary); font-weight: 600; }
+    .page-order__drag-handle { cursor: grab; flex-shrink: 0; color: var(--ngx-color-muted); }
+    .page-order__link:focus-visible { outline: 2px solid var(--ngx-color-primary); }
 
-      :host {
-        display: flex;
-        flex-direction: column;
-        margin-top: 1rem;
-      }
-      .page-order__heading {
-        font-size: 1.3rem;
-        font-weight: 100;
-        margin: 0.5rem;
-        padding: 0.5rem;
-        color: var(--mat-sys-primary);
-        border-bottom: 1px solid var(--mat-sys-primary);
-      }
-      .page-order__list {
-        display: flex;
-        gap: 0.5rem;
-        flex-direction: column;
-        padding: 1rem;
-      }
-      .page-order__item {
-        display: flex;
-        flex-direction: row;
-        justify-content: flex-start;
-        font-size: 1rem;
-        padding: 1.4rem 0.6rem;
-        border-radius: var(--mat-sys-corner-full);
-        color: var(--mat-sys-on-secondary-container);
-        background: var(--mat-sys-secondary-container);
-      }
+  `],
 
-      .page-order__item:has(.page-order__link--selected) {
-        color: var(--mat-sys-on-primary-container);
-        background: var(--mat-sys-primary-container);
-      }
-      .page-order__item:hover,
-      .page-order__item:focus-within {
-        background: var(--mat-sys-secondary-container);
-      }
-      .page-order__row {
-        display: flex;
-        gap: 4px;
-        align-items: center;
-      }
-      .page-order__link {
-        flex: 1;
-        color: inherit;
-        text-decoration: none;
-        overflow-wrap: anywhere;
-        text-align: left;
-      }
-
-      .page-order__actions {
-        display: flex;
-        justify-content: flex-end;
-      }
-      .page-order__drag-handle {
-        cursor: grab;
-      }
-    `,
-  ],
 })
 export class PageListComponent {
+  readonly pageSelected = output<void>();
   readonly documents = input<WorkshopJourneyItem[]>([]);
   readonly pending = signal(false);
   private readonly editor = inject(WorkshopEditorService);
@@ -173,6 +124,7 @@ export class PageListComponent {
     this.dialogs.open(DeletePageModalComponent, {
       width: '400px',
       backdropClass: 'blur-backdrop',
+      panelClass: 'ngx-design-system-overlay',
       data: { workshopDocument },
     });
   }

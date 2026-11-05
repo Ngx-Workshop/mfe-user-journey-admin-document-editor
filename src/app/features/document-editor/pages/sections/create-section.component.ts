@@ -1,3 +1,4 @@
+import { ChangeDetectionStrategy } from '@angular/core';
 import {
   Component,
   computed,
@@ -21,6 +22,8 @@ import { WorkshopEditorService } from '../../state/workshops.service';
 import { SectionFormComponent } from './section-form.component';
 
 @Component({
+  host: { class: 'ngx-design-system ngx-document-design' },
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'ngx-create-section',
   imports: [SectionFormComponent],
   template: `<ngx-section-form
@@ -153,7 +156,7 @@ export class CreateSectionComponent {
         finalize(() => this.saving.set(false))
       )
       .subscribe({
-        next: (section) => {
+        next: () => {
           this.created.set(true);
           this.saving.set(false);
           this.returnToSections();

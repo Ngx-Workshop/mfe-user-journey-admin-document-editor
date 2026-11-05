@@ -1,3 +1,5 @@
+import { NgxCodeBlock } from '@tmdjr/ngx-workshop-design-system';
+import { ChangeDetectionStrategy } from '@angular/core';
 import { Component, computed, input } from '@angular/core';
 
 type InstructionBlock = {
@@ -56,7 +58,10 @@ export function instructionBlocks(
 }
 
 @Component({
+  host: { class: 'ngx-design-system ngx-document-design' },
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'ngx-lab-instructions',
+  imports: [NgxCodeBlock],
   template: `
     <div class="lab-instructions">
       @for (block of blocks(); track $index) {
@@ -65,7 +70,7 @@ export function instructionBlocks(
             <h3>{{ block.text }}</h3>
           }
           @case ('code') {
-            <pre><code>{{ block.text }}</code></pre>
+            <ngx-code-block [code]="block.text" language="text" [wrap]="true" />
           }
           @case ('list') {
             <ul>
@@ -94,7 +99,7 @@ export function instructionBlocks(
         overflow: auto;
         padding: 16px;
         border-radius: 8px;
-        background: var(--mat-sys-surface-container-high);
+        background: var(--ngx-color-surface-high);
       }
       .lab-instructions li {
         margin: 8px 0;

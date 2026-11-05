@@ -1,3 +1,7 @@
+import { NgxActionBar } from '@tmdjr/ngx-workshop-design-system';
+import { DocumentPanelComponent } from '../../components/document-panel.component';
+import { DocumentViewportDirective } from '../../components/document-viewport.directive';
+import { NgxButton } from '@tmdjr/ngx-workshop-design-system';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -14,7 +18,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { RouterModule } from '@angular/router';
-import { NgxParticleHeader } from '@tmdjr/ngx-shared-headers';
 import {
   IsDeviconPipe,
   MenuDeviconComponent,
@@ -29,35 +32,30 @@ type WorkshopForm = {
 };
 
 @Component({
+  host: { class: 'ngx-design-system ngx-document-design' },
   selector: 'ngx-workshop-form',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
+  imports: [NgxActionBar, DocumentPanelComponent, DocumentViewportDirective,NgxButton,
     RouterModule,
     ReactiveFormsModule,
     MatButtonModule,
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
-    NgxParticleHeader,
     DocumentImagePickerButtonComponent,
     MenuDeviconComponent,
     IsDeviconPipe,
   ],
   template: `
-    <ngx-particle-header>
-      <h1 class="workshop-form__title">
-        {{ editing() ? 'Edit Workshop' : 'Create Workshop' }}
-      </h1>
-    </ngx-particle-header>
-    <div class="workshop-form__action-bar">
-      <button
-        matButton="filled"
+    <ngx-action-bar [heading]="editing() ? 'Edit Workshop' : 'Create Workshop'">      <button
+        mat-flat-button ngxButton surface="outline"
         (click)="returnToWorkshops.emit()"
         [disabled]="saving()"
       >
         <mat-icon>arrow_back</mat-icon> Back to Workshops
       </button>
-    </div>
+</ngx-action-bar>
+    <main class="document-layout"><div class="document-layout__workspace" ngxDocumentViewport><ngx-document-panel heading="Workshop details" eyebrow="DOCUMENTS / METADATA">
     @if (loadingWorkshop()) {
       <p role="status">Loading workshop details…</p>
     }
@@ -152,7 +150,7 @@ type WorkshopForm = {
         <p class="workshop-form__error" role="alert">{{ error() }}</p>
         @if (!workshopLoaded() && !loadingWorkshop()) {
           <button
-            matButton
+            mat-flat-button ngxButton surface="outline"
             type="button"
             (click)="retryWorkshop.emit()"
           >
@@ -162,7 +160,7 @@ type WorkshopForm = {
       }
       <div class="workshop-form__form-actions">
         <button
-          matButton
+          mat-flat-button ngxButton surface="outline"
           type="button"
           (click)="returnToWorkshops.emit()"
           [disabled]="saving()"
@@ -170,7 +168,7 @@ type WorkshopForm = {
           {{ saved() ? 'Back to Workshops' : 'Cancel' }}
         </button>
         <button
-          matButton="filled"
+          mat-flat-button ngxButton surface="outline"
           type="submit"
           [disabled]="
             form().invalid || saving() || saved() || !workshopLoaded()
@@ -188,63 +186,27 @@ type WorkshopForm = {
         </button>
       </div>
     </form>
+    </ngx-document-panel></div></main>
   `,
-  styles: [
-    `
-      .workshop-form__title {
-        font-size: 1.85rem;
-        font-weight: 100;
-        margin: 1.7rem 0;
-        padding: 0 1rem;
-      }
-      .workshop-form__body {
-        max-width: 960px;
-        margin: auto;
-        padding: 24px;
-      }
-      .workshop-form__fields {
-        border: 0;
-        padding: 0;
-        margin: 0;
-        min-width: 0;
-      }
-      .workshop-form__field {
-        width: 100%;
-        margin-top: 8px;
-      }
-      .workshop-form__error {
-        color: var(--mat-sys-error);
-      }
-      .workshop-form__image-preview,
-      .workshop-form__icon-preview {
-        display: block;
-        max-width: 100%;
-        max-height: 240px;
-        margin: 1rem 0;
-      }
-      .workshop-form__form-actions {
-        display: flex;
-        justify-content: flex-end;
-        flex-wrap: wrap;
-        gap: 12px;
-        margin-top: 24px;
-      }
-      .workshop-form__action-bar {
-        position: sticky;
-        top: 56px;
-        height: 56px;
-        z-index: 5;
-        display: flex;
-        align-items: center;
-        background: var(--mat-sys-primary);
-        button {
-          color: var(--mat-sys-on-primary);
-          background: var(--mat-sys-primary);
-          margin: 0 12px;
-        }
-      }
-    `,
-  ],
+  styles: [`
+    :host { display: block; min-width: 0; color: var(--ngx-color-text); background: var(--ngx-color-canvas); }
+    ngx-action-bar { --ngx-action-bar-top: 96px; }
+    .document-layout { padding: 1rem; }
+    .document-layout__workspace { min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); gap: 1rem; }
+    @media (max-width: 720px) {
+      ngx-action-bar { --ngx-action-bar-top: 76px; gap: 4px; }
+      ngx-action-bar a, ngx-action-bar button { min-width: 0; padding-inline: 8px; font-size: 0.7rem; }
+      .document-layout { padding: 0.5rem; }
+    }
+    .workshop-form__body, .workshop-form__fields { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; border: 0; padding: 0; margin: 0; min-width: 0; }
+    .workshop-form__field { width: 100%; min-width: 0; }
+    .workshop-form__error { color: var(--ngx-color-error); }
+    .workshop-form__form-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .workshop-form__image-preview { max-width: 160px; max-height: 100px; object-fit: contain; }
+    .workshop-form__icon-preview { --devicon-size: 40px; }
+
+  `],
+
 })
 export class WorkshopFormComponent {
   readonly editing = input(false);

@@ -1,3 +1,4 @@
+import { ChangeDetectionStrategy } from '@angular/core';
 import {
   Component,
   computed,
@@ -23,6 +24,8 @@ import { WorkshopEditorService } from '../../state/workshops.service';
 import { WorkshopFormComponent } from './workshop-form.component';
 
 @Component({
+  host: { class: 'ngx-design-system ngx-document-design' },
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'ngx-create-workshop',
   imports: [WorkshopFormComponent],
   template: `<ngx-workshop-form

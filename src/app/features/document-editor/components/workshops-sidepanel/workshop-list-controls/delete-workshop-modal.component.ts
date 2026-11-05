@@ -1,3 +1,5 @@
+import { ChangeDetectionStrategy } from '@angular/core';
+import { NgxButton } from '@tmdjr/ngx-workshop-design-system';
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
@@ -14,14 +16,15 @@ import {
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { WorkshopDto } from '@tmdjr/document-contracts';
-import { finalize, take } from 'rxjs';
+import { finalize } from 'rxjs';
 import { MatchStringValidator } from '../../../forms/match-string.validator';
-import { NavigationService } from '../../../state/navigation.service';
 import { WorkshopEditorService } from '../../../state/workshops.service';
 
 @Component({
+  host: { class: 'ngx-design-system ngx-document-design' },
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'ngx-delete-workshop-modal',
-  imports: [
+  imports: [NgxButton,
     ReactiveFormsModule,
     MatButtonModule,
     MatDialogModule,
@@ -52,7 +55,7 @@ import { WorkshopEditorService } from '../../../state/workshops.service';
       </mat-dialog-content>
       <mat-dialog-actions align="end">
         <button
-          matButton
+          mat-flat-button ngxButton surface="outline"
           type="button"
           mat-dialog-close
           [disabled]="pending()"
@@ -60,7 +63,7 @@ import { WorkshopEditorService } from '../../../state/workshops.service';
           Cancel
         </button>
         <button
-          matButton="filled"
+          mat-flat-button ngxButton surface="outline"
           type="submit"
           [disabled]="form.invalid || pending()"
         >
@@ -75,7 +78,7 @@ import { WorkshopEditorService } from '../../../state/workshops.service';
         width: 100%;
       }
       .delete-workshop__error {
-        color: var(--mat-sys-error);
+        color: var(--ngx-color-error);
       }
     `,
   ],
@@ -90,20 +93,11 @@ export class DeleteWorkshopModalComponent {
   private readonly destroyRef = inject(DestroyRef);
   readonly pending = signal(false);
   readonly error = signal('');
-  private workshopId = '';
   readonly form = inject(FormBuilder).nonNullable.group(
     { name: ['', Validators.required] },
     { validators: MatchStringValidator('name', this.name) }
   );
 
-  constructor() {
-    inject(NavigationService)
-      .getCurrentWorkshop()
-      .pipe(take(1))
-      .subscribe((workshop) => {
-        this.workshopId = workshop?._id ?? '';
-      });
-  }
 
   submit(): void {
     if (this.pending() || this.form.invalid) return;

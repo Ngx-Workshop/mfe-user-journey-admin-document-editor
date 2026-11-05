@@ -1,3 +1,8 @@
+import { NgxActionBar } from '@tmdjr/ngx-workshop-design-system';
+import { DocumentPanelComponent } from '../../components/document-panel.component';
+import { DocumentViewportDirective } from '../../components/document-viewport.directive';
+import { ChangeDetectionStrategy } from '@angular/core';
+import { NgxButton } from '@tmdjr/ngx-workshop-design-system';
 import { Component, input, output } from '@angular/core';
 import {
   FormControl,
@@ -23,8 +28,10 @@ export type PageForm = FormGroup<{
 }>;
 
 @Component({
+  host: { class: 'ngx-design-system ngx-document-design' },
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'ngx-page-form',
-  imports: [
+  imports: [NgxActionBar, DocumentPanelComponent, DocumentViewportDirective,NgxButton,
     ReactiveFormsModule,
     MatButtonModule,
     MatFormFieldModule,
@@ -35,25 +42,23 @@ export type PageForm = FormGroup<{
     AssessmentTestPickerComponent,
   ],
   template: `
-    <div class="page-form__toolbar">
-      <button
-        matButton="filled"
+    <ngx-action-bar [heading]="editing() ? 'Edit Page' : 'Create Page'">      <button
+        mat-flat-button ngxButton surface="outline"
         type="button"
         [disabled]="saving()"
         (click)="back.emit()"
       >
         <mat-icon>arrow_back</mat-icon>Back to Workshop
       </button>
-    </div>
-    <main class="page-form">
-      <h1>{{ editing() ? 'Edit Page' : 'Create Page' }}</h1>
+</ngx-action-bar>
+    <main class="document-layout"><div class="document-layout__workspace" ngxDocumentViewport><ngx-document-panel heading="Page settings" eyebrow="DOCUMENTS / METADATA">
       @if (loading()) {
         <p role="status">Loading page details...</p>
       }
       @if (error()) {
         <p class="page-form__error" role="alert">{{ error() }}</p>
         @if (!loaded() && !loading()) {
-          <button matButton type="button" (click)="retry.emit()">
+          <button mat-flat-button ngxButton surface="outline" type="button" (click)="retry.emit()">
             Retry loading
           </button>
         }
@@ -117,7 +122,7 @@ export type PageForm = FormGroup<{
           }
           <div class="page-form__actions">
             <button
-              matButton
+              mat-flat-button ngxButton surface="outline"
               type="button"
               [disabled]="saving()"
               (click)="back.emit()"
@@ -125,7 +130,7 @@ export type PageForm = FormGroup<{
               {{ saved() ? 'Return to Workshop' : 'Cancel' }}
             </button>
             <button
-              matButton="filled"
+              mat-flat-button ngxButton surface="outline"
               type="submit"
               [disabled]="form().invalid || saving() || saved()"
             >
@@ -136,49 +141,26 @@ export type PageForm = FormGroup<{
           </div>
         </form>
       }
-    </main>
+    </ngx-document-panel></div></main>
   `,
-  styles: [
-    `
-      .page-form {
-        max-width: 720px;
-        margin: 0 auto;
-        padding: 24px;
-      }
-      .page-form__toolbar {
-        position: sticky;
-        top: 56px;
-        min-height: 56px;
-        z-index: 5;
-        display: flex;
-        flex-wrap: wrap;
-        width: 100%;
-        background: var(--mat-sys-primary);
-        align-items: center;
-        button {
-          color: var(--mat-sys-on-primary);
-          background: var(--mat-sys-primary);
-          margin: 0 12px;
-        }
-      }
-      .page-form__field {
-        width: 100%;
-      }
-      .page-form__types,
-      .page-form__actions {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 16px;
-        margin: 16px 0;
-      }
-      .page-form__actions {
-        justify-content: flex-end;
-      }
-      .page-form__error {
-        color: var(--mat-sys-error);
-      }
-    `,
-  ],
+  styles: [`
+    :host { display: block; min-width: 0; color: var(--ngx-color-text); background: var(--ngx-color-canvas); }
+    ngx-action-bar { --ngx-action-bar-top: 96px; }
+    .document-layout { padding: 1rem; }
+    .document-layout__workspace { min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); gap: 1rem; }
+    @media (max-width: 720px) {
+      ngx-action-bar { --ngx-action-bar-top: 76px; gap: 4px; }
+      ngx-action-bar a, ngx-action-bar button { min-width: 0; padding-inline: 8px; font-size: 0.7rem; }
+      .document-layout { padding: 0.5rem; }
+    }
+    form { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; min-width: 0; }
+    .page-form__field { width: 100%; min-width: 0; }
+    .page-form__types { display: flex; flex-wrap: wrap; gap: 8px; }
+    .page-form__actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    .page-form__error { color: var(--ngx-color-error); }
+
+  `],
+
 })
 export class PageFormComponent {
   readonly form = input.required<PageForm>();

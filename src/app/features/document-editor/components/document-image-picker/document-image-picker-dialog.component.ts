@@ -1,3 +1,5 @@
+import { ChangeDetectionStrategy } from '@angular/core';
+import { NgxButton } from '@tmdjr/ngx-workshop-design-system';
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
@@ -19,8 +21,10 @@ import {
 } from '../../api/document-assets.service';
 
 @Component({
+  host: { class: 'ngx-design-system ngx-document-design' },
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'ngx-document-image-picker-dialog',
-  imports: [MatButtonModule, MatDialogModule, AssetManagerComponent],
+  imports: [NgxButton,MatButtonModule, MatDialogModule, AssetManagerComponent],
   template: `
     <h2 mat-dialog-title>Choose a document image</h2>
     <mat-dialog-content class="image-picker__content">
@@ -44,14 +48,14 @@ import {
       @if (error()) {
         <p class="image-picker__error" role="alert">{{ error() }}</p>
         @if (!folder() && !loading()) {
-          <button matButton type="button" (click)="loadFolder()">
+          <button mat-flat-button ngxButton surface="outline" type="button" (click)="loadFolder()">
             Retry loading images
           </button>
         }
       }
     </mat-dialog-content>
     <mat-dialog-actions align="end">
-      <button matButton type="button" [mat-dialog-close]="undefined">
+      <button mat-flat-button ngxButton surface="outline" type="button" [mat-dialog-close]="undefined">
         Cancel
       </button>
     </mat-dialog-actions>
@@ -62,7 +66,7 @@ import {
         min-height: 120px;
       }
       .image-picker__error {
-        color: var(--mat-sys-error);
+        color: var(--ngx-color-error);
       }
     `,
   ],

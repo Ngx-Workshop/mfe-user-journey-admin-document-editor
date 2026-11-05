@@ -17,6 +17,7 @@ import {
 import { OptimizeCloudinaryUrlPipe } from './optimize-cloudinary-url.pipe';
 
 @Component({
+  host: { class: 'ngx-design-system ngx-document-design' },
   selector: 'ngx-workshop-card',
   imports: [
     RouterLink,
@@ -50,7 +51,7 @@ import { OptimizeCloudinaryUrlPipe } from './optimize-cloudinary-url.pipe';
                   [icon]="workshop().thumbnail"
                   [large]="true"
                   aria-hidden="true"
-                  style="--devicon-size: 96px"
+                  style="--devicon-size: 40px"
                 />
               </div>
             } @else {
@@ -66,11 +67,10 @@ import { OptimizeCloudinaryUrlPipe } from './optimize-cloudinary-url.pipe';
             <mat-icon aria-hidden="true">image</mat-icon>
           }
 
-          <div class="workshop-card__level">Level {{ level() }}</div>
-          <div class="workshop-detail__published">Published</div>
+
         </div>
         <h2 class="workshop-card__title">{{ workshop().name }}</h2>
-        <!-- <p class="workshop-card__level">Level {{ level() }}</p> -->
+        <p class="workshop-card__level">Level {{ level() }}</p><span class="workshop-card__status">Published</span>
         <p class="workshop-card__summary">{{ workshop().summary }}</p>
       </a>
       <div class="workshop-card__actions">
@@ -95,123 +95,25 @@ import { OptimizeCloudinaryUrlPipe } from './optimize-cloudinary-url.pipe';
       </div>
     </article>
   `,
-  styles: [
-    `
-      @use '@angular/material' as mat;
-      :host {
-        display: block;
-        max-width: 100%;
-      }
-      .workshop-card {
-        position: relative;
-        width: 325px;
-        max-width: 100%;
-        height: 375px;
-        overflow: hidden;
-        border-radius: 16px;
-        color: var(--mat-sys-on-secondary-container);
-        background: var(--mat-sys-secondary-container);
-        box-shadow: var(--mat-sys-level3);
-        opacity: 0;
-      }
-      .workshop-card--visible {
-        animation: circleReveal 0.6s ease-in-out forwards;
-        animation-delay: calc(var(--animation-order, 0) * 150ms);
-      }
-      .workshop-card__link {
-        display: block;
-        height: 100%;
-        overflow: auto;
-        color: inherit;
-        text-decoration: none;
-      }
-      .workshop-card__actions {
-        position: absolute;
-        top: 8px;
-        right: 8px;
-        display: flex;
-        border-radius: var(--mat-sys-corner-full);
-        background: var(--mat-sys-secondary-container);
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity 0.15s;
-      }
-      .workshop-card:is(:hover, :focus-within)
-        .workshop-card__actions {
-        opacity: 1;
-        pointer-events: auto;
-      }
-      .workshop-card__artwork {
-        position: relative;
-        width: 100%;
-        height: 50%;
-      }
-      .workshop-card__icon {
-        height: 100%;
-        display: grid;
-        place-items: center;
-      }
-      .workshop-card__image {
-        object-fit: contain;
-      }
-      .workshop-card__title {
-        font-weight: 100;
-        font-stretch: condensed;
-        font-size: 1.6rem;
-        padding: 12px 8px;
-        margin: 0;
-      }
+  styles: [`
+    :host { display: block; min-width: 0; }
+    .workshop-card { position: relative; height: 112px; min-width: 0; border-bottom: 1px solid var(--ngx-color-border); background: var(--ngx-color-surface); }
+    .workshop-card__link { display: block; box-sizing: border-box; height: 100%; padding: 10px 96px 10px 10px; overflow: auto; color: var(--ngx-color-text); text-decoration: none; }
+    .workshop-card__artwork { position: relative; float: left; width: 48px; height: 48px; margin: 0 12px 8px 0; }
+    .workshop-card__icon { display: grid; place-items: center; height: 100%; }
+    .workshop-card__image { object-fit: contain; }
+    .workshop-card__title { font-family: var(--ngx-font-heading); font-size: 0.85rem; margin: 0 0 4px; overflow-wrap: anywhere; }
+    .workshop-card__level { font-size: 0.65rem; margin: 0 0 6px; color: var(--ngx-color-primary); }
+    .workshop-card__status { float: right; font-size: 0.65rem; color: var(--ngx-color-muted); margin-left: 8px; }
+    .workshop-card__summary { font-size: 0.75rem; color: var(--ngx-color-muted); margin: 0; overflow-wrap: anywhere; }
+    .workshop-card__actions { position: absolute; top: 8px; right: 4px; display: flex; background: var(--ngx-color-surface); opacity: 0; pointer-events: none; }
+    .workshop-card:is(:hover, :focus-within) .workshop-card__actions { opacity: 1; pointer-events: auto; }
+    .workshop-card__link:focus-visible { outline: 2px solid var(--ngx-color-primary); outline-offset: -2px; }
+    @media (hover: none) { .workshop-card__actions { opacity: 1; pointer-events: auto; } }
+    @media (max-width: 600px) { .workshop-card { height: 140px; } .workshop-card__link { padding-right: 10px; padding-bottom: 48px; } .workshop-card__actions { top: auto; bottom: 4px; } }
 
-      .workshop-detail__published,
-      .workshop-card__level {
-        position: absolute;
-        bottom: 0.4rem;
-        display: inline-flex;
-        align-items: center;
-        height: var(--mat-chip-container-height, 32px);
-        padding: 0 8px;
-        font-size: 0.875rem;
-        font-weight: 100;
-        background: var(--mat-sys-primary-container);
-        border: 1px solid var(--mat-sys-primary);
-        border-radius: var(--mat-chip-container-shape-radius, 8px);
-      }
-      .workshop-card__level {
-        left: 0.4rem;
-      }
-      .workshop-detail__published {
-        right: 0.4rem;
-      }
-      .workshop-card__summary {
-        font-size: 1rem;
-        font-weight: 100;
-        padding: 0 8px;
-        margin: 0 0 24px;
-      }
-      @keyframes circleReveal {
-        from {
-          opacity: 0;
-          clip-path: circle(0% at 85% 85%);
-        }
-        to {
-          opacity: 1;
-          clip-path: circle(200% at 0% 0%);
-        }
-      }
-      @media (hover: none) {
-        .workshop-card__actions {
-          opacity: 1;
-          pointer-events: auto;
-        }
-      }
-      @media (prefers-reduced-motion: reduce) {
-        .workshop-card--visible {
-          animation: none;
-          opacity: 1;
-        }
-      }
-    `,
-  ],
+  `],
+
 })
 export class WorkshopCardComponent {
   readonly workshop = input.required<WorkshopDto>();

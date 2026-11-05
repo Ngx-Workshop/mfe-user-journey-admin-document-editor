@@ -477,3 +477,11 @@ No live MongoDB/gateway/hosted UI checks, publication or deployment.
 See [handoff](../specs/019-workshop-level/handoff.md).
 
 Workshop level display follow-up (2026-10-10): detail toolbar now shows a Material level chip; workshop cards show level below the title. Both default missing level to 1. The toolbar follows current workshop state. Installed contracts include level; five test fixtures were updated to the required field. Verified 52 focused ChromeHeadless tests and production build; no hosted UI check or deployment.
+
+## Design-system migration verification — 2026-11-04
+
+See [020 handoff](../specs/020-design-system/handoff.md). Full ChromeHeadless suite: 152 passing tests; strict app/spec type checks, source layout and whitespace pass. Normal production build to `/tmp/document-editor-design-production` passes without compiler/budget warnings and emits a nonempty license file. Existing builder/webpack pins were retained; no dependency changes.
+
+Hosted shell/local document service verified compact section/workshop catalogues, page outline/content navigation, existing EditorJS content, linked coding-lab and assessment previews, and page metadata/gallery controls. Panel scrolling and widths verified at 390×844 and 375×568. Persisted commands remain verified with doubles; no real create/delete/order/upload/save or learner submission was triggered intentionally.
+
+The static server was active without a document-editor watch process during this check. A configured development build refreshed its served dist, preserving localhost:3007. Production checks used a separate output folder. Continue normal development with npm run watch when needed; do not overwrite the served folder with production output while checking local data.

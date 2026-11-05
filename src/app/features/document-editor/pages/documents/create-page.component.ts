@@ -1,3 +1,4 @@
+import { ChangeDetectionStrategy } from '@angular/core';
 import {
   Component,
   computed,
@@ -27,6 +28,8 @@ import { WorkshopEditorService } from '../../state/workshops.service';
 import { PageFormComponent } from './page-form.component';
 
 @Component({
+  host: { class: 'ngx-design-system ngx-document-design' },
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'ngx-create-page',
   imports: [PageFormComponent],
   template: `<ngx-page-form

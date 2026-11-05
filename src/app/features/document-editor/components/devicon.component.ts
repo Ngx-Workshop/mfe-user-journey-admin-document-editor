@@ -1,3 +1,4 @@
+import { ChangeDetectionStrategy } from '@angular/core';
 import { Component, input, Pipe, PipeTransform } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 
@@ -11,6 +12,8 @@ export class IsDeviconPipe implements PipeTransform {
 }
 
 @Component({
+  host: { class: 'ngx-design-system ngx-document-design' },
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'ngx-menu-devicon',
   imports: [IsDeviconPipe, MatIcon],
   template: `

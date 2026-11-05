@@ -314,3 +314,11 @@ The administrator form requires level on create/edit and loads saved values.
 See [019 handoff](../specs/019-workshop-level/handoff.md) for contract delivery order.
 
 Workshop level display follow-up (2026-10-10): detail toolbar now shows a Material level chip; workshop cards show level below the title. Both default missing level to 1. The toolbar follows current workshop state. Installed contracts include level; five test fixtures were updated to the required field. Verified 52 focused ChromeHeadless tests and production build; no hosted UI check or deployment.
+
+## Shared design system — 2026-11-04
+
+Section/workshop catalogues use compact rows in bounded NgxPanel layouts, replacing the large heroes/cards. The section context header is compact; child journeys own NgxActionBar controls. Metadata form presenters retain their original typed controls and intentions inside shared panels. Document content and the page outline scroll independently; small screens switch panels and page selection reveals content. Native ordering containers expose the existing keyboard move commands without nesting interactive controls.
+
+`components/document-panel.component.ts`, `document-viewport.directive.ts` and `utils/panel-body-viewport.ts` compose public design-system inputs/projection and actual viewport measurements, with observer cleanup. No runtime sibling dependency. EditorJS input/output identity and serialized block data are unchanged; local typography/reading-width rules adapt its semantic content. Static learner-preview JSON/code uses NgxCodeBlock. Galleries/dialogs preserve their data/selection/focus behavior and share the theme. All affected components use OnPush and inline BEM; cohesive metadata templates can modestly exceed the approximate component-length target.
+
+API/state/resolvers/form mapping/auth/assets adapter, route identifiers and federation contracts remain intact. Published remains the inherited static label, not a new lifecycle.

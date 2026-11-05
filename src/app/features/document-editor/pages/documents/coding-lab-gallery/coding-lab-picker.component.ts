@@ -1,3 +1,5 @@
+import { ChangeDetectionStrategy } from '@angular/core';
+import { NgxButton } from '@tmdjr/ngx-workshop-design-system';
 import {
   Component,
   DestroyRef,
@@ -23,8 +25,10 @@ type CatalogRequest = {
 };
 
 @Component({
+  host: { class: 'ngx-design-system ngx-document-design' },
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'ngx-coding-lab-picker',
-  imports: [
+  imports: [NgxButton,
     ReactiveFormsModule,
     MatButtonModule,
     MatFormFieldModule,
@@ -53,7 +57,7 @@ type CatalogRequest = {
           />
         </mat-form-field>
         <button
-          matButton
+          mat-flat-button ngxButton surface="outline"
           type="button"
           [disabled]="disabled() || loading()"
           (click)="search()"
@@ -72,7 +76,7 @@ type CatalogRequest = {
       @if (error()) {
         <p class="lab-picker__error" role="alert">{{ error() }}</p>
         <button
-          matButton
+          mat-flat-button ngxButton surface="outline"
           type="button"
           [disabled]="disabled() || loading()"
           (click)="retry()"
@@ -92,7 +96,7 @@ type CatalogRequest = {
       @if (hasMore() && !error()) {
         <button
           class="lab-picker__more"
-          matButton
+          mat-flat-button ngxButton surface="outline"
           type="button"
           [disabled]="disabled() || loading()"
           (click)="loadMore()"
@@ -122,11 +126,11 @@ type CatalogRequest = {
       .lab-picker__selection {
         padding: 12px;
         border-radius: 8px;
-        background: var(--mat-sys-secondary-container);
-        color: var(--mat-sys-on-secondary-container);
+        background: var(--ngx-color-surface-high);
+        color: var(--ngx-color-text);
       }
       .lab-picker__error {
-        color: var(--mat-sys-error);
+        color: var(--ngx-color-error);
       }
       .lab-picker__more {
         margin-top: 16px;

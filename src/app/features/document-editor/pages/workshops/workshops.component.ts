@@ -1,7 +1,7 @@
+import { ChangeDetectionStrategy } from '@angular/core';
 import { AsyncPipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { NgxParticleHeader } from '@tmdjr/ngx-shared-headers';
 import { combineLatest, map } from 'rxjs';
 import { NavigationService } from '../../state/navigation.service';
 import {
@@ -10,17 +10,18 @@ import {
 } from '../../components/devicon.component';
 
 @Component({
+  host: { class: 'ngx-design-system ngx-document-design' },
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'ngx-workshops',
   imports: [
     RouterModule,
     AsyncPipe,
-    NgxParticleHeader,
     IsDeviconPipe,
     MenuDeviconComponent,
   ],
   template: `
     @if (viewModel$ | async; as vm) {
-      <ngx-particle-header>
+      <header class="workshops__context">
         @if (vm.headerSvgPath) {
           @if (vm.headerSvgPath | isDevicon) {
             <ngx-menu-devicon
@@ -41,40 +42,19 @@ import {
           {{ vm.sectionTitle }}:
           {{ vm.currentWorkshopTitle ?? 'Workshops' }}
         </h1>
-      </ngx-particle-header>
+      </header>
     }
     <router-outlet />
   `,
-  styles: [
-    `
-      .workshops__title {
-        font-size: 1.85rem;
-        font-weight: 100;
-        margin: 1.7rem 0;
-        padding: 0 1rem;
-      }
-      .workshops__image {
-        width: 64px;
-        z-index: 2;
-        margin-left: 1.5rem;
-      }
-      .workshops__icon {
-        --devicon-size: 64px;
-        z-index: 2;
-        margin-left: 1.5rem;
-      }
-      @media (max-width: 959px) {
-        .workshops__image {
-          width: 35px;
-          margin: 0;
-        }
-        .workshops__icon {
-          --devicon-size: 35px;
-          margin: 0;
-        }
-      }
-    `,
-  ],
+  styles: [`
+    :host { display: block; min-width: 0; color: var(--ngx-color-text); }
+    .workshops__context { display: flex; align-items: center; gap: 8px; padding: 6px 16px; border-bottom: 1px solid var(--ngx-color-border); background: var(--ngx-color-surface); }
+    .workshops__title { font-family: var(--ngx-font-heading); font-size: 0.75rem; margin: 0; overflow-wrap: anywhere; }
+    .workshops__image { width: 24px; height: 24px; object-fit: contain; }
+    .workshops__icon { --devicon-size: 24px; }
+
+  `],
+
 })
 export class WorkshopsComponent {
   navigationService = inject(NavigationService);

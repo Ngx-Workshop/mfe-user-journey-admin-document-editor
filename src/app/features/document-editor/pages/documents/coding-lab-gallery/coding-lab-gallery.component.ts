@@ -1,8 +1,11 @@
+import { ChangeDetectionStrategy } from '@angular/core';
 import { Component, input, output } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { HandsOnLabMongo } from '@tmdjr/coding-labs-contracts';
 
 @Component({
+  host: { class: 'ngx-design-system ngx-document-design' },
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'ngx-coding-lab-gallery',
   imports: [MatIconModule],
   template: `
@@ -71,26 +74,26 @@ import { HandsOnLabMongo } from '@tmdjr/coding-labs-contracts';
         display: flex;
         flex-direction: column;
         gap: 12px;
-        padding: 20px;
+        padding: 10px;
         text-align: left;
         font: inherit;
-        color: var(--mat-sys-on-surface);
-        background: var(--mat-sys-surface-container);
-        border: 2px solid var(--mat-sys-outline-variant);
-        border-radius: 16px;
+        color: var(--ngx-color-text);
+        background: var(--ngx-color-surface);
+        border: 2px solid var(--ngx-color-border);
+        border-radius: var(--ngx-radius-sm);
         cursor: pointer;
         overflow-wrap: anywhere;
       }
       .lab-gallery__card:hover:not(:disabled),
       .lab-gallery__card--selected {
-        border-color: var(--mat-sys-primary);
+        border-color: var(--ngx-color-primary);
       }
       .lab-gallery__card--selected {
-        background: var(--mat-sys-primary-container);
-        color: var(--mat-sys-on-primary-container);
+        background: var(--ngx-color-surface-high);
+        color: var(--ngx-color-text);
       }
       .lab-gallery__card:focus-visible {
-        outline: 3px solid var(--mat-sys-primary);
+        outline: 3px solid var(--ngx-color-primary);
         outline-offset: 3px;
       }
       .lab-gallery__card:disabled {
@@ -126,8 +129,8 @@ import { HandsOnLabMongo } from '@tmdjr/coding-labs-contracts';
       .lab-gallery__tag {
         padding: 4px 8px;
         border-radius: 8px;
-        background: var(--mat-sys-surface-container-high);
-        color: var(--mat-sys-on-surface);
+        background: var(--ngx-color-surface-high);
+        color: var(--ngx-color-text);
       }
       .lab-gallery__action {
         margin-top: auto;

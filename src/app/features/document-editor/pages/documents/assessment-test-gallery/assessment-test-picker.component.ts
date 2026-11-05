@@ -1,3 +1,5 @@
+import { ChangeDetectionStrategy } from '@angular/core';
+import { NgxButton } from '@tmdjr/ngx-workshop-design-system';
 import {
   Component,
   computed,
@@ -26,8 +28,10 @@ import { AssessmentTestsApiService } from '../../../api/assessment-tests-api.ser
 import { AssessmentTestGalleryComponent } from './assessment-test-gallery.component';
 
 @Component({
+  host: { class: 'ngx-design-system ngx-document-design' },
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'ngx-assessment-test-picker',
-  imports: [
+  imports: [NgxButton,
     ReactiveFormsModule,
     MatButtonModule,
     MatFormFieldModule,
@@ -55,7 +59,7 @@ import { AssessmentTestGalleryComponent } from './assessment-test-gallery.compon
         </mat-form-field>
         <mat-form-field class="assessment-picker__subject">
           <mat-label>Subject</mat-label>
-          <mat-select
+          <mat-select panelClass="ngx-design-system-overlay ngx-select-panel"
             [formControl]="subject"
             [disabled]="disabled() || loading()"
             (selectionChange)="search()"
@@ -67,7 +71,7 @@ import { AssessmentTestGalleryComponent } from './assessment-test-gallery.compon
           </mat-select>
         </mat-form-field>
         <button
-          matButton
+          mat-flat-button ngxButton surface="outline"
           type="button"
           [disabled]="disabled() || loading()"
           (click)="search()"
@@ -88,7 +92,7 @@ import { AssessmentTestGalleryComponent } from './assessment-test-gallery.compon
           {{ error() }}
         </p>
         <button
-          matButton
+          mat-flat-button ngxButton surface="outline"
           type="button"
           [disabled]="disabled() || loading()"
           (click)="retry()"
@@ -110,7 +114,7 @@ import { AssessmentTestGalleryComponent } from './assessment-test-gallery.compon
       @if (hasMore() && !error()) {
         <button
           class="assessment-picker__more"
-          matButton
+          mat-flat-button ngxButton surface="outline"
           type="button"
           [disabled]="disabled() || loading()"
           (click)="loadMore()"
@@ -145,11 +149,11 @@ import { AssessmentTestGalleryComponent } from './assessment-test-gallery.compon
       .assessment-picker__selection {
         padding: 12px;
         border-radius: 8px;
-        background: var(--mat-sys-secondary-container);
-        color: var(--mat-sys-on-secondary-container);
+        background: var(--ngx-color-surface-high);
+        color: var(--ngx-color-text);
       }
       .assessment-picker__error {
-        color: var(--mat-sys-error);
+        color: var(--ngx-color-error);
       }
       .assessment-picker__more {
         margin-top: 16px;
